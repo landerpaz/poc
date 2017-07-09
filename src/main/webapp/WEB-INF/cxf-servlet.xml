@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xmlns:soap="http://cxf.apache.org/bindings/soap" xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+	xsi:schemaLocation=" http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://cxf.apache.org/bindings/soap http://cxf.apache.org/schemas/configuration/soap.xsd http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd  http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
+	<jaxrs:server id="patientService" address="/patientservice">
+		<jaxrs:serviceBeans>
+			<ref bean="serviceBean" />
+		</jaxrs:serviceBeans>
+
+		<jaxrs:providers>
+			<ref bean="jacksonProvider" />
+		</jaxrs:providers>
+	</jaxrs:server>
+
+	<bean id="serviceBean"
+		class="com.india.tamilnadu.jaxrs.PatientServiceImpl"></bean>
+
+	<bean id="jacksonProvider" class="org.codehaus.jackson.jaxrs.JacksonJsonProvider" />
+</beans>
