@@ -46,6 +46,7 @@ public class PatientServiceImpl implements PatientService {
 		return patient;
 	}
 
+	//added newly to get all patients list
 	public java.util.List getPatients() {
 		System.out.println("...invoking getPatients");
 		
