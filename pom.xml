@@ -70,6 +70,15 @@
 			<artifactId>jackson-jaxrs</artifactId>
 			<version>1.9.13</version>
 		</dependency>
+		
+		<!-- cross origin issue fixed, remove it in prod - START-->
+		<dependency>
+			<groupId>com.thetransactioncompany</groupId>
+			<artifactId>cors-filter</artifactId>
+			<version>2.1</version>
+		</dependency>
+		<!-- cross origin issue fixed, remove it in prod - END-->
 
+		
 	</dependencies>
 </project>
