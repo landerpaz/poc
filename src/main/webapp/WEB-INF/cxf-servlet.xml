@@ -14,8 +14,21 @@
 		</jaxrs:providers>
 	</jaxrs:server>
 
+	<jaxrs:server id="productService" address="/productservice">
+		<jaxrs:serviceBeans>
+			<ref bean="productBean" />
+		</jaxrs:serviceBeans>
+
+		<jaxrs:providers>
+			<ref bean="jacksonProvider" />
+		</jaxrs:providers>
+	</jaxrs:server>
+	
 	<bean id="serviceBean"
 		class="com.india.tamilnadu.jaxrs.PatientServiceImpl"></bean>
+		
+	<bean id="productBean"
+		class="com.india.tamilnadu.jaxrs.ProductServiceImpl"></bean>
 
 	<bean id="jacksonProvider" class="org.codehaus.jackson.jaxrs.JacksonJsonProvider" />
 </beans>
