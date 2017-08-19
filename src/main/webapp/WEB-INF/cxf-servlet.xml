@@ -24,11 +24,24 @@
 		</jaxrs:providers>
 	</jaxrs:server>
 	
+	<jaxrs:server id="supplierService" address="/supplierservice">
+		<jaxrs:serviceBeans>
+			<ref bean="supplierBean" />
+		</jaxrs:serviceBeans>
+
+		<jaxrs:providers>
+			<ref bean="jacksonProvider" />
+		</jaxrs:providers>
+	</jaxrs:server>
+	
 	<bean id="serviceBean"
 		class="com.india.tamilnadu.jaxrs.PatientServiceImpl"></bean>
 		
 	<bean id="productBean"
 		class="com.india.tamilnadu.jaxrs.ProductServiceImpl"></bean>
+		
+	<bean id="supplierBean"
+		class="com.india.tamilnadu.jaxrs.SupplierServiceImpl"></bean>
 
 	<bean id="jacksonProvider" class="org.codehaus.jackson.jaxrs.JacksonJsonProvider" />
 </beans>
