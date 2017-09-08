@@ -12,7 +12,10 @@ public class TallyServiceImpl implements TallyService {
 				
 		System.out.println("Tally Data : " + tallyData);
 		
-		return new Response();
+		Response response = new Response();
+		response.setStatus("Success");
+		response.setStatusMessage(tallyData);
+		return response;
 	}
 	
 }
