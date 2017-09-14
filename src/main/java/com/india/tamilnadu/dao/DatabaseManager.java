@@ -39,9 +39,10 @@ public class DatabaseManager implements Serializable {
 	private Connection getConnectionByDriverManager() throws Exception {
 		try {	
 			Class.forName("com.mysql.jdbc.Driver");  
-			connection = DriverManager.getConnection(  
-			"jdbc:mysql://localhost:3306/inventory","root","root");  
 			
+			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/inventory","root","root");  
+			
+			//connection = DriverManager.getConnection("jdbc:mysql://inventory.cc8nzr3j37vf.us-east-2.rds.amazonaws.com:3306/inventory","root","root1234");
 					
 		} catch (Exception e) {			
 			throw new Exception("Could not get connection from Driver manager " + e.getMessage(),e);

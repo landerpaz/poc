@@ -34,7 +34,16 @@ CREATE TABLE suppliers (
          PRIMARY KEY  (dept_no),  
          UNIQUE INDEX (dept_name) 
        );
-       
+      
+CREATE TABLE inventory.tally_summary (
+	 tally_summary_id 		INT UNSIGNED  	NOT NULL AUTO_INCREMENT,
+     report_name  			VARCHAR(100)  	NOT NULL,
+     report_key 			VARCHAR(100) 	NOT NULL,
+     report_value1			VARCHAR(100),
+     report_value2			VARCHAR(100),
+     created_date   		DATE NOT NULL,
+     PRIMARY KEY  (tally_summary_id)
+);
        
 insert into suppliers(name, phone) values ("ashok", "60972736");
 insert into suppliers(name, phone) values ("selva", "61458565");
