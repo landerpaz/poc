@@ -84,14 +84,11 @@ public class TallyDAO implements BaseDAO {
 			for(int index=0; index<context.getKeys().size(); index++) {
 				preparedStatement.setString(parameterIndex++, context.getReportName());
 				preparedStatement.setString(parameterIndex++, context.getKeys().get(index));
-				
-				//if(context.getValues()) {
-					preparedStatement.setString(parameterIndex++, context.getValues1().get(index));
-					preparedStatement.setString(parameterIndex++, context.getValues2().get(index));
-				//}
-				
+				preparedStatement.setString(parameterIndex++, context.getValues1().get(index));
+				preparedStatement.setString(parameterIndex++, context.getValues2().get(index));
 				preparedStatement.setDate(parameterIndex++, date);
 				preparedStatement.addBatch();
+				
 				parameterIndex = 1;
 				count++;
 				
