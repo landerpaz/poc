@@ -8,7 +8,22 @@ public class TallyRequestContext {
 	private List<String> values1;
 	private List<String> values2;
 	private String reportName;
+	private int reportId;
+	private boolean checkFlag;
 	
+	
+	public boolean isCheckFlag() {
+		return checkFlag;
+	}
+	public void setCheckFlag(boolean checkFlag) {
+		this.checkFlag = checkFlag;
+	}
+	public int getReportId() {
+		return reportId;
+	}
+	public void setReportId(int reportId) {
+		this.reportId = reportId;
+	}
 	public String getReportName() {
 		return reportName;
 	}

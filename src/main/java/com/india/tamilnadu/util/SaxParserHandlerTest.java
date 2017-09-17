@@ -56,7 +56,7 @@ class SaxParserHandlerTest {
 	         saxParser.parse(new StringBufferInputStream(xmlData), defaultHandler);   
 	         
 	         tallyBean.setKeys(keys);
-	         tallyBean.setValues(values);
+	         //tallyBean.setValues(values);
 	         
 	         
 	      } catch (Exception e) {

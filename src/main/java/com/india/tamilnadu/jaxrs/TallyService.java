@@ -20,5 +20,8 @@ public interface TallyService {
 	@Path("/tally/")
 	Response addTallyData(String tallyData);
 	
+	@GET
+	@Path("/tally/")
+	List<Tally> getTallySummary();
 	
 }

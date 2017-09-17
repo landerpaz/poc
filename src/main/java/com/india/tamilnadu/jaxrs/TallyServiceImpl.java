@@ -1,5 +1,8 @@
 package com.india.tamilnadu.jaxrs;
 
+import java.util.List;
+
+import com.india.tamilnadu.dao.ProductsDAO;
 import com.india.tamilnadu.dao.TallyDAO;
 import com.india.tamilnadu.dto.Response;
 import com.india.tamilnadu.util.SaxParserHandler;
@@ -7,6 +10,17 @@ import com.india.tamilnadu.util.TallyBean;
 import com.india.tamilnadu.util.TallyRequestContext;
 
 public class TallyServiceImpl implements TallyService {
+	
+	public List getTallySummary() {
+		System.out.println("...invoking getTallySummary");
+		
+		TallyDAO tallyDAO = new TallyDAO();
+		List tallySummaryList = tallyDAO.getTallySummary();
+				
+		System.out.println("Number of tally summary : " + (null == tallySummaryList? "0" : tallySummaryList.size()));
+		
+		return tallySummaryList;
+	}
 	
 	public Response addTallyData(String tallyData) {
 		System.out.println("...adding tally data");
@@ -46,8 +60,11 @@ public class TallyServiceImpl implements TallyService {
 			context.setKeys(tallyBean.getKeys());
 			context.setValues1(tallyBean.getValues1());
 			context.setValues2(tallyBean.getValues2());
+			context.setCheckFlag(false);
 			
 			TallyDAO tallyDAO = new TallyDAO();
+			int reportId = tallyDAO.getNextValueForReportId();
+			context.setReportId(reportId);
 			tallyDAO.addTallySummary(context);
 		}
 		

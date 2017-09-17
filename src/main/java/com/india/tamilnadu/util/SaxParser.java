@@ -17,7 +17,7 @@ public class SaxParser {
 		SaxParserHandlerTest saxParser = new SaxParserHandlerTest();
 		TallyBean tallyBean = saxParser.parseXml();
 		System.out.println("key : " + tallyBean.getKeys());
-		System.out.println("value : " + tallyBean.getValues());
+		//System.out.println("value : " + tallyBean.getValues());
 	}
 
 	/*public void parseXml() {

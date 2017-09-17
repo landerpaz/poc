@@ -37,11 +37,13 @@ CREATE TABLE suppliers (
       
 CREATE TABLE inventory.tally_summary (
 	 tally_summary_id 		INT UNSIGNED  	NOT NULL AUTO_INCREMENT,
+     report_id INT UNSIGNED   NOT NULL,
      report_name  			VARCHAR(100)  	NOT NULL,
      report_key 			VARCHAR(100) 	NOT NULL,
      report_value1			VARCHAR(100),
      report_value2			VARCHAR(100),
      created_date   		DATE NOT NULL,
+     check_flag				BOOLEAN,
      PRIMARY KEY  (tally_summary_id)
 );
        
