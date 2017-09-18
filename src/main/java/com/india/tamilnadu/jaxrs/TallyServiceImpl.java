@@ -74,4 +74,22 @@ public class TallyServiceImpl implements TallyService {
 		return response;
 	}
 	
+	public Response updateTallySummary(Tally tally) {
+		System.out.println("...update tally data");
+		
+		Response response = new Response();
+		response.setStatus("Success");
+		response.setStatusMessage("Success");
+		
+		try {
+			TallyDAO tallyDAO = new TallyDAO();
+			response = tallyDAO.updateTallySummary(tally);
+			
+		} catch (Exception e) {
+			response.setStatus("Failed");
+			response.setStatusMessage("Failed");
+		}
+		
+		return response;
+	}
 }

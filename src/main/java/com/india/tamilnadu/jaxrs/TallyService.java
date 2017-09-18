@@ -24,4 +24,8 @@ public interface TallyService {
 	@Path("/tally/")
 	List<Tally> getTallySummary();
 	
+	@PUT
+	@Path("/tally/")
+	Response updateTallySummary(Tally tally);
+	
 }

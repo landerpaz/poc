@@ -152,6 +152,44 @@ public class TallyDAO implements BaseDAO {
 		return response;
 	}
 		
+	public Response updateTallySummary(Tally tally) {
+		
+		Response response = new Response();
+		response.setStatus(Constants.RESPONSE_STATUS_SUCCESS);
+		response.setStatusMessage(Constants.RESPONSE_MESSAGE_PRODUCT_ADD_SUCCESS);
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_UPDATE_TALLY_SUMMARY);
+			
+			
+			System.out.println("Update query : " + Constants.DB_UPDATE_TALLY_SUMMARY);
+			System.out.println("tally summary id : " + tally.getTallySummaryIid());
+			System.out.println("tally report id : " + tally.getReportId());
+			
+			int parameterIndex = 1;
+			preparedStatement.setInt(parameterIndex++, Integer.parseInt(tally.getTallySummaryIid()));
+			preparedStatement.setInt(parameterIndex++, Integer.parseInt(tally.getReportId()));
+			
+			preparedStatement.executeUpdate();
+			
+			
+		} catch (Exception e) {
+			
+			// TODO: handle exception
+			System.out.println("Error in adding products in DB...");
+			e.printStackTrace();
+			
+			response.setStatus(Constants.RESPONSE_STATUS_FAILED);
+			response.setStatusMessage(Constants.RESPONSE_MESSAGE_PRODUCT_ADD_FAILED);
+		} finally {
+			closeResources();
+		}
+		
+		return response;
+	}
+
 	private void closeResources() {
 		
 		try {
