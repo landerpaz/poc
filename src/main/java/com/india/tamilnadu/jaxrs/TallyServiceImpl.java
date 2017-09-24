@@ -5,6 +5,8 @@ import java.util.List;
 import com.india.tamilnadu.dao.ProductsDAO;
 import com.india.tamilnadu.dao.TallyDAO;
 import com.india.tamilnadu.dto.Response;
+import com.india.tamilnadu.tally.bc.TallyDayBookBC;
+import com.india.tamilnadu.tally.dto.TallyInputDTO;
 import com.india.tamilnadu.util.SaxParserHandler;
 import com.india.tamilnadu.util.TallyBean;
 import com.india.tamilnadu.util.TallyRequestContext;
@@ -90,6 +92,38 @@ public class TallyServiceImpl implements TallyService {
 			response.setStatusMessage("Failed");
 		}
 		
+		return response;
+	}
+	
+	public List getDayBook() {
+		System.out.println("...invoking getTallyDayBook");
+		
+		TallyDayBookBC dayBookBC = new TallyDayBookBC();
+		List dayBookList = dayBookBC.getTallyDayBookData(new TallyInputDTO());
+				
+		System.out.println("Number of day book entries : " + (null == dayBookList? "0" : dayBookList.size()));
+		
+		return dayBookList;
+	}
+	
+	public Response addDayBook(String dayBook) {
+		System.out.println("...adding day book");
+				
+		System.out.println("Day book Data : " + dayBook.length());
+		
+		dayBook = dayBook.replaceAll("&#", "");
+		dayBook = dayBook.replaceAll("#&", "");
+		
+		TallyInputDTO tallyInputDTO = new TallyInputDTO();
+		tallyInputDTO.setDayBook(dayBook);
+		
+		TallyDayBookBC dayBookBC = new TallyDayBookBC();
+		dayBookBC.addTallyDayBookData(tallyInputDTO);
+		
+		
+		Response response = new Response();
+		response.setStatus("Success");
+		response.setStatusMessage("Success");
 		return response;
 	}
 }

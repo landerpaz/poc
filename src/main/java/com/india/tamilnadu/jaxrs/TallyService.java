@@ -12,6 +12,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
 import com.india.tamilnadu.dto.Response;
+import com.india.tamilnadu.tally.vo.DayBookMasterVO;
 
 @Produces({ "application/xml", "application/json" })
 public interface TallyService {
@@ -28,4 +29,11 @@ public interface TallyService {
 	@Path("/tally/")
 	Response updateTallySummary(Tally tally);
 	
+	@GET
+	@Path("/daybook/")
+	List<DayBookMasterVO> getDayBook();
+	
+	@POST
+	@Path("/daybook/")
+	Response addDayBook(String dayBook);
 }
