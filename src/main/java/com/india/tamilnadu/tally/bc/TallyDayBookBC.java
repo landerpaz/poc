@@ -36,6 +36,11 @@ public class TallyDayBookBC {
 		
 	}
 	
+	public Response updateTallyDayBookData(TallyInputDTO tallyInputDTO) {
+		TallyDAO tallyDAO = new TallyDAO(); 
+		return tallyDAO.updateDayBookMasterFlag(tallyInputDTO);
+	}
+	
 	public List<DayBookMasterVO> getTallyDayBookData(TallyInputDTO tallyInputDTO) {
 		
 		System.out.println("Retreiving Tally day book data from DB......");
@@ -148,7 +153,7 @@ public class TallyDayBookBC {
 		
 	}
 	
-	public List<DayBookMasterVO> addFromFile(TallyInputDTO tallyInputVO) {
+	private List<DayBookMasterVO> addFromFile(TallyInputDTO tallyInputVO) {
 		
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setNamespaceAware(true);
@@ -200,7 +205,7 @@ public class TallyDayBookBC {
             	dayBookMasterVO.setPartyLedgerName(getPrimaryData(doc, xpath, Constants.ENVELOPE_BODY_DATA_TALLYMESSAGE, Constants.PARTYLEDGERNAME, index));
             	dayBookMasterVO.setVoucherKey(getPrimaryData(doc, xpath, Constants.ENVELOPE_BODY_DATA_TALLYMESSAGE, Constants.VOUCHERKEY, index));
             	dayBookMasterVO.setEffectiveDate(getPrimaryData(doc, xpath, Constants.ENVELOPE_BODY_DATA_TALLYMESSAGE, Constants.EFFECTIVEDATE, index));
-            	dayBookMasterVO.setPartyLedgerName(getPrimaryData(doc, xpath, Constants.ENVELOPE_BODY_DATA_TALLYMESSAGE, Constants.PERSISTEDVIEW, index));
+            	dayBookMasterVO.setPersistedView(getPrimaryData(doc, xpath, Constants.ENVELOPE_BODY_DATA_TALLYMESSAGE, Constants.PERSISTEDVIEW, index));
             	dayBookMasterVO.setAlterId(getPrimaryData(doc, xpath, Constants.ENVELOPE_BODY_DATA_TALLYMESSAGE, Constants.ALTERID, index));
             	dayBookMasterVO.setMasterId(getPrimaryData(doc, xpath, Constants.ENVELOPE_BODY_DATA_TALLYMESSAGE, Constants.MASTERID, index));
             	
@@ -285,7 +290,7 @@ public class TallyDayBookBC {
 		
 	}
 	
-	public List<DayBookMasterVO> addFromRequest(TallyInputDTO tallyInputDTO) {
+	private List<DayBookMasterVO> addFromRequest(TallyInputDTO tallyInputDTO) {
 		
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setNamespaceAware(true);
@@ -335,7 +340,7 @@ public class TallyDayBookBC {
             	dayBookMasterVO.setPartyLedgerName(getPrimaryData(doc, xpath, Constants.ENVELOPE_BODY_DATA_TALLYMESSAGE, Constants.PARTYLEDGERNAME, index));
             	dayBookMasterVO.setVoucherKey(getPrimaryData(doc, xpath, Constants.ENVELOPE_BODY_DATA_TALLYMESSAGE, Constants.VOUCHERKEY, index));
             	dayBookMasterVO.setEffectiveDate(getPrimaryData(doc, xpath, Constants.ENVELOPE_BODY_DATA_TALLYMESSAGE, Constants.EFFECTIVEDATE, index));
-            	dayBookMasterVO.setPartyLedgerName(getPrimaryData(doc, xpath, Constants.ENVELOPE_BODY_DATA_TALLYMESSAGE, Constants.PERSISTEDVIEW, index));
+            	dayBookMasterVO.setPersistedView(getPrimaryData(doc, xpath, Constants.ENVELOPE_BODY_DATA_TALLYMESSAGE, Constants.PERSISTEDVIEW, index));
             	dayBookMasterVO.setAlterId(getPrimaryData(doc, xpath, Constants.ENVELOPE_BODY_DATA_TALLYMESSAGE, Constants.ALTERID, index));
             	dayBookMasterVO.setMasterId(getPrimaryData(doc, xpath, Constants.ENVELOPE_BODY_DATA_TALLYMESSAGE, Constants.MASTERID, index));
             	

@@ -9,8 +9,15 @@ public class TallyInputDTO {
 	private String trackingID;
 	private String dayBook;
 	private List<DayBookMasterVO> dayBookMasterVOs;
+	private String voucherKey;
 	
 	
+	public String getVoucherKey() {
+		return voucherKey;
+	}
+	public void setVoucherKey(String voucherKey) {
+		this.voucherKey = voucherKey;
+	}
 	public List<DayBookMasterVO> getDayBookMasterVOs() {
 		return dayBookMasterVOs;
 	}

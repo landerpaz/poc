@@ -95,6 +95,29 @@ public class TallyServiceImpl implements TallyService {
 		return response;
 	}
 	
+	public Response updateDayBookFlag(String voucherKey) {
+		System.out.println("...update day book flag");
+		System.out.println("voucherKey : " + voucherKey);
+		
+		Response response = new Response();
+		response.setStatus("Success");
+		response.setStatusMessage("Success");
+		
+		try {
+			TallyInputDTO tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setVoucherKey(voucherKey);
+			
+			TallyDayBookBC dayBookBC = new TallyDayBookBC();
+			dayBookBC.updateTallyDayBookData(tallyInputDTO);
+			
+		} catch (Exception e) {
+			response.setStatus("Failed");
+			response.setStatusMessage("Failed");
+		}
+		
+		return response;
+	}
+	
 	public List getDayBook() {
 		System.out.println("...invoking getTallyDayBook");
 		
@@ -126,4 +149,5 @@ public class TallyServiceImpl implements TallyService {
 		response.setStatusMessage("Success");
 		return response;
 	}
+	
 }

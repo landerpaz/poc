@@ -194,6 +194,39 @@ public class TallyDAO implements BaseDAO {
 		return response;
 	}
 
+	public Response updateDayBookMasterFlag(TallyInputDTO tallyInputDTO) {
+		
+		Response response = new Response();
+		response.setStatus(Constants.RESPONSE_STATUS_SUCCESS);
+		response.setStatusMessage(Constants.RESPONSE_MESSAGE_PRODUCT_ADD_SUCCESS);
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_UPDATE_DAYBOOK_INVENTORY_FLAG);
+			
+			System.out.println("Update query : " + Constants.DB_UPDATE_DAYBOOK_INVENTORY_FLAG);
+			
+			int parameterIndex = 1;
+			preparedStatement.setString(parameterIndex++, tallyInputDTO.getVoucherKey());
+			
+			preparedStatement.executeUpdate();
+			
+		} catch (Exception e) {
+			
+			// TODO: handle exception
+			System.out.println("Error in updating day book master flag field in DB...");
+			e.printStackTrace();
+			
+			response.setStatus(Constants.RESPONSE_STATUS_FAILED);
+			response.setStatusMessage(Constants.RESPONSE_MESSAGE_PRODUCT_ADD_FAILED);
+		} finally {
+			closeResources();
+		}
+		
+		return response;
+	}
+
 	public Response addTallyDayBook(TallyInputDTO tallyInputDTO) {
 		
 		Response response = new Response();
