@@ -40,4 +40,8 @@ public interface TallyService {
 	@PUT
 	@Path("/daybook/{voucherKey}")
 	Response updateDayBookFlag(@PathParam("voucherKey") String voucherKey);
+	
+	@POST
+	@Path("/daybooktiny/")
+	Response addTinyDayBook(String dayBook);
 }

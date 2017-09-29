@@ -10,8 +10,14 @@ public class TallyInputDTO {
 	private String dayBook;
 	private List<DayBookMasterVO> dayBookMasterVOs;
 	private String voucherKey;
+	private boolean tiny;
 	
-	
+	public boolean isTiny() {
+		return tiny;
+	}
+	public void setTiny(boolean tiny) {
+		this.tiny = tiny;
+	}
 	public String getVoucherKey() {
 		return voucherKey;
 	}

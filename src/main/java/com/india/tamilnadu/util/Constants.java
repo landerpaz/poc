@@ -12,6 +12,10 @@ public class Constants {
 	public static final String DB_GET_TALLY_SUMMARY = "select tally_summary_id, report_id, report_name, report_key, report_value1, report_value2, created_date, check_flag from tally_summary where check_flag = false and report_id in (select max(report_id) from tally_summary)";
 	public static final String DB_UPDATE_TALLY_SUMMARY = "update tally_summary set check_flag = true where tally_summary_id = ? and report_id = ?";
 	
+	public static final String DB_DELETE_DAYBOOK_MASTER = "delete from inventory.DAYBOOK_MASTER where VOUCHER_KEY > '1'";
+	public static final String DB_DELETE_DAYBOOK_LEDGER = "delete from inventory.DAYBOOK_INVENTORY where id > 0";
+	public static final String DB_DELETE_DAYBOOK_INVENTORY = "delete from inventory.DAYBOOK_LEDGER where id > 0;"; 
+	
 	public static final String DB_ADD_DAYBOOK_MASTER = "insert into DAYBOOK_MASTER(VOUCHER_KEY, VCH_TYPE, VOUCHER_ACTION, VOUCHER_DATE, VOUCHER_TYPE_NAME, VOUCHER_NUMBER, PARTY_LEDGER_NAME, EFFECTIVE_DATE, PERSISTED_VIEW, ALTER_ID, MASTER_ID, LEDGER_NAME, FLAG, CREATED_DATE, MODIFIED_DATE) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	public static final String DB_ADD_DAYBOOK_LEDGER = "insert into DAYBOOK_LEDGER(LEDGER_NAME, AMOUNT, VOUCHER_KEY, CREATED_DATE, MODIFIED_DATE) values (?, ?, ?, ?, ?)";
 	public static final String DB_ADD_DAYBOOK_INVENTORY = "insert into DAYBOOK_INVENTORY(STOCK_ITEM_NAME, AMOUNT, RATE, BILLED_QTY, VOUCHER_KEY, CREATED_DATE, MODIFIED_DATE) values (?, ?, ?, ?, ?, ?, ?)";
@@ -31,8 +35,10 @@ public class Constants {
 	
 	//tally day book master data
 	public static final String TALLYMESSAGE_COUNT_EXP = "count(//ENVELOPE/BODY/DATA/TALLYMESSAGE/VOUCHER)";
+	public static final String TALLYMESSAGE_COUNT_EXP_TINY = "count(//TALLYMESSAGE/VOUCHER)";
 	
 	public static final String ENVELOPE_BODY_DATA_TALLYMESSAGE = "//ENVELOPE/BODY/DATA/TALLYMESSAGE[";
+	public static final String ENVELOPE_BODY_DATA_TALLYMESSAGE_TINY = "//TALLYMESSAGE[";
 	
 	public static final String VCHTYPE = "]/VOUCHER//@VCHTYPE";
 	public static final String ACTION = "]/VOUCHER//@ACTION";
@@ -48,6 +54,7 @@ public class Constants {
 	
 	//tally day book all ledgerlist data
 	public static final String VOUCHER_ALLLEDGERENTRIES_LIST_COUNT_1 = "count(//ENVELOPE/BODY/DATA/TALLYMESSAGE[";
+	public static final String VOUCHER_ALLLEDGERENTRIES_LIST_COUNT_1_TINY = "count(//TALLYMESSAGE[";
 	public static final String VOUCHER_ALLLEDGERENTRIES_LIST_COUNT_2 = "]/VOUCHER//ALLLEDGERENTRIES.LIST)";
 	public static final String VOUCHER_ALLLEDGERENTRIES_LIST = "]/VOUCHER//ALLLEDGERENTRIES.LIST[";
 	public static final String LEDGERNAME = "]/LEDGERNAME";
@@ -56,19 +63,19 @@ public class Constants {
 	
 	//tally day book ledgerlist data
 	public static final String VOUCHER_LEDGERENTRIES_LIST_COUNT_1 = "count(//ENVELOPE/BODY/DATA/TALLYMESSAGE[";
+	public static final String VOUCHER_LEDGERENTRIES_LIST_COUNT_1_TINY = "count(//TALLYMESSAGE[";
 	public static final String VOUCHER_LEDGERENTRIES_LIST_COUNT_2 = "]/VOUCHER//LEDGERENTRIES.LIST)";
 	public static final String VOUCHER_LEDGERENTRIES_LIST = "]/VOUCHER//LEDGERENTRIES.LIST[";
 	
 	//tally day book inventorylist data
 	public static final String VOUCHER_INVENTORYENTRIES_LIST_COUNT_1 = "count(//ENVELOPE/BODY/DATA/TALLYMESSAGE[";
+	public static final String VOUCHER_INVENTORYENTRIES_LIST_COUNT_1_TINY = "count(//TALLYMESSAGE[";
 	public static final String VOUCHER_INVENTORYENTRIES_LIST_COUNT_2 = "]/VOUCHER//ALLINVENTORYENTRIES.LIST)";
 	public static final String VOUCHER_INVENTORYENTRIES_LIST = "]/VOUCHER//ALLINVENTORYENTRIES.LIST[";
 	public static final String RATE = "]/RATE";
 	public static final String BILLEDQTY = "]/BILLEDQTY";
 	public static final String STOCKITEMNAME = "]/STOCKITEMNAME";
 	
-	
-		
-	
-	
+	public static final String LOG_BASE_FORMAT = String.format("%s={}, %s={}", "trackingid", "message");
+	public static final String LOG_DATA_FORMAT = String.format("%s={}, %s={}, %s={}", "trackingid", "message", "data");
 }

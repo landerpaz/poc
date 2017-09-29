@@ -1,8 +1,12 @@
 package com.india.tamilnadu.jaxrs;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import com.india.tamilnadu.dao.ProductsDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+
 import com.india.tamilnadu.dao.TallyDAO;
 import com.india.tamilnadu.dto.Response;
 import com.india.tamilnadu.tally.bc.TallyDayBookBC;
@@ -10,11 +14,20 @@ import com.india.tamilnadu.tally.dto.TallyInputDTO;
 import com.india.tamilnadu.util.SaxParserHandler;
 import com.india.tamilnadu.util.TallyBean;
 import com.india.tamilnadu.util.TallyRequestContext;
+import com.india.tamilnadu.util.Utility;
+
+import static com.india.tamilnadu.util.Constants.LOG_BASE_FORMAT;
+import static com.india.tamilnadu.util.Constants.LOG_DATA_FORMAT;
 
 public class TallyServiceImpl implements TallyService {
+
+	private final Logger LOG = LoggerFactory.getLogger(TallyServiceImpl.class);
 	
 	public List getTallySummary() {
-		System.out.println("...invoking getTallySummary");
+		
+		String trackingID = Utility.getRandomNumber();
+		
+		LOG.info(LOG_BASE_FORMAT, trackingID, "getTallySummary In");
 		
 		TallyDAO tallyDAO = new TallyDAO();
 		List tallySummaryList = tallyDAO.getTallySummary();
@@ -134,19 +147,66 @@ public class TallyServiceImpl implements TallyService {
 				
 		System.out.println("Day book Data : " + dayBook.length());
 		
-		dayBook = dayBook.replaceAll("&#", "");
-		dayBook = dayBook.replaceAll("#&", "");
-		
-		TallyInputDTO tallyInputDTO = new TallyInputDTO();
-		tallyInputDTO.setDayBook(dayBook);
-		
-		TallyDayBookBC dayBookBC = new TallyDayBookBC();
-		dayBookBC.addTallyDayBookData(tallyInputDTO);
-		
-		
 		Response response = new Response();
 		response.setStatus("Success");
 		response.setStatusMessage("Success");
+		
+		//if(true) return new Response();
+		
+		try {
+		
+			dayBook = dayBook.replaceAll("&#", "");
+			dayBook = dayBook.replaceAll("#&", "");
+			
+			TallyInputDTO tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setDayBook(dayBook);
+			tallyInputDTO.setTiny(false);
+			
+			TallyDayBookBC dayBookBC = new TallyDayBookBC();
+			dayBookBC.addTallyDayBookData(tallyInputDTO);
+		
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return response;
+	}
+	
+	public Response addTinyDayBook(String dayBook) {
+		
+		TallyInputDTO tallyInputDTO = new TallyInputDTO();
+		Response response = new Response();
+		long startTime = System.currentTimeMillis();
+		
+		tallyInputDTO.setTrackingID(Utility.getRandomNumber());
+		response.setStatus("200");
+		response.setStatusMessage("Success");
+		
+		LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "addTinyDayBook In");
+		LOG.info(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "addTinyDayBook", "request_length:" + dayBook.length());
+		
+		//if(true) return new Response();
+		
+		try {
+			
+			dayBook = dayBook.replaceAll("&#", "");
+			dayBook = dayBook.replaceAll("#&", "");
+			
+			tallyInputDTO.setDayBook(dayBook);
+			tallyInputDTO.setTiny(true);
+			
+			TallyDayBookBC dayBookBC = new TallyDayBookBC();
+			dayBookBC.addTallyDayBookData(tallyInputDTO);
+			
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "exception captured in addTinyDayBook", e.getMessage());
+			e.printStackTrace();
+			response.setStatus("200");
+			response.setStatusMessage("TechnicalError:" + e.getMessage());
+		}
+		
+		LOG.info(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "addTinyDayBook Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
 		return response;
 	}
 	

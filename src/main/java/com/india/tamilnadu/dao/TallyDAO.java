@@ -1,5 +1,7 @@
 package com.india.tamilnadu.dao;
 
+import static com.india.tamilnadu.util.Constants.LOG_BASE_FORMAT;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -7,9 +9,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.india.tamilnadu.dto.Response;
 import com.india.tamilnadu.jaxrs.Product;
 import com.india.tamilnadu.jaxrs.Tally;
+import com.india.tamilnadu.tally.bc.TallyDayBookBC;
 import com.india.tamilnadu.tally.dto.TallyInputDTO;
 import com.india.tamilnadu.tally.vo.DayBookMasterVO;
 import com.india.tamilnadu.tally.vo.InventoryEntryVO;
@@ -20,6 +26,8 @@ import com.india.tamilnadu.util.TallyRequestContext;
 import com.india.tamilnadu.util.Utility;
 
 public class TallyDAO implements BaseDAO {
+	
+	private final Logger LOG = LoggerFactory.getLogger(TallyDayBookBC.class);
 	
 	Connection connection = null;
 	ResultSet resultSet = null;
@@ -227,21 +235,31 @@ public class TallyDAO implements BaseDAO {
 		return response;
 	}
 
-	public Response addTallyDayBook(TallyInputDTO tallyInputDTO) {
+	public void addTallyDayBook(TallyInputDTO tallyInputDTO) throws Exception {
 		
-		Response response = new Response();
+		/*Response response = new Response();
 		response.setStatus(Constants.RESPONSE_STATUS_SUCCESS);
-		response.setStatusMessage(Constants.RESPONSE_MESSAGE_PRODUCT_ADD_SUCCESS);
+		response.setStatusMessage(Constants.RESPONSE_MESSAGE_PRODUCT_ADD_SUCCESS);*/
 		
 		PreparedStatement ledgerPreparedStatement = null;
 		PreparedStatement inventoryPreparedStatement = null;
 		
 		try {
 			
+			connection = DatabaseManager.getInstance().getConnection();
+			connection.setAutoCommit(false);
 			
+			//delete data from table
+			preparedStatement = connection.prepareStatement(Constants.DB_DELETE_DAYBOOK_LEDGER);
+			preparedStatement.execute();
+			preparedStatement = connection.prepareStatement(Constants.DB_DELETE_DAYBOOK_INVENTORY);
+			preparedStatement.execute();
+			preparedStatement = connection.prepareStatement(Constants.DB_DELETE_DAYBOOK_MASTER);
+			preparedStatement.execute();
+			
+			//insert data into table
 			for(DayBookMasterVO dayBookMasterVO : tallyInputDTO.getDayBookMasterVOs()) {
 			
-				connection = DatabaseManager.getInstance().getConnection();
 				preparedStatement = connection.prepareStatement(Constants.DB_ADD_DAYBOOK_MASTER);
 				ledgerPreparedStatement = connection.prepareStatement(Constants.DB_ADD_DAYBOOK_LEDGER);
 				inventoryPreparedStatement = connection.prepareStatement(Constants.DB_ADD_DAYBOOK_INVENTORY);
@@ -265,7 +283,7 @@ public class TallyDAO implements BaseDAO {
 				
 				preparedStatement.executeUpdate();
 				
-				System.out.println("Data inserted in DB DAYBOOK_MASTER for Party : " + dayBookMasterVO.getPartyLedgerName() + " , Ledger type : " + dayBookMasterVO.getVoucherType());
+				LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "addTallyDayBook, data inserted in DB DAYBOOK_MASTER for Party : " + dayBookMasterVO.getPartyLedgerName() + " , Ledger type : " + dayBookMasterVO.getVoucherType());
 				
 				//insert data in DAYBOOK_LEDGER
 				double amount = 0.0;
@@ -287,8 +305,8 @@ public class TallyDAO implements BaseDAO {
 					ledgerPreparedStatement.executeUpdate();
 				}
 				
-				System.out.println("Data inserted in DB DAYBOOK_LEDGER for Party : " + dayBookMasterVO.getPartyLedgerName() + " , Ledger type : " + dayBookMasterVO.getVoucherType());
-				
+				LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "addTallyDayBook, data inserted in DB DAYBOOK_LEDGER for Party : " + dayBookMasterVO.getPartyLedgerName() + " , Ledger type : " + dayBookMasterVO.getVoucherType());
+						
 				//insert data in DAYBOOK_INVENTORY
 				for(InventoryEntryVO inventoryEntryVO : dayBookMasterVO.getInventoryEntryVOs()) {
 					parameterIndex = 1;
@@ -302,19 +320,19 @@ public class TallyDAO implements BaseDAO {
 					inventoryPreparedStatement.executeUpdate();
 				}
 			
-				System.out.println("Data inserted in DB DAYBOOK_INVENTORY for Party : " + dayBookMasterVO.getPartyLedgerName() + " , Ledger type : " + dayBookMasterVO.getVoucherType());
-				
+				LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "addTallyDayBook, data inserted in DB DAYBOOK_INVENTORY for Party : " + dayBookMasterVO.getPartyLedgerName() + " , Ledger type : " + dayBookMasterVO.getVoucherType());
 			}
 			
+			connection.commit();
 			
 		} catch (Exception e) {
 			
-			// TODO: handle exception
-			System.out.println("Error in adding tall day book in DB...");
+			if(null != connection) connection.rollback();
 			e.printStackTrace();
+			throw new RuntimeException(e);
 			
-			response.setStatus(Constants.RESPONSE_STATUS_FAILED);
-			response.setStatusMessage(Constants.RESPONSE_MESSAGE_PRODUCT_ADD_FAILED);
+			//response.setStatus(Constants.RESPONSE_STATUS_FAILED);
+			//response.setStatusMessage(Constants.RESPONSE_MESSAGE_PRODUCT_ADD_FAILED);
 		} finally {
 			
 			try {
@@ -328,7 +346,7 @@ public class TallyDAO implements BaseDAO {
 			closeResources();
 		}
 		
-		return response;
+		//return response;
 	}
 
 	public List<DayBookMasterVO> getTallyDayBookMaster() {
