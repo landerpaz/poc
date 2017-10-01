@@ -1,18 +1,9 @@
 package com.india.tamilnadu.jaxrs;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.ws.rs.core.Context;
-
-import org.apache.cxf.message.Message;
-import org.apache.cxf.phase.PhaseInterceptorChain;
-import org.apache.cxf.transport.http.AbstractHTTPDestination;
-import org.apache.cxf.transport.http.HttpServletRequestSnapshot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpRequest;
-import org.springframework.http.HttpStatus;
 
 import com.india.tamilnadu.dao.TallyDAO;
 import com.india.tamilnadu.dto.Response;
@@ -24,9 +15,6 @@ import com.india.tamilnadu.util.TallyBean;
 import com.india.tamilnadu.util.TallyRequestContext;
 import com.india.tamilnadu.util.Utility;
 
-/*import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;*/
-
 import static com.india.tamilnadu.util.Constants.LOG_BASE_FORMAT;
 import static com.india.tamilnadu.util.Constants.LOG_DATA_FORMAT;
 
@@ -34,11 +22,37 @@ public class TallyServiceImpl implements TallyService {
 
 	private final Logger LOG = LoggerFactory.getLogger(TallyServiceImpl.class);
 	
-	
 	public Response login(User user) {
+		
+		String trackingID = Utility.getRandomNumber();
+		
+		LOG.info(LOG_BASE_FORMAT, trackingID, "login In");
 		
 		Response response = new Response();
 		response.setStatus("200");
+		response.setStatusMessage("AUTH_FAILED");
+		
+		if(null == user || null == user.getEmail() || null == user.getPassword()) {
+			return response;
+		}
+		
+		if(user.getEmail().equals("spring") && user.getPassword().equals("spring$123")) {
+		
+			response.setStatus("200");
+			response.setStatusMessage("AUTH_SUCCESS");
+			response.setRole("admin");
+			response.setToken("2468");
+		
+		} else if(user.getEmail().equals("summer") && user.getPassword().equals("summer$123")) {
+		
+			response.setStatus("200");
+			response.setStatusMessage("AUTH_SUCCESS");
+			response.setRole("associate");
+			response.setToken("1357");
+		
+		}
+		
+		LOG.info(LOG_BASE_FORMAT, trackingID, "login Out");
 		
 		return response;
 	}
