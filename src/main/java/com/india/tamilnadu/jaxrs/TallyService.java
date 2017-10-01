@@ -13,6 +13,7 @@ import javax.ws.rs.Produces;
 
 import com.india.tamilnadu.dto.Response;
 import com.india.tamilnadu.tally.vo.DayBookMasterVO;
+import com.india.tamilnadu.tally.vo.User;
 
 @Produces({ "application/xml", "application/json" })
 public interface TallyService {
@@ -44,4 +45,8 @@ public interface TallyService {
 	@POST
 	@Path("/daybooktiny/")
 	Response addTinyDayBook(String dayBook);
+	
+	@POST
+	@Path("/login/")
+	Response login(User user);
 }

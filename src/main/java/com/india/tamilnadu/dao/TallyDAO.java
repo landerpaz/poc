@@ -249,22 +249,30 @@ public class TallyDAO implements BaseDAO {
 			connection = DatabaseManager.getInstance().getConnection();
 			connection.setAutoCommit(false);
 			
-			//delete data from table
-			preparedStatement = connection.prepareStatement(Constants.DB_DELETE_DAYBOOK_LEDGER);
-			preparedStatement.execute();
-			preparedStatement = connection.prepareStatement(Constants.DB_DELETE_DAYBOOK_INVENTORY);
-			preparedStatement.execute();
-			preparedStatement = connection.prepareStatement(Constants.DB_DELETE_DAYBOOK_MASTER);
-			preparedStatement.execute();
 			
-			//insert data into table
+			
+			
 			for(DayBookMasterVO dayBookMasterVO : tallyInputDTO.getDayBookMasterVOs()) {
 			
+				int parameterIndex = 1;
+				
+				//delete data from table
+				preparedStatement = connection.prepareStatement(Constants.DB_DELETE_DAYBOOK_LEDGER);
+				preparedStatement.setString(parameterIndex, dayBookMasterVO.getVoucherKey());
+				preparedStatement.execute();
+				preparedStatement = connection.prepareStatement(Constants.DB_DELETE_DAYBOOK_INVENTORY);
+				preparedStatement.setString(parameterIndex, dayBookMasterVO.getVoucherKey());
+				preparedStatement.execute();
+				preparedStatement = connection.prepareStatement(Constants.DB_DELETE_DAYBOOK_MASTER);
+				preparedStatement.setString(parameterIndex, dayBookMasterVO.getVoucherKey());
+				preparedStatement.execute();
+				
+				//insert data into table
 				preparedStatement = connection.prepareStatement(Constants.DB_ADD_DAYBOOK_MASTER);
 				ledgerPreparedStatement = connection.prepareStatement(Constants.DB_ADD_DAYBOOK_LEDGER);
 				inventoryPreparedStatement = connection.prepareStatement(Constants.DB_ADD_DAYBOOK_INVENTORY);
 				
-				int parameterIndex = 1;
+				parameterIndex = 1;
 				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getVoucherKey());
 				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getVoucherType());
 				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getVoucherAction());
@@ -311,7 +319,11 @@ public class TallyDAO implements BaseDAO {
 				for(InventoryEntryVO inventoryEntryVO : dayBookMasterVO.getInventoryEntryVOs()) {
 					parameterIndex = 1;
 					inventoryPreparedStatement.setString(parameterIndex++, inventoryEntryVO.getStockItemName());
-					inventoryPreparedStatement.setString(parameterIndex++, inventoryEntryVO.getAmount());
+					if(null == inventoryEntryVO.getAmount() || inventoryEntryVO.getAmount().trim().length() < 1) {
+						inventoryPreparedStatement.setString(parameterIndex++, "0");
+					} else {
+						inventoryPreparedStatement.setString(parameterIndex++, inventoryEntryVO.getAmount());
+					}
 					inventoryPreparedStatement.setString(parameterIndex++, inventoryEntryVO.getRate());
 					inventoryPreparedStatement.setString(parameterIndex++, inventoryEntryVO.getBilledQuantity());
 					inventoryPreparedStatement.setString(parameterIndex++, dayBookMasterVO.getVoucherKey());

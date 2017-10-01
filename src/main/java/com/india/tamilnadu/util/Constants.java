@@ -12,9 +12,9 @@ public class Constants {
 	public static final String DB_GET_TALLY_SUMMARY = "select tally_summary_id, report_id, report_name, report_key, report_value1, report_value2, created_date, check_flag from tally_summary where check_flag = false and report_id in (select max(report_id) from tally_summary)";
 	public static final String DB_UPDATE_TALLY_SUMMARY = "update tally_summary set check_flag = true where tally_summary_id = ? and report_id = ?";
 	
-	public static final String DB_DELETE_DAYBOOK_MASTER = "delete from inventory.DAYBOOK_MASTER where VOUCHER_KEY > '1'";
-	public static final String DB_DELETE_DAYBOOK_LEDGER = "delete from inventory.DAYBOOK_INVENTORY where id > 0";
-	public static final String DB_DELETE_DAYBOOK_INVENTORY = "delete from inventory.DAYBOOK_LEDGER where id > 0;"; 
+	public static final String DB_DELETE_DAYBOOK_MASTER = "delete from inventory.DAYBOOK_MASTER where VOUCHER_KEY = ?";
+	public static final String DB_DELETE_DAYBOOK_LEDGER = "delete from inventory.DAYBOOK_INVENTORY where id > 0 and VOUCHER_KEY = ?";
+	public static final String DB_DELETE_DAYBOOK_INVENTORY = "delete from inventory.DAYBOOK_LEDGER where id > 0 and VOUCHER_KEY = ?"; 
 	
 	public static final String DB_ADD_DAYBOOK_MASTER = "insert into DAYBOOK_MASTER(VOUCHER_KEY, VCH_TYPE, VOUCHER_ACTION, VOUCHER_DATE, VOUCHER_TYPE_NAME, VOUCHER_NUMBER, PARTY_LEDGER_NAME, EFFECTIVE_DATE, PERSISTED_VIEW, ALTER_ID, MASTER_ID, LEDGER_NAME, FLAG, CREATED_DATE, MODIFIED_DATE) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	public static final String DB_ADD_DAYBOOK_LEDGER = "insert into DAYBOOK_LEDGER(LEDGER_NAME, AMOUNT, VOUCHER_KEY, CREATED_DATE, MODIFIED_DATE) values (?, ?, ?, ?, ?)";
@@ -75,6 +75,10 @@ public class Constants {
 	public static final String RATE = "]/RATE";
 	public static final String BILLEDQTY = "]/BILLEDQTY";
 	public static final String STOCKITEMNAME = "]/STOCKITEMNAME";
+	
+	//tally day book inventory in list data
+	public static final String VOUCHER_INVENTORYENTRIES_IN_LIST_COUNT_2 = "]/VOUCHER//INVENTORYENTRIESIN.LIST)";
+	public static final String VOUCHER_INVENTORYENTRIES_IN_LIST = "]/VOUCHER//INVENTORYENTRIESIN.LIST[";
 	
 	public static final String LOG_BASE_FORMAT = String.format("%s={}, %s={}", "trackingid", "message");
 	public static final String LOG_DATA_FORMAT = String.format("%s={}, %s={}, %s={}", "trackingid", "message", "data");

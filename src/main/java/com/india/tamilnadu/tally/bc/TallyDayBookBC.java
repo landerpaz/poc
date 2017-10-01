@@ -61,6 +61,8 @@ import static com.india.tamilnadu.util.Constants.VOUCHER_INVENTORYENTRIES_LIST;
 import static com.india.tamilnadu.util.Constants.RATE;
 import static com.india.tamilnadu.util.Constants.BILLEDQTY;
 import static com.india.tamilnadu.util.Constants.STOCKITEMNAME;
+import static com.india.tamilnadu.util.Constants.VOUCHER_INVENTORYENTRIES_IN_LIST_COUNT_2;
+import static com.india.tamilnadu.util.Constants.VOUCHER_INVENTORYENTRIES_IN_LIST;
 
 public class TallyDayBookBC {
 	
@@ -452,7 +454,33 @@ public class TallyDayBookBC {
             		inventoryEntryVOs.add(inventoryEntryVO);
             	}
             	
+            	
+            	//get inventoryentries In
+            	int inventoryEntriesInListCount = getCount(doc, xpath, new StringBuilder(tallyInputDTO.isTiny() ? VOUCHER_INVENTORYENTRIES_LIST_COUNT_1_TINY : VOUCHER_INVENTORYENTRIES_LIST_COUNT_1).append(index).append(VOUCHER_INVENTORYENTRIES_IN_LIST_COUNT_2).toString());
+            	
+            	//System.out.println("inventoryEntriesListCount : " + inventoryEntriesListCount);
+            	
+            	for(int subIndex=1; subIndex<=inventoryEntriesInListCount; subIndex++) {
+            		/*System.out.println(getSecondaryData(doc, xpath, ENVELOPE_BODY_DATA_TALLYMESSAGE, VOUCHER_INVENTORYENTRIES_LIST, STOCKITEMNAME, index, subIndex));
+            		System.out.println(getSecondaryData(doc, xpath, ENVELOPE_BODY_DATA_TALLYMESSAGE, VOUCHER_INVENTORYENTRIES_LIST, RATE, index, subIndex));
+            		System.out.println(getSecondaryData(doc, xpath, ENVELOPE_BODY_DATA_TALLYMESSAGE, VOUCHER_INVENTORYENTRIES_LIST, AMOUNT, index, subIndex));
+            		System.out.println(getSecondaryData(doc, xpath, ENVELOPE_BODY_DATA_TALLYMESSAGE, VOUCHER_INVENTORYENTRIES_LIST, BILLEDQTY, index, subIndex));
+            		
+            		System.out.println("----------------------");*/
+            		
+            		inventoryEntryVO = new InventoryEntryVO();
+            		inventoryEntryVO.setStockItemName(getSecondaryData(doc, xpath, tallyInputDTO.isTiny() ? ENVELOPE_BODY_DATA_TALLYMESSAGE_TINY : ENVELOPE_BODY_DATA_TALLYMESSAGE, VOUCHER_INVENTORYENTRIES_IN_LIST, STOCKITEMNAME, index, subIndex));
+            		inventoryEntryVO.setRate(getSecondaryData(doc, xpath, tallyInputDTO.isTiny() ? ENVELOPE_BODY_DATA_TALLYMESSAGE_TINY : ENVELOPE_BODY_DATA_TALLYMESSAGE, VOUCHER_INVENTORYENTRIES_IN_LIST, RATE, index, subIndex));
+            		inventoryEntryVO.setAmount(getSecondaryData(doc, xpath, tallyInputDTO.isTiny() ? ENVELOPE_BODY_DATA_TALLYMESSAGE_TINY : ENVELOPE_BODY_DATA_TALLYMESSAGE, VOUCHER_INVENTORYENTRIES_IN_LIST, AMOUNT, index, subIndex));
+            		inventoryEntryVO.setBilledQuantity(getSecondaryData(doc, xpath, tallyInputDTO.isTiny() ? ENVELOPE_BODY_DATA_TALLYMESSAGE_TINY : ENVELOPE_BODY_DATA_TALLYMESSAGE, VOUCHER_INVENTORYENTRIES_IN_LIST, BILLEDQTY, index, subIndex));
+            		
+            		inventoryEntryVOs.add(inventoryEntryVO);
+            	}
+            	
+            	//set inventory list in master vo in one place for both ALLINVENTORYENTRIES.LIST and INVENTORYENTRIESIN.LIST, because either one will be available not both for same tallmessage
             	dayBookMasterVO.setInventoryEntryVOs(inventoryEntryVOs);
+            	
+            	
             	dayBookMasterVOs.add(dayBookMasterVO);
             	
             	//System.out.println("########################################################");

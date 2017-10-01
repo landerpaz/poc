@@ -3,18 +3,29 @@ package com.india.tamilnadu.jaxrs;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ws.rs.core.Context;
+
+import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.PhaseInterceptorChain;
+import org.apache.cxf.transport.http.AbstractHTTPDestination;
+import org.apache.cxf.transport.http.HttpServletRequestSnapshot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 
 import com.india.tamilnadu.dao.TallyDAO;
 import com.india.tamilnadu.dto.Response;
 import com.india.tamilnadu.tally.bc.TallyDayBookBC;
 import com.india.tamilnadu.tally.dto.TallyInputDTO;
+import com.india.tamilnadu.tally.vo.User;
 import com.india.tamilnadu.util.SaxParserHandler;
 import com.india.tamilnadu.util.TallyBean;
 import com.india.tamilnadu.util.TallyRequestContext;
 import com.india.tamilnadu.util.Utility;
+
+/*import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;*/
 
 import static com.india.tamilnadu.util.Constants.LOG_BASE_FORMAT;
 import static com.india.tamilnadu.util.Constants.LOG_DATA_FORMAT;
@@ -23,11 +34,27 @@ public class TallyServiceImpl implements TallyService {
 
 	private final Logger LOG = LoggerFactory.getLogger(TallyServiceImpl.class);
 	
+	
+	public Response login(User user) {
+		
+		Response response = new Response();
+		response.setStatus("200");
+		
+		return response;
+	}
+	
 	public List getTallySummary() {
 		
 		String trackingID = Utility.getRandomNumber();
 		
 		LOG.info(LOG_BASE_FORMAT, trackingID, "getTallySummary In");
+		
+		/*Message message = PhaseInterceptorChain.getCurrentMessage();
+	    HttpServletRequestSnapshot request = (HttpServletRequest)message.get(AbstractHTTPDestination.HTTP_REQUEST);
+	    request.getSession().
+	    //HttpSession  session = request.getSession();
+	    //session.setAttribute("Session : " + session);
+*/	    
 		
 		TallyDAO tallyDAO = new TallyDAO();
 		List tallySummaryList = tallyDAO.getTallySummary();
