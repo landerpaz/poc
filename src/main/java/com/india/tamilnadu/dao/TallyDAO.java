@@ -235,7 +235,7 @@ public class TallyDAO implements BaseDAO {
 		return response;
 	}
 
-	public void addTallyDayBook(TallyInputDTO tallyInputDTO) throws Exception {
+	public void addTallyDayBook_bk(TallyInputDTO tallyInputDTO) throws Exception {
 		
 		/*Response response = new Response();
 		response.setStatus(Constants.RESPONSE_STATUS_SUCCESS);
@@ -359,6 +359,200 @@ public class TallyDAO implements BaseDAO {
 		}
 		
 		//return response;
+	}
+
+	public void addTallyDayBook(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		/*Response response = new Response();
+		response.setStatus(Constants.RESPONSE_STATUS_SUCCESS);
+		response.setStatusMessage(Constants.RESPONSE_MESSAGE_PRODUCT_ADD_SUCCESS);*/
+		
+		PreparedStatement ledgerPreparedStatement = null;
+		PreparedStatement inventoryPreparedStatement = null;
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			connection.setAutoCommit(false);
+			
+			for(DayBookMasterVO dayBookMasterVO : tallyInputDTO.getDayBookMasterVOs()) {
+			
+				/*	int parameterIndex = 1;
+				
+				//delete data from table
+				preparedStatement = connection.prepareStatement(Constants.DB_DELETE_DAYBOOK_LEDGER);
+				preparedStatement.setString(parameterIndex, dayBookMasterVO.getVoucherKey());
+				preparedStatement.execute();
+				preparedStatement = connection.prepareStatement(Constants.DB_DELETE_DAYBOOK_INVENTORY);
+				preparedStatement.setString(parameterIndex, dayBookMasterVO.getVoucherKey());
+				preparedStatement.execute();
+				preparedStatement = connection.prepareStatement(Constants.DB_DELETE_DAYBOOK_MASTER);
+				preparedStatement.setString(parameterIndex, dayBookMasterVO.getVoucherKey());
+				preparedStatement.execute();
+	*/			
+				//insert data into table
+				preparedStatement = connection.prepareStatement(Constants.DB_ADD_DAYBOOK_MASTER);
+				ledgerPreparedStatement = connection.prepareStatement(Constants.DB_ADD_DAYBOOK_LEDGER);
+				inventoryPreparedStatement = connection.prepareStatement(Constants.DB_ADD_DAYBOOK_INVENTORY);
+				
+				int parameterIndex = 1;
+				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getVoucherKey());
+				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getVoucherType());
+				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getVoucherAction());
+				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getVoucherDate());
+				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getVoucherTypeName());
+				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getVoucherNumber());
+				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getPartyLedgerName());
+				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getEffectiveDate());
+				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getPersistedView());
+				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getAlterId());
+				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getMasterId());
+				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getLedgerName());
+				preparedStatement.setBoolean(parameterIndex++, false);
+				preparedStatement.setDate(parameterIndex++, Utility.getCurrentdate());
+				preparedStatement.setString(parameterIndex++, null);
+				
+				preparedStatement.executeUpdate();
+				
+				LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "addTallyDayBook, data inserted in DB DAYBOOK_MASTER for Party : " + dayBookMasterVO.getPartyLedgerName() + " , Ledger type : " + dayBookMasterVO.getVoucherType());
+				
+				//insert data in DAYBOOK_LEDGER
+				double amount = 0.0;
+				for(LedgerEntryVO ledgerEntryVO : dayBookMasterVO.getLedgerEntryVOs()) {
+					parameterIndex = 1;
+					
+					/*if(dayBookMasterVO.getVoucherType().equalsIgnoreCase("Delivery Note GST")) {
+						System.out.println("Ledger Name : " + ledgerEntryVO.getLedgerName());
+					}*/
+					
+					ledgerPreparedStatement.setString(parameterIndex++, ledgerEntryVO.getLedgerName());
+					if(null != ledgerEntryVO.getAmount() && ledgerEntryVO.getAmount().trim().length() > 0) {
+						amount = Math.abs(Double.parseDouble(ledgerEntryVO.getAmount()));
+					} 
+					ledgerPreparedStatement.setDouble(parameterIndex++, amount);
+					ledgerPreparedStatement.setString(parameterIndex++, dayBookMasterVO.getVoucherKey());
+					ledgerPreparedStatement.setDate(parameterIndex++, Utility.getCurrentdate());
+					ledgerPreparedStatement.setString(parameterIndex++, null);
+					ledgerPreparedStatement.executeUpdate();
+				}
+				
+				LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "addTallyDayBook, data inserted in DB DAYBOOK_LEDGER for Party : " + dayBookMasterVO.getPartyLedgerName() + " , Ledger type : " + dayBookMasterVO.getVoucherType());
+						
+				//insert data in DAYBOOK_INVENTORY
+				for(InventoryEntryVO inventoryEntryVO : dayBookMasterVO.getInventoryEntryVOs()) {
+					parameterIndex = 1;
+					inventoryPreparedStatement.setString(parameterIndex++, inventoryEntryVO.getStockItemName());
+					if(null == inventoryEntryVO.getAmount() || inventoryEntryVO.getAmount().trim().length() < 1) {
+						inventoryPreparedStatement.setString(parameterIndex++, "0");
+					} else {
+						inventoryPreparedStatement.setString(parameterIndex++, inventoryEntryVO.getAmount());
+					}
+					inventoryPreparedStatement.setString(parameterIndex++, inventoryEntryVO.getRate());
+					inventoryPreparedStatement.setString(parameterIndex++, inventoryEntryVO.getBilledQuantity());
+					inventoryPreparedStatement.setString(parameterIndex++, dayBookMasterVO.getVoucherKey());
+					inventoryPreparedStatement.setDate(parameterIndex++, Utility.getCurrentdate());
+					inventoryPreparedStatement.setString(parameterIndex++, null);
+					inventoryPreparedStatement.executeUpdate();
+				}
+			
+				LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "addTallyDayBook, data inserted in DB DAYBOOK_INVENTORY for Party : " + dayBookMasterVO.getPartyLedgerName() + " , Ledger type : " + dayBookMasterVO.getVoucherType());
+			}
+			
+			connection.commit();
+			
+		} catch (Exception e) {
+			
+			if(null != connection) connection.rollback();
+			e.printStackTrace();
+			throw new RuntimeException(e);
+			
+			//response.setStatus(Constants.RESPONSE_STATUS_FAILED);
+			//response.setStatusMessage(Constants.RESPONSE_MESSAGE_PRODUCT_ADD_FAILED);
+		} finally {
+			
+			try {
+			if(null != ledgerPreparedStatement) { ledgerPreparedStatement.close(); }
+			if(null != inventoryPreparedStatement) { ledgerPreparedStatement.close(); }
+			} catch (Exception e) {
+				// TODO: handle exception
+				e.printStackTrace();
+			}
+			
+			closeResources();
+		}
+		
+		//return response;
+	}
+	
+	public void test() throws Exception {
+		
+		/*Response response = new Response();
+		response.setStatus(Constants.RESPONSE_STATUS_SUCCESS);
+		response.setStatusMessage(Constants.RESPONSE_MESSAGE_PRODUCT_ADD_SUCCESS);*/
+		
+		PreparedStatement ledgerPreparedStatement = null;
+		PreparedStatement inventoryPreparedStatement = null;
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			connection.setAutoCommit(false);
+			
+			
+			
+			
+			int parameterIndex = 1;
+			
+				
+			//insert data into table
+			preparedStatement = connection.prepareStatement("insert into daybook_master(voucher_key) values ('184705068564484')");
+			
+			try {
+			
+				boolean temp = preparedStatement.execute();
+			
+				System.out.println(temp);
+			} catch (Exception e) {
+				System.out.println(e.getMessage());
+			}
+				
+			System.out.println("outside");
+			
+			connection.commit();
+			
+		} catch (Exception e) {
+			
+			if(null != connection) connection.rollback();
+			e.printStackTrace();
+			throw new RuntimeException(e);
+			
+			//response.setStatus(Constants.RESPONSE_STATUS_FAILED);
+			//response.setStatusMessage(Constants.RESPONSE_MESSAGE_PRODUCT_ADD_FAILED);
+		} finally {
+			
+			try {
+			if(null != ledgerPreparedStatement) { ledgerPreparedStatement.close(); }
+			if(null != inventoryPreparedStatement) { ledgerPreparedStatement.close(); }
+			} catch (Exception e) {
+				// TODO: handle exception
+				e.printStackTrace();
+			}
+			
+			closeResources();
+		}
+		
+		//return response;
+	}
+	
+	public static void main(String a[]) {
+		try {
+			
+			TallyDAO tallyDAO = new TallyDAO();
+			tallyDAO.test();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public List<DayBookMasterVO> getTallyDayBookMaster() {

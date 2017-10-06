@@ -36,18 +36,18 @@ public class TallyServiceImpl implements TallyService {
 			return response;
 		}
 		
-		if(user.getEmail().equals("spring") && user.getPassword().equals("spring$123")) {
-		
-			response.setStatus("200");
-			response.setStatusMessage("AUTH_SUCCESS");
-			response.setRole("admin");
-			response.setToken("2468");
-		
-		} else if(user.getEmail().equals("summer") && user.getPassword().equals("summer$123")) {
+		if(user.getEmail().equals("kms") && user.getPassword().equals("Spak#007")) {
 		
 			response.setStatus("200");
 			response.setStatusMessage("AUTH_SUCCESS");
 			response.setRole("associate");
+			response.setToken("2468");
+		
+		} else if(user.getEmail().equals("admin") && user.getPassword().equals("Spak#007")) {
+		
+			response.setStatus("200");
+			response.setStatusMessage("AUTH_SUCCESS");
+			response.setRole("admin");
 			response.setToken("1357");
 		
 		}
