@@ -24,6 +24,7 @@ import com.india.tamilnadu.tally.vo.DayBookMasterVO;
 import com.india.tamilnadu.tally.vo.InventoryEntryVO;
 import com.india.tamilnadu.tally.vo.LedgerEntryVO;
 import com.india.tamilnadu.util.Constants;
+import com.india.tamilnadu.util.Utility;
 
 import static com.india.tamilnadu.util.Constants.TALLYMESSAGE_COUNT_EXP;
 import static com.india.tamilnadu.util.Constants.TALLYMESSAGE_COUNT_EXP_TINY;
@@ -71,6 +72,14 @@ public class TallyDayBookBC {
 		//TallyDayBookBC tallyDayBookBC = new TallyDayBookBC();
 		//Response response = tallyDayBookBC.addTallyDayBookData(new TallyInputDTO());
 		//tallyDayBookBC.getTallyDayBookData(new TallyInputDTO());
+		
+		InventoryEntryVO inventoryEntryVO = new InventoryEntryVO();
+		inventoryEntryVO.setRate("25000.00/Ton");
+		inventoryEntryVO.setBilledQuantity("102.000 Kgs = 1.200 Ton");
+		Utility.formatInventory(inventoryEntryVO);
+		
+		System.out.println(inventoryEntryVO.getRate());
+		System.out.println(inventoryEntryVO.getBilledQuantity());
 	}
 	
 	public Response updateTallyDayBookData(TallyInputDTO tallyInputDTO) {
@@ -121,9 +130,13 @@ public class TallyDayBookBC {
 			
 			//add inventoryentries
 			inventoryEntryVOsLocal = new ArrayList<>();
-			for(InventoryEntryVO enInventoryEntryVO : inventoryEntryVOs) {
-				if(enInventoryEntryVO.getVoucherKey().equals(dayBookMasterVO.getVoucherKey())) {
-					inventoryEntryVOsLocal.add(enInventoryEntryVO);
+			for(InventoryEntryVO inventoryEntryVO : inventoryEntryVOs) {
+				if(inventoryEntryVO.getVoucherKey().equals(dayBookMasterVO.getVoucherKey())) {
+					
+					//format rate and billed quantity
+					Utility.formatInventory(inventoryEntryVO);
+					
+					inventoryEntryVOsLocal.add(inventoryEntryVO);
 				}
 			}
 			dayBookMasterVO.setInventoryEntryVOs(inventoryEntryVOsLocal);
