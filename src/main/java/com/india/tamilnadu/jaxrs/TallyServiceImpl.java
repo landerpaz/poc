@@ -172,17 +172,43 @@ public class TallyServiceImpl implements TallyService {
 		return response;
 	}
 	
+	/**
+	 *This method fetches day book data from DB 
+	 * 
+	 * 
+	 **/
 	public List getDayBook() {
-		System.out.println("...invoking getTallyDayBook");
 		
-		TallyDayBookBC dayBookBC = new TallyDayBookBC();
-		List dayBookList = dayBookBC.getTallyDayBookData(new TallyInputDTO());
-				
-		System.out.println("Number of day book entries : " + (null == dayBookList? "0" : dayBookList.size()));
+		TallyInputDTO tallyInputDTO = null;
+		List dayBookList = null;
+		long startTime = System.currentTimeMillis();
 		
+		try {
+			
+			tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
+			
+			LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getDayBook In");
+			
+			TallyDayBookBC dayBookBC = new TallyDayBookBC();
+			dayBookList = dayBookBC.getTallyDayBookData(tallyInputDTO);
+					
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "Number of day book entries : "  + (null == dayBookList? "0" : dayBookList.size()));
+			LOG.info(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "getDayBook Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "exception captured in getDayBook", e.getMessage());
+			e.printStackTrace();
+		}
+	
 		return dayBookList;
 	}
 	
+	/**
+	 * This method receives whole set of tally book data and add it in DB
+	 * 
+	 * 
+	 * */
 	public Response addDayBook(String dayBook) {
 		System.out.println("...adding day book");
 				
@@ -213,6 +239,11 @@ public class TallyServiceImpl implements TallyService {
 		return response;
 	}
 	
+	/**
+	 * This method receives single tally book data and add it in DB
+	 * In this case Client jar will split the tally data received from tally and send to this method one tally message tag at a time
+	 * 
+	 * */
 	public Response addTinyDayBook(String dayBook) {
 		
 		TallyInputDTO tallyInputDTO = new TallyInputDTO();

@@ -19,7 +19,6 @@ import org.xml.sax.InputSource;
 
 import com.india.tamilnadu.dao.TallyDAO;
 import com.india.tamilnadu.dto.Response;
-import com.india.tamilnadu.jaxrs.TallyServiceImpl;
 import com.india.tamilnadu.tally.dto.TallyInputDTO;
 import com.india.tamilnadu.tally.vo.DayBookMasterVO;
 import com.india.tamilnadu.tally.vo.InventoryEntryVO;
@@ -69,14 +68,9 @@ public class TallyDayBookBC {
 	private final Logger LOG = LoggerFactory.getLogger(TallyDayBookBC.class);
 	
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		
-		TallyDayBookBC tallyDayBookBC = new TallyDayBookBC();
-		
+		//TallyDayBookBC tallyDayBookBC = new TallyDayBookBC();
 		//Response response = tallyDayBookBC.addTallyDayBookData(new TallyInputDTO());
-		tallyDayBookBC.getTallyDayBookData(new TallyInputDTO());
-		
-		
+		//tallyDayBookBC.getTallyDayBookData(new TallyInputDTO());
 	}
 	
 	public Response updateTallyDayBookData(TallyInputDTO tallyInputDTO) {
@@ -84,78 +78,60 @@ public class TallyDayBookBC {
 		return tallyDAO.updateDayBookMasterFlag(tallyInputDTO);
 	}
 	
-	public List<DayBookMasterVO> getTallyDayBookData(TallyInputDTO tallyInputDTO) {
+	public List<DayBookMasterVO> getTallyDayBookData(TallyInputDTO tallyInputDTO) throws Exception {
 		
-		System.out.println("Retreiving Tally day book data from DB......");
-		long startTime = System.currentTimeMillis();
-	    
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getTallyDayBookData In");
+		
 		//get data from DB
 		TallyDAO tallyDAO = new TallyDAO();
-		List<DayBookMasterVO> dayBookMasterVOs = tallyDAO.getTallyDayBookMaster();
+		List<DayBookMasterVO> dayBookMasterVOs = tallyDAO.getTallyDayBookMaster(tallyInputDTO);
 		List<LedgerEntryVO> ledgerEntryVOs = tallyDAO.getTallyDayBookLedgerEntries();
 		List<InventoryEntryVO> inventoryEntryVOs = tallyDAO.getTallyDayBookInventoryEntries();
-		
-	    long stopTime = System.currentTimeMillis();
-		long elapsedTime = stopTime - startTime;
-		System.out.println("Retreiving Tally day book data from DB completed!  " + elapsedTime);
-		
-		System.out.println("dayBookMasterVOs size : " + (null != dayBookMasterVOs ? dayBookMasterVOs.size() : 0));
-		System.out.println("ledgerEntryVOs size : " + (null != ledgerEntryVOs ? ledgerEntryVOs.size() : 0));
-		System.out.println("inventoryEntryVOs size : " + (null != inventoryEntryVOs ? inventoryEntryVOs.size() : 0));
-		
-		System.out.println("Framing Tally day book data......");
-		startTime = System.currentTimeMillis();
-	    
+		   
 		//group ledgerentries and inventoryentries for each voucherkey and load them in  daybookmaster
 		List<DayBookMasterVO> dayBookMasterVOsResult = frameTallyDayBookdataFromLedgerAndInv(dayBookMasterVOs, ledgerEntryVOs, inventoryEntryVOs);
 		
-		stopTime = System.currentTimeMillis();
-		elapsedTime = stopTime - startTime;
-		System.out.println("Framing Tally day book data completed!  " + elapsedTime);
-		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getTallyDayBookData Out");
 		
 		return dayBookMasterVOsResult;
-		
 	}
 	
-	private List<DayBookMasterVO> frameTallyDayBookdataFromLedgerAndInv(List<DayBookMasterVO> dayBookMasterVOs, List<LedgerEntryVO> ledgerEntryVOs, List<InventoryEntryVO> inventoryEntryVOs) {
+	/**
+	 * group ledgerentries and inventoryentries for each voucherkey and load them in  daybookmaster
+	 * 
+	 * 
+	 * */
+	private List<DayBookMasterVO> frameTallyDayBookdataFromLedgerAndInv(List<DayBookMasterVO> dayBookMasterVOs, List<LedgerEntryVO> ledgerEntryVOs, 
+			List<InventoryEntryVO> inventoryEntryVOs) throws Exception {
 		
 		List<DayBookMasterVO> dayBookMasterVOsResult = new ArrayList<>();
 		List<LedgerEntryVO> ledgerEntryVOsLocal = null;
 		List<InventoryEntryVO> inventoryEntryVOsLocal = null;
 		
-		try {
-			
-			
-			for(DayBookMasterVO dayBookMasterVO : dayBookMasterVOs) {
-			
-				//add ledgerentries
-				ledgerEntryVOsLocal = new ArrayList<>();
-				for(LedgerEntryVO ledgerEntryVO : ledgerEntryVOs) {
-					if(ledgerEntryVO.getVoucherKey().equals(dayBookMasterVO.getVoucherKey())) {
-						ledgerEntryVOsLocal.add(ledgerEntryVO);
-					}
+		for(DayBookMasterVO dayBookMasterVO : dayBookMasterVOs) {
+	
+			//add ledgerentries
+			ledgerEntryVOsLocal = new ArrayList<>();
+			for(LedgerEntryVO ledgerEntryVO : ledgerEntryVOs) {
+				if(ledgerEntryVO.getVoucherKey().equals(dayBookMasterVO.getVoucherKey())) {
+					ledgerEntryVOsLocal.add(ledgerEntryVO);
 				}
-				dayBookMasterVO.setLedgerEntryVOs(ledgerEntryVOsLocal);
-				
-				//add inventoryentries
-				inventoryEntryVOsLocal = new ArrayList<>();
-				for(InventoryEntryVO enInventoryEntryVO : inventoryEntryVOs) {
-					if(enInventoryEntryVO.getVoucherKey().equals(dayBookMasterVO.getVoucherKey())) {
-						inventoryEntryVOsLocal.add(enInventoryEntryVO);
-					}
-				}
-				dayBookMasterVO.setInventoryEntryVOs(inventoryEntryVOsLocal);
-				
-				dayBookMasterVOsResult.add(dayBookMasterVO);
 			}
+			dayBookMasterVO.setLedgerEntryVOs(ledgerEntryVOsLocal);
 			
+			//add inventoryentries
+			inventoryEntryVOsLocal = new ArrayList<>();
+			for(InventoryEntryVO enInventoryEntryVO : inventoryEntryVOs) {
+				if(enInventoryEntryVO.getVoucherKey().equals(dayBookMasterVO.getVoucherKey())) {
+					inventoryEntryVOsLocal.add(enInventoryEntryVO);
+				}
+			}
+			dayBookMasterVO.setInventoryEntryVOs(inventoryEntryVOsLocal);
 			
-		} catch (Exception e) {
-			// TODO: handle exception
-			e.printStackTrace();
+			dayBookMasterVOsResult.add(dayBookMasterVO);
 		}
-		
+			
+			
 		return dayBookMasterVOsResult;
 	}
 

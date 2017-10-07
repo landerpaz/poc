@@ -560,7 +560,14 @@ public class TallyDAO implements BaseDAO {
 		}
 	}
 
-	public List<DayBookMasterVO> getTallyDayBookMaster() {
+	/**
+	 * Retrieves day book data from DB
+	 * 
+	 * 
+	 * */
+	public List<DayBookMasterVO> getTallyDayBookMaster(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getTallyDayBookMaster In");
 		
 		List<DayBookMasterVO> dayBookMasterVOs = new ArrayList<>();
 		DayBookMasterVO dayBookMasterVO = null;
@@ -588,15 +595,14 @@ public class TallyDAO implements BaseDAO {
 				dayBookMasterVO.setLedgerName(resultSet.getString("LEDGER_NAME"));
 				dayBookMasterVO.setCheckFlag(resultSet.getString("FLAG"));
 				
-				
 				dayBookMasterVOs.add(dayBookMasterVO);
-				
 			}
 			
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getTallyDayBookMaster Out");
+			
 		} catch (Exception e) {
-			// TODO: handle exception
-			System.out.println("Error in getting tally summry from DB...");
 			e.printStackTrace();
+			throw new RuntimeException(e);
 		} finally {
 			closeResources();
 		}
