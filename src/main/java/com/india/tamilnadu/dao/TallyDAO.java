@@ -463,8 +463,13 @@ public class TallyDAO implements BaseDAO {
 		} catch (Exception e) {
 			
 			if(null != connection) connection.rollback();
-			e.printStackTrace();
-			throw new RuntimeException(e);
+			
+			if(null != e && e.getMessage().contains("Duplicate")) {
+				LOG.warn(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "Record is already available");
+			} else {
+				e.printStackTrace();
+				throw new RuntimeException(e);
+			}
 			
 			//response.setStatus(Constants.RESPONSE_STATUS_FAILED);
 			//response.setStatusMessage(Constants.RESPONSE_MESSAGE_PRODUCT_ADD_FAILED);
