@@ -7,13 +7,16 @@ import org.slf4j.LoggerFactory;
 
 import com.india.tamilnadu.dao.TallyDAO;
 import com.india.tamilnadu.dto.Response;
+import com.india.tamilnadu.security.bc.AuthenticationBC;
+import com.india.tamilnadu.security.util.JWTHelper;
 import com.india.tamilnadu.tally.bc.TallyDayBookBC;
 import com.india.tamilnadu.tally.dto.TallyInputDTO;
-import com.india.tamilnadu.tally.vo.User;
 import com.india.tamilnadu.util.SaxParserHandler;
 import com.india.tamilnadu.util.TallyBean;
 import com.india.tamilnadu.util.TallyRequestContext;
 import com.india.tamilnadu.util.Utility;
+import com.india.tamilnadu.vo.Login;
+import com.india.tamilnadu.vo.User;
 
 import static com.india.tamilnadu.util.Constants.LOG_BASE_FORMAT;
 import static com.india.tamilnadu.util.Constants.LOG_DATA_FORMAT;
@@ -22,7 +25,47 @@ public class TallyServiceImpl implements TallyService {
 
 	private final Logger LOG = LoggerFactory.getLogger(TallyServiceImpl.class);
 	
-	public Response login(User user) {
+	public Response userLogin(Login login) {
+		
+		String trackingID = Utility.getRandomNumber();
+		
+		LOG.info(LOG_BASE_FORMAT, trackingID, "userLogin In");
+		
+		Response response = new Response();
+		response.setStatus("200");
+		response.setStatusMessage("AUTH_FAILED");
+		
+		try {
+			
+			if(null == login || null == login.getEmail() || null == login.getPassword()) {
+				return response;
+			}
+			
+			//authenticate user
+			AuthenticationBC authenticationBC = new AuthenticationBC();
+			User user = authenticationBC.authenticate(login, trackingID);
+			if(user.isAuthenticate()) {
+				response.setStatusMessage("AUTH_SUCCESS");
+				response.setRole(user.getRole());
+				response.setToken(user.getToken());
+				response.setFirstName(user.getFirstName());
+				response.setLastName(user.getLastName());				
+			}
+			
+			LOG.info(LOG_BASE_FORMAT, trackingID, "userLogin Out");
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, trackingID, "exception captured in authenticate", e.getMessage());
+			e.printStackTrace();
+			
+			response.setStatus("500");
+			response.setStatusMessage("SYSTEM ERROR");
+		}
+		
+		return response;
+	}
+
+	public Response login(Login login) {
 		
 		String trackingID = Utility.getRandomNumber();
 		
@@ -32,27 +75,34 @@ public class TallyServiceImpl implements TallyService {
 		response.setStatus("200");
 		response.setStatusMessage("AUTH_FAILED");
 		
-		if(null == user || null == user.getEmail() || null == user.getPassword()) {
-			return response;
+		
+		try {
+			
+			if(null == login || null == login.getEmail() || null == login.getPassword()) {
+				return response;
+			}
+			
+			if(login.getEmail().equals("kms") && login.getPassword().equals("Spak#007")) {
+			
+				response.setStatus("200");
+				response.setStatusMessage("AUTH_SUCCESS");
+				response.setRole("associate");
+				response.setToken("2468");
+			
+			} else if(login.getEmail().equals("admin") && login.getPassword().equals("Spak#007")) {
+			
+				response.setStatus("200");
+				response.setStatusMessage("AUTH_SUCCESS");
+				response.setRole("admin");
+				response.setToken("1357");
+			
+			}
+			
+			LOG.info(LOG_BASE_FORMAT, trackingID, "login Out");
+		
+		} catch (Exception e) {
+			// TODO: handle exception
 		}
-		
-		if(user.getEmail().equals("kms") && user.getPassword().equals("Spak#007")) {
-		
-			response.setStatus("200");
-			response.setStatusMessage("AUTH_SUCCESS");
-			response.setRole("associate");
-			response.setToken("2468");
-		
-		} else if(user.getEmail().equals("admin") && user.getPassword().equals("Spak#007")) {
-		
-			response.setStatus("200");
-			response.setStatusMessage("AUTH_SUCCESS");
-			response.setRole("admin");
-			response.setToken("1357");
-		
-		}
-		
-		LOG.info(LOG_BASE_FORMAT, trackingID, "login Out");
 		
 		return response;
 	}
@@ -202,6 +252,40 @@ public class TallyServiceImpl implements TallyService {
 		}
 	
 		return dayBookList;
+	}
+	
+	public javax.ws.rs.core.Response getDayBookJWT(String token) {
+		
+		TallyInputDTO tallyInputDTO = null;
+		List dayBookList = null;
+		long startTime = System.currentTimeMillis();
+		
+		try {
+			
+			tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
+			
+			System.out.println("token : " + token);
+			String scope = JWTHelper.validateJWT(token);
+			System.out.println("scope : " + scope);
+			
+			LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getDayBook In");
+			
+			TallyDayBookBC dayBookBC = new TallyDayBookBC();
+			dayBookList = dayBookBC.getTallyDayBookData(tallyInputDTO);
+					
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "Number of day book entries : "  + (null == dayBookList? "0" : dayBookList.size()));
+			LOG.info(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "getDayBook Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+			return javax.ws.rs.core.Response.ok(dayBookList).build();
+			
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "exception captured in getDayBook", e.getMessage());
+			e.printStackTrace();
+			
+			return javax.ws.rs.core.Response.serverError().build();
+		}
+		
 	}
 	
 	/**

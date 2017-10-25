@@ -1,6 +1,6 @@
-package com.india.tamilnadu.tally.vo;
+package com.india.tamilnadu.vo;
 
-public class User {
+public class Login {
 
 	private String email;
 	private String password;
