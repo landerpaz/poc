@@ -20,6 +20,12 @@ import com.india.tamilnadu.tally.dto.TallyInputDTO;
 import com.india.tamilnadu.tally.vo.DayBookMasterVO;
 import com.india.tamilnadu.tally.vo.InventoryEntryVO;
 import com.india.tamilnadu.tally.vo.LedgerEntryVO;
+import com.india.tamilnadu.tally.vo.StockBFDetail;
+import com.india.tamilnadu.tally.vo.StockItemDetail;
+import com.india.tamilnadu.tally.vo.StockDetail;
+import com.india.tamilnadu.tally.vo.StockGSMDetail;
+import com.india.tamilnadu.tally.vo.StockMaster;
+import com.india.tamilnadu.tally.vo.Stocks;
 import com.india.tamilnadu.util.Constants;
 import com.india.tamilnadu.util.TallyBean;
 import com.india.tamilnadu.util.TallyRequestContext;
@@ -699,6 +705,288 @@ public class TallyDAO implements BaseDAO {
 			System.out.println("Error in closing DB resources...");
 			sqlException.printStackTrace();
 		}
+	}
+
+	public List<StockMaster> getTallyStockMaster(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getTallyStockMaster In");
+		
+		List<StockMaster> stockMasters = new ArrayList<>();
+		StockMaster stockMaster = null;
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();System.out.println("connection : " + connection);
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_STOCK_MASTER);
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				
+				stockMaster = new StockMaster();
+				stockMaster.setVoucherType(resultSet.getString(Constants.VOUCHER_TYPE));
+				stockMaster.setAction(resultSet.getString(Constants.VOUCHER_ACTION));
+				stockMaster.setDateAlt(resultSet.getString(Constants.DATE_ALT));
+				stockMaster.setDateEnt(resultSet.getString(Constants.DATE_ENT));
+				stockMaster.setVoucherTypeName(resultSet.getString(Constants.VOUCHER_TYPE_NAME));
+				stockMaster.setVoucherNumber(resultSet.getString(Constants.VOUCHER_NUMBER));
+				stockMaster.setVoucherKey(resultSet.getString(Constants.VOUCHER_KEY));
+				stockMaster.setVoucherEffectiveDate(resultSet.getString(Constants.EFFECTIVE_DATE));
+				stockMaster.setPersistedView(resultSet.getString(Constants.PERSISTED_VIEW));
+				stockMaster.setAlterId(resultSet.getString(Constants.ALTER_ID));
+				stockMaster.setMasterId(resultSet.getString(Constants.MASTER_ID));
+				stockMaster.setOprDate(resultSet.getString(Constants.OPR_DATE));
+				stockMaster.setRealWeight(resultSet.getString(Constants.REEL_WEIGHT));
+				stockMaster.setStartTime(resultSet.getString(Constants.START_TIME));
+				stockMaster.setRewindStart(resultSet.getString(Constants.REWIND_START));
+				stockMaster.setRewindEnd(resultSet.getString(Constants.REWIND_END));
+				stockMaster.setOperatedBy(resultSet.getString(Constants.OPERATED_BY));
+				stockMaster.setForeman1(resultSet.getString(Constants.FOREMAN1));
+				stockMaster.setForeman2(resultSet.getString(Constants.FOREMAN2));
+				
+				stockMasters.add(stockMaster);
+					
+			}
+			
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getTallyStockMaster Out");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		} finally {
+			closeResources();
+		}
+		
+		return stockMasters;
+	}
+	
+	public List<StockDetail> getTallyStockDetail(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getTallyStockDetail In");
+		
+		List<StockDetail> stockDetails = new ArrayList<>();
+		StockDetail stockDetail = null;
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_STOCK_DETAIL);
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				
+				stockDetail = new StockDetail();
+				stockDetail.setStockDetailsId(resultSet.getString(Constants.STOCK_DETAILS_ID));
+				stockDetail.setStockItemName(resultSet.getString(Constants.STOCK_ITEM_NAME));
+				stockDetail.setRate(resultSet.getString(Constants.DB_RATE));
+				stockDetail.setAmount(resultSet.getString(Constants.DB_AMOUNT));
+				stockDetail.setBilledQty(resultSet.getString(Constants.BILLED_QTY));
+				stockDetail.setActualQty(resultSet.getString(Constants.ACTUAL_QTY));
+				stockDetail.setStatus(resultSet.getString(Constants.STATUS));
+				stockDetail.setVoucherKey(resultSet.getString(Constants.VOUCHER_KEY));
+				
+				stockDetails.add(stockDetail);
+				
+			}
+			
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getTallyStockDetail Out");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		} finally {
+			closeResources();
+		}
+		
+		return stockDetails;
+	}
+	
+	public List<StockItemDetail> getTallyStockItemDetail(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getTallyStockItemDetail In");
+		
+		List<StockItemDetail> stockItemDetails = new ArrayList<>();
+		StockItemDetail stockItemDetail = null;
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_STOCK_ITEM_DETAIL);
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				
+				stockItemDetail = new StockItemDetail();
+				
+				stockItemDetail.setStockItemDetailsId(resultSet.getString(Constants.STOCK_ITEM_DETAILS_ID));
+				stockItemDetail.setGsmTgt(resultSet.getString(Constants.GSM_TGT));
+				stockItemDetail.setGsmAct(resultSet.getString(Constants.GSM_ACT));
+				stockItemDetail.setBfTgt(resultSet.getString(Constants.BF_TGT));
+				stockItemDetail.setBfAct(resultSet.getString(Constants.BF_ACT));
+				stockItemDetail.setSizeAct(resultSet.getString(Constants.SIZE_ACT));
+				stockItemDetail.setReelLen(resultSet.getString(Constants.REEL_LEN));
+				stockItemDetail.setJoints(resultSet.getString(Constants.JOINTS));
+				stockItemDetail.setRealDia(resultSet.getString(Constants.REEL_DIA));
+				stockItemDetail.setMoist(resultSet.getString(Constants.MOIST));
+				stockItemDetail.setSizeTgt1(resultSet.getString(Constants.SIZE_TGT1));
+				stockItemDetail.setSizeAct1(resultSet.getString(Constants.SIZE_ACT1));
+				stockItemDetail.setLength1(resultSet.getString(Constants.LENGTH1));
+				stockItemDetail.setTemp(resultSet.getString(Constants.TEMP));
+				stockItemDetail.setUnits(resultSet.getString(Constants.UNITS));
+				stockItemDetail.setVoucherKey(resultSet.getString(Constants.VOUCHER_KEY));
+				stockItemDetail.setStockDetailsId(resultSet.getString(Constants.STOCK_DETAILS_ID));
+				
+				stockItemDetails.add(stockItemDetail);
+				
+			}
+			
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getTallyStockItemDetail Out");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		} finally {
+			closeResources();
+		}
+		
+		return stockItemDetails;
+	}
+	
+	public List<StockGSMDetail> getStockGSMDetail(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStockGSMDetail In");
+		
+		List<StockGSMDetail> stockGSMDetails = new ArrayList<>();
+		StockGSMDetail stockGSMDetail = null;
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_STOCK_GSM_DETAIL);
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				
+				stockGSMDetail = new StockGSMDetail();
+				
+				stockGSMDetail.setVoucherEffectiveDate(resultSet.getString(Constants.EFFECTIVE_DATE));
+				stockGSMDetail.setStockItemName(resultSet.getString(Constants.STOCK_ITEM_NAME));
+				//stockGSMDetail.setGsmTgt(null != resultSet.getString(Constants.GSM_TGT) ? Double.parseDouble(resultSet.getString(Constants.GSM_TGT).trim()) : 0);
+				//stockGSMDetail.setGsmAct(null != resultSet.getString(Constants.GSM_ACT) ? Double.parseDouble(resultSet.getString(Constants.GSM_ACT).trim()) : 0);
+				
+				stockGSMDetail.setGsmTgt(resultSet.getDouble(Constants.GSM_TGT));
+				stockGSMDetail.setGsmAct(resultSet.getDouble(Constants.GSM_ACT));
+				
+				
+				stockGSMDetails.add(stockGSMDetail);
+				
+			}
+			
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStockGSMDetail Out");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		} finally {
+			closeResources();
+		}
+		
+		return stockGSMDetails;
+	}
+
+	public List<StockBFDetail> getStockBFDetail(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStockBFDetail In");
+		
+		List<StockBFDetail> stockBFDetails = new ArrayList<>();
+		StockBFDetail stockBFDetail = null;
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_STOCK_BF_DETAIL);
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				
+				stockBFDetail = new StockBFDetail();
+				
+				stockBFDetail.setVoucherEffectiveDate(resultSet.getString(Constants.EFFECTIVE_DATE));
+				stockBFDetail.setStockItemName(resultSet.getString(Constants.STOCK_ITEM_NAME));
+				stockBFDetail.setBfTgt(resultSet.getDouble(Constants.BF_TGT));
+				stockBFDetail.setBfAct(resultSet.getDouble(Constants.BF_ACT));
+				
+				
+				stockBFDetails.add(stockBFDetail);
+				
+			}
+			
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStockBFDetail Out");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		} finally {
+			closeResources();
+		}
+		
+		return stockBFDetails;
+	}
+	
+	public List<Stocks> getStocks(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStocks In");
+		
+		List<Stocks> stockss = new ArrayList<>();
+		Stocks stocks = null;
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_STOCKS);
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				
+				stocks = new Stocks();
+				
+				stocks.setVoucherNumber(resultSet.getString(Constants.VOUCHER_NUMBER));
+				stocks.setVoucherEffectiveDate(resultSet.getString(Constants.EFFECTIVE_DATE));
+				stocks.setStockItemName(resultSet.getString(Constants.STOCK_ITEM_NAME));
+				stocks.setRate(resultSet.getString(Constants.DB_RATE));
+				stocks.setAmount(resultSet.getString(Constants.DB_AMOUNT));
+				stocks.setBilledQty(resultSet.getString(Constants.BILLED_QTY));
+				
+				stocks.setGsmTgt(resultSet.getString(Constants.GSM_TGT));
+				stocks.setGsmAct(resultSet.getString(Constants.GSM_ACT));
+				stocks.setBfTgt(resultSet.getString(Constants.BF_TGT));
+				stocks.setBfAct(resultSet.getString(Constants.BF_ACT));
+				stocks.setSizeAct(resultSet.getString(Constants.SIZE_ACT));
+				stocks.setReelLen(resultSet.getString(Constants.REEL_LEN));
+				stocks.setJoints(resultSet.getString(Constants.JOINTS));
+				stocks.setRealDia(resultSet.getString(Constants.REEL_DIA));
+				stocks.setMoist(resultSet.getString(Constants.MOIST));
+				stocks.setSizeTgt1(resultSet.getString(Constants.SIZE_TGT1));
+				stocks.setSizeAct1(resultSet.getString(Constants.SIZE_ACT1));
+				stocks.setLength1(resultSet.getString(Constants.LENGTH1));
+				stocks.setTemp(resultSet.getString(Constants.TEMP));
+				stocks.setUnits(resultSet.getString(Constants.UNITS));
+				stocks.setVoucherKey(resultSet.getString(Constants.VOUCHER_KEY));
+				stocks.setStockItemDetailsId(resultSet.getString(Constants.STOCK_ITEM_DETAILS_ID));
+				
+				stockss.add(stocks);
+				
+			}
+			
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStocks Out");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		} finally {
+			closeResources();
+		}
+		
+		return stockss;
 	}
 
 }

@@ -10,6 +10,7 @@ import com.india.tamilnadu.dto.Response;
 import com.india.tamilnadu.security.bc.AuthenticationBC;
 import com.india.tamilnadu.security.util.JWTHelper;
 import com.india.tamilnadu.tally.bc.TallyDayBookBC;
+import com.india.tamilnadu.tally.bc.TallyStockBC;
 import com.india.tamilnadu.tally.dto.TallyInputDTO;
 import com.india.tamilnadu.util.SaxParserHandler;
 import com.india.tamilnadu.util.TallyBean;
@@ -365,5 +366,118 @@ public class TallyServiceImpl implements TallyService {
 		
 		return response;
 	}
+
+	/**
+	 *This method fetches stock data from DB 
+	 * 
+	 * 
+	 **/
+	public List getStock() {
+		
+		TallyInputDTO tallyInputDTO = null;
+		List stockMasters = null;
+		long startTime = System.currentTimeMillis();
+		
+		try {
+			
+			tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
+			
+			LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStock In");
+			
+			TallyStockBC stockBC = new TallyStockBC();
+			stockMasters = stockBC.getStockData(tallyInputDTO);
+					
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "Number of day stocks : "  + (null == stockMasters? "0" : stockMasters.size()));
+			LOG.info(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "getStock Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "exception captured in getStock", e.getMessage());
+			e.printStackTrace();
+		}
 	
+		return stockMasters;
+	}
+	
+	public List getStockGSM() {
+		
+		TallyInputDTO tallyInputDTO = null;
+		List stockGSMs = null;
+		long startTime = System.currentTimeMillis();
+		
+		try {
+			
+			tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
+			
+			LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStockGSM In");
+			
+			TallyStockBC stockBC = new TallyStockBC();
+			stockGSMs = stockBC.getGSMData(tallyInputDTO);
+					
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "Number of day stock GSMs: "  + (null == stockGSMs? "0" : stockGSMs.size()));
+			LOG.info(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "getStockGSM Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "exception captured in getStockGSM", e.getMessage());
+			e.printStackTrace();
+		}
+	
+		return stockGSMs;
+	}
+
+	public List getStockBF() {
+		
+		TallyInputDTO tallyInputDTO = null;
+		List stockBFs = null;
+		long startTime = System.currentTimeMillis();
+		
+		try {
+			
+			tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
+			
+			LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStockBF In");
+			
+			TallyStockBC stockBC = new TallyStockBC();
+			stockBFs = stockBC.getBFData(tallyInputDTO);
+					
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "Number of day stock BFs: "  + (null == stockBFs? "0" : stockBFs.size()));
+			LOG.info(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "getStockBF Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "exception captured in getStockBF", e.getMessage());
+			e.printStackTrace();
+		}
+	
+		return stockBFs;
+	}
+	
+	public List getStocks() {
+		
+		TallyInputDTO tallyInputDTO = null;
+		List stockss = null;
+		long startTime = System.currentTimeMillis();
+		
+		try {
+			
+			tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
+			
+			LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStocks In");
+			
+			TallyStockBC stockBC = new TallyStockBC();
+			stockss = stockBC.getStocks(tallyInputDTO);
+					
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "Number of day stock : "  + (null == stockss? "0" : stockss.size()));
+			LOG.info(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "getStocks Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "exception captured in getStocks", e.getMessage());
+			e.printStackTrace();
+		}
+	
+		return stockss;
+	}
+
 }

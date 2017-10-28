@@ -13,6 +13,8 @@ import javax.ws.rs.Produces;
 
 import com.india.tamilnadu.dto.Response;
 import com.india.tamilnadu.tally.vo.DayBookMasterVO;
+import com.india.tamilnadu.tally.vo.StockBFDetail;
+import com.india.tamilnadu.tally.vo.StockGSMDetail;
 import com.india.tamilnadu.vo.Login;
 
 @Produces({ "application/xml", "application/json" })
@@ -57,4 +59,21 @@ public interface TallyService {
 	@GET
 	@Path("/daybookjwt/")
 	javax.ws.rs.core.Response getDayBookJWT(@HeaderParam("Authorization") String token);
+	
+	@GET
+	@Path("/stock/")
+	List<DayBookMasterVO> getStock();
+	
+	@GET
+	@Path("/stock/gsm/")
+	List<StockGSMDetail> getStockGSM();
+	
+	@GET
+	@Path("/stock/bf/")
+	List<StockBFDetail> getStockBF();
+	
+	@GET
+	@Path("/stocks")
+	List<StockBFDetail> getStocks();
+	
 }

@@ -82,4 +82,57 @@ public class Constants {
 	
 	public static final String LOG_BASE_FORMAT = String.format("%s={}, %s={}", "trackingid", "message");
 	public static final String LOG_DATA_FORMAT = String.format("%s={}, %s={}, %s={}", "trackingid", "message", "data");
+	
+	public static final String DB_GET_STOCK_MASTER = "SELECT VOUCHER_TYPE, VOUCHER_ACTION, DATE_ALT, DATE_ENT, VOUCHER_TYPE_NAME, VOUCHER_NUMBER, VOUCHER_KEY, EFFECTIVE_DATE,PERSISTED_VIEW, ALTER_ID, MASTER_ID, OPR_DATE, REEL_WEIGHT, START_TIME, REWIND_START, REWIND_END, OPERATED_BY, FOREMAN1, FOREMAN2 FROM stock_master";
+	public static final String DB_GET_STOCK_DETAIL = "SELECT STOCK_DETAILS_ID, STOCK_ITEM_NAME, RATE, AMOUNT, BILLED_QTY, ACTUAL_QTY, STATUS, VOUCHER_KEY FROM stock_details";
+	public static final String DB_GET_STOCK_ITEM_DETAIL = "SELECT STOCK_ITEM_DETAILS_ID, GSM_TGT, GSM_ACT, BF_TGT, BF_ACT, SIZE_ACT, REEL_LEN, JOINTS, REEL_DIA, MOIST, SIZE_TGT1, SIZE_ACT1, LENGTH1, TEMP, UNITS, VOUCHER_KEY, STOCK_DETAILS_ID FROM stock_item_details";
+	
+	public static final String DB_GET_STOCKS = "SELECT SM.VOUCHER_NUMBER, SM.EFFECTIVE_DATE, SD.STOCK_ITEM_NAME, SD.RATE, SD.AMOUNT, SD.BILLED_QTY, SID.STOCK_ITEM_DETAILS_ID, SID.GSM_TGT, SID.GSM_ACT, SID.BF_TGT, SID.BF_ACT, SID.SIZE_ACT, SID.REEL_LEN, SID.JOINTS, SID.REEL_DIA, SID.MOIST, SID.SIZE_TGT1, SID.SIZE_ACT1, SID.LENGTH1, SID.TEMP, SID.UNITS, SID.VOUCHER_KEY FROM inventory.stock_master SM, inventory.stock_details SD, inventory.stock_item_details SID WHERE SD.STATUS = 'IN' AND SM.VOUCHER_KEY = SD.VOUCHER_KEY AND SD.STOCK_DETAILS_ID = SID.STOCK_DETAILS_ID";
+	
+	public static final String DB_GET_STOCK_GSM_DETAIL = "SELECT SM.EFFECTIVE_DATE, SD.STOCK_ITEM_NAME, SID.GSM_TGT, SID.GSM_ACT FROM inventory.stock_master SM, inventory.stock_details SD, inventory.stock_item_details SID WHERE SD.STATUS = 'IN' AND SM.VOUCHER_KEY = SD.VOUCHER_KEY AND SD.STOCK_DETAILS_ID = SID.STOCK_DETAILS_ID";
+	public static final String DB_GET_STOCK_BF_DETAIL = "SELECT SM.EFFECTIVE_DATE, SD.STOCK_ITEM_NAME, SID.BF_TGT, SID.BF_ACT FROM inventory.stock_master SM, inventory.stock_details SD, inventory.stock_item_details SID WHERE SD.STATUS = 'IN' AND SM.VOUCHER_KEY = SD.VOUCHER_KEY AND SD.STOCK_DETAILS_ID = SID.STOCK_DETAILS_ID";
+	
+	public static final String VOUCHER_TYPE = "VOUCHER_TYPE";
+	public static final String VOUCHER_ACTION = "VOUCHER_ACTION";
+	public static final String DATE_ALT = "DATE_ALT";
+	public static final String DATE_ENT = "DATE_ENT";
+	public static final String VOUCHER_TYPE_NAME = "VOUCHER_TYPE_NAME";
+	public static final String VOUCHER_NUMBER = "VOUCHER_NUMBER";
+	public static final String VOUCHER_KEY = "VOUCHER_KEY";
+	public static final String EFFECTIVE_DATE = "EFFECTIVE_DATE";
+	public static final String PERSISTED_VIEW = "PERSISTED_VIEW";
+	public static final String ALTER_ID = "ALTER_ID";
+	public static final String MASTER_ID = "MASTER_ID";
+	public static final String OPR_DATE = "OPR_DATE";
+	public static final String REEL_WEIGHT = "REEL_WEIGHT";
+	public static final String START_TIME = "START_TIME";
+	public static final String REWIND_START = "REWIND_START";
+	public static final String REWIND_END = "REWIND_END";
+	public static final String OPERATED_BY = "OPERATED_BY";
+	public static final String FOREMAN1 = "FOREMAN1";
+	public static final String FOREMAN2 = "FOREMAN2";
+	public static final String STOCK_DETAILS_ID = "STOCK_DETAILS_ID";
+	public static final String STOCK_ITEM_NAME = "STOCK_ITEM_NAME";
+	//public static final String RATE = "RATE";
+	//public static final String AMOUNT = "AMOUNT";
+	public static final String BILLED_QTY = "BILLED_QTY";
+	public static final String ACTUAL_QTY = "ACTUAL_QTY";
+	public static final String STATUS = "STATUS";
+	public static final String STOCK_ITEM_DETAILS_ID = "STOCK_ITEM_DETAILS_ID";
+	public static final String GSM_TGT = "GSM_TGT";
+	public static final String GSM_ACT = "GSM_ACT";
+	public static final String BF_TGT = "BF_TGT";
+	public static final String BF_ACT = "BF_ACT";
+	public static final String SIZE_ACT = "SIZE_ACT";
+	public static final String REEL_LEN = "REEL_LEN";
+	public static final String JOINTS = "JOINTS";
+	public static final String REEL_DIA = "REEL_DIA";
+	public static final String MOIST = "MOIST";
+	public static final String SIZE_TGT1 = "SIZE_TGT1";
+	public static final String SIZE_ACT1= "SIZE_ACT1";
+	public static final String LENGTH1 = "LENGTH1";
+	public static final String TEMP = "TEMP";
+	public static final String UNITS = "UNITS";
+	public static final String DB_RATE = "RATE";
+	public static final String DB_AMOUNT = "AMOUNT";
 }
