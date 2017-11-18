@@ -30,9 +30,23 @@ public class AuthenticationBC {
 		if(login.getEmail().equals("kms") && login.getPassword().equals("Spak#007")) {
 			user.setAuthenticate(true);
 			user.setRole("associate");
+			user.setCompanyId("1");
+			user.setCompanyName("Spak");
 		} else if(login.getEmail().equals("admin") && login.getPassword().equals("Spak#007")) {
 			user.setAuthenticate(true);
 			user.setRole("admin");
+			user.setCompanyId("1");
+			user.setCompanyName("Spak");
+		} else if(login.getEmail().equals("kms1") && login.getPassword().equals("Spak#007")) {
+			user.setAuthenticate(true);
+			user.setRole("associate");
+			user.setCompanyId("2");
+			user.setCompanyName("Google");
+		} else if(login.getEmail().equals("admin1") && login.getPassword().equals("Spak#007")) {
+			user.setAuthenticate(true);
+			user.setRole("admin");
+			user.setCompanyId("2");
+			user.setCompanyName("Google");
 		}
 		
 		return user;

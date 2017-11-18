@@ -92,6 +92,20 @@ public class Constants {
 	public static final String DB_GET_STOCK_GSM_DETAIL = "SELECT SM.EFFECTIVE_DATE, SD.STOCK_ITEM_NAME, SID.GSM_TGT, SID.GSM_ACT FROM inventory.stock_master SM, inventory.stock_details SD, inventory.stock_item_details SID WHERE SD.STATUS = 'IN' AND SM.VOUCHER_KEY = SD.VOUCHER_KEY AND SD.STOCK_DETAILS_ID = SID.STOCK_DETAILS_ID";
 	public static final String DB_GET_STOCK_BF_DETAIL = "SELECT SM.EFFECTIVE_DATE, SD.STOCK_ITEM_NAME, SID.BF_TGT, SID.BF_ACT FROM inventory.stock_master SM, inventory.stock_details SD, inventory.stock_item_details SID WHERE SD.STATUS = 'IN' AND SM.VOUCHER_KEY = SD.VOUCHER_KEY AND SD.STOCK_DETAILS_ID = SID.STOCK_DETAILS_ID";
 	
+	public static final String DB_GET_STOCK_GSM_LAST_7_DAYS = "SELECT SM.EFFECTIVE_DATE, SD.STOCK_ITEM_NAME, SID.GSM_TGT, SID.GSM_ACT FROM inventory.stock_master SM, inventory.stock_details SD, inventory.stock_item_details SID WHERE SD.STATUS = 'IN' AND SM.VOUCHER_KEY = SD.VOUCHER_KEY AND SD.STOCK_DETAILS_ID = SID.STOCK_DETAILS_ID AND SM.EFFECTIVE_DATE >= (NOW() - INTERVAL 7 DAY)";
+	public static final String DB_GET_STOCK_GSM_LAST_30_DAYS = "SELECT SM.EFFECTIVE_DATE, SD.STOCK_ITEM_NAME, SID.GSM_TGT, SID.GSM_ACT FROM inventory.stock_master SM, inventory.stock_details SD, inventory.stock_item_details SID WHERE SD.STATUS = 'IN' AND SM.VOUCHER_KEY = SD.VOUCHER_KEY AND SD.STOCK_DETAILS_ID = SID.STOCK_DETAILS_ID AND SM.EFFECTIVE_DATE >= (NOW() - INTERVAL 30 DAY)";
+	
+	public static final String DB_GET_STOCK_BF_LAST_7_DAYS = "SELECT SM.EFFECTIVE_DATE, SD.STOCK_ITEM_NAME, SID.BF_TGT, SID.BF_ACT FROM inventory.stock_master SM, inventory.stock_details SD, inventory.stock_item_details SID WHERE SD.STATUS = 'IN' AND SM.VOUCHER_KEY = SD.VOUCHER_KEY AND SD.STOCK_DETAILS_ID = SID.STOCK_DETAILS_ID AND SM.EFFECTIVE_DATE >= (NOW() - INTERVAL 7 DAY)";
+	public static final String DB_GET_STOCK_BF_LAST_30_DAYS = "SELECT SM.EFFECTIVE_DATE, SD.STOCK_ITEM_NAME, SID.BF_TGT, SID.BF_ACT FROM inventory.stock_master SM, inventory.stock_details SD, inventory.stock_item_details SID WHERE SD.STATUS = 'IN' AND SM.VOUCHER_KEY = SD.VOUCHER_KEY AND SD.STOCK_DETAILS_ID = SID.STOCK_DETAILS_ID AND SM.EFFECTIVE_DATE >= (NOW() - INTERVAL 30 DAY)";
+	
+	public static final String DB_GET_PRODUCTION_YEAR = "select sum(sd.billed_qty) from stock_master sm, stock_details sd where sm.voucher_key = sd.voucher_key";
+	public static final String DB_GET_PRODUCTION_QUARTER = "select QUARTER(now()) qy, sum(sd.billed_qty) from stock_master sm, stock_details sd where sm.voucher_key = sd.voucher_key group by qy"; 
+	//public static final String DB_GET_PRODUCTION_MONTH = "select  sum(sd.billed_qty) from stock_master sm, stock_details sd where sm.voucher_key = sd.voucher_key group by dayofmonth(now())";
+	public static final String DB_GET_PRODUCTION_MONTH = "select  YEAR(NOW()) as year1, MONTH(NOW()) as month1,  sum(sd.billed_qty) from stock_master sm, stock_details sd where sm.voucher_key = sd.voucher_key and YEAR(sm.effective_date)=YEAR(NOW()) AND MONTH(sm.effective_date)=MONTH(NOW()) group by YEAR(NOW()),MONTH(NOW())";
+	public static final String DB_GET_PRODUCTION_WEEK = "select  week(sm.effective_date) week_num, sum(sd.billed_qty) from stock_master sm, stock_details sd where sm.voucher_key = sd.voucher_key group by week(sm.effective_date) order by week_num desc";
+	
+	public static final String DB_GET_PRODUCTION_DASHBOARD_CHART = "select sm.effective_date ed, sum(sd.billed_qty) from stock_master sm, stock_details sd where sm.voucher_key = sd.voucher_key group by ed"; 
+	
 	public static final String VOUCHER_TYPE = "VOUCHER_TYPE";
 	public static final String VOUCHER_ACTION = "VOUCHER_ACTION";
 	public static final String DATE_ALT = "DATE_ALT";

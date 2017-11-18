@@ -20,11 +20,13 @@ import com.india.tamilnadu.tally.dto.TallyInputDTO;
 import com.india.tamilnadu.tally.vo.DayBookMasterVO;
 import com.india.tamilnadu.tally.vo.InventoryEntryVO;
 import com.india.tamilnadu.tally.vo.LedgerEntryVO;
+import com.india.tamilnadu.tally.vo.ProductionDashboardChart;
 import com.india.tamilnadu.tally.vo.StockBFDetail;
 import com.india.tamilnadu.tally.vo.StockItemDetail;
 import com.india.tamilnadu.tally.vo.StockDetail;
 import com.india.tamilnadu.tally.vo.StockGSMDetail;
 import com.india.tamilnadu.tally.vo.StockMaster;
+import com.india.tamilnadu.tally.vo.StockStatistics;
 import com.india.tamilnadu.tally.vo.Stocks;
 import com.india.tamilnadu.util.Constants;
 import com.india.tamilnadu.util.TallyBean;
@@ -706,7 +708,8 @@ public class TallyDAO implements BaseDAO {
 			sqlException.printStackTrace();
 		}
 	}
-
+	
+	//not in use
 	public List<StockMaster> getTallyStockMaster(TallyInputDTO tallyInputDTO) throws Exception {
 		
 		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getTallyStockMaster In");
@@ -759,6 +762,7 @@ public class TallyDAO implements BaseDAO {
 		return stockMasters;
 	}
 	
+	//not in use
 	public List<StockDetail> getTallyStockDetail(TallyInputDTO tallyInputDTO) throws Exception {
 		
 		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getTallyStockDetail In");
@@ -777,9 +781,9 @@ public class TallyDAO implements BaseDAO {
 				stockDetail = new StockDetail();
 				stockDetail.setStockDetailsId(resultSet.getString(Constants.STOCK_DETAILS_ID));
 				stockDetail.setStockItemName(resultSet.getString(Constants.STOCK_ITEM_NAME));
-				stockDetail.setRate(resultSet.getString(Constants.DB_RATE));
+				//stockDetail.setRate(resultSet.getString(Constants.DB_RATE));
 				stockDetail.setAmount(resultSet.getString(Constants.DB_AMOUNT));
-				stockDetail.setBilledQty(resultSet.getString(Constants.BILLED_QTY));
+				//stockDetail.setBilledQty(resultSet.getString(Constants.BILLED_QTY));
 				stockDetail.setActualQty(resultSet.getString(Constants.ACTUAL_QTY));
 				stockDetail.setStatus(resultSet.getString(Constants.STATUS));
 				stockDetail.setVoucherKey(resultSet.getString(Constants.VOUCHER_KEY));
@@ -800,6 +804,7 @@ public class TallyDAO implements BaseDAO {
 		return stockDetails;
 	}
 	
+	//not in use
 	public List<StockItemDetail> getTallyStockItemDetail(TallyInputDTO tallyInputDTO) throws Exception {
 		
 		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getTallyStockItemDetail In");
@@ -851,6 +856,91 @@ public class TallyDAO implements BaseDAO {
 		return stockItemDetails;
 	}
 	
+	public List<StockGSMDetail> getStockGSMDetailLast7Days(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStockGSMDetailLast7Days In");
+		
+		List<StockGSMDetail> stockGSMDetails = new ArrayList<>();
+		StockGSMDetail stockGSMDetail = null;
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_STOCK_GSM_LAST_7_DAYS);
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				
+				stockGSMDetail = new StockGSMDetail();
+				
+				stockGSMDetail.setVoucherEffectiveDate(resultSet.getString(Constants.EFFECTIVE_DATE));
+				stockGSMDetail.setStockItemName(resultSet.getString(Constants.STOCK_ITEM_NAME));
+				//stockGSMDetail.setGsmTgt(null != resultSet.getString(Constants.GSM_TGT) ? Double.parseDouble(resultSet.getString(Constants.GSM_TGT).trim()) : 0);
+				//stockGSMDetail.setGsmAct(null != resultSet.getString(Constants.GSM_ACT) ? Double.parseDouble(resultSet.getString(Constants.GSM_ACT).trim()) : 0);
+				
+				stockGSMDetail.setGsmTgt(resultSet.getDouble(Constants.GSM_TGT));
+				stockGSMDetail.setGsmAct(resultSet.getDouble(Constants.GSM_ACT));
+				
+				
+				stockGSMDetails.add(stockGSMDetail);
+				
+			}
+			
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStockGSMDetailLast7Days Out");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		} finally {
+			closeResources();
+		}
+		
+		return stockGSMDetails;
+	}
+
+	public List<StockGSMDetail> getStockGSMDetailLast30Days(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStockGSMDetailLast30Days In");
+		
+		List<StockGSMDetail> stockGSMDetails = new ArrayList<>();
+		StockGSMDetail stockGSMDetail = null;
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_STOCK_GSM_LAST_30_DAYS);
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				
+				stockGSMDetail = new StockGSMDetail();
+				
+				stockGSMDetail.setVoucherEffectiveDate(resultSet.getString(Constants.EFFECTIVE_DATE));
+				stockGSMDetail.setStockItemName(resultSet.getString(Constants.STOCK_ITEM_NAME));
+				//stockGSMDetail.setGsmTgt(null != resultSet.getString(Constants.GSM_TGT) ? Double.parseDouble(resultSet.getString(Constants.GSM_TGT).trim()) : 0);
+				//stockGSMDetail.setGsmAct(null != resultSet.getString(Constants.GSM_ACT) ? Double.parseDouble(resultSet.getString(Constants.GSM_ACT).trim()) : 0);
+				
+				stockGSMDetail.setGsmTgt(resultSet.getDouble(Constants.GSM_TGT));
+				stockGSMDetail.setGsmAct(resultSet.getDouble(Constants.GSM_ACT));
+				
+				
+				stockGSMDetails.add(stockGSMDetail);
+				
+			}
+			
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStockGSMDetailLast30Days Out");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		} finally {
+			closeResources();
+		}
+		
+		return stockGSMDetails;
+	}
+
+
 	public List<StockGSMDetail> getStockGSMDetail(TallyInputDTO tallyInputDTO) throws Exception {
 		
 		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStockGSMDetail In");
@@ -932,6 +1022,84 @@ public class TallyDAO implements BaseDAO {
 		return stockBFDetails;
 	}
 	
+	public List<StockBFDetail> getStockBFDetailLast7Days(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStockBFDetailLast7Days In");
+		
+		List<StockBFDetail> stockBFDetails = new ArrayList<>();
+		StockBFDetail stockBFDetail = null;
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_STOCK_BF_LAST_7_DAYS);
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				
+				stockBFDetail = new StockBFDetail();
+				
+				stockBFDetail.setVoucherEffectiveDate(resultSet.getString(Constants.EFFECTIVE_DATE));
+				stockBFDetail.setStockItemName(resultSet.getString(Constants.STOCK_ITEM_NAME));
+				stockBFDetail.setBfTgt(resultSet.getDouble(Constants.BF_TGT));
+				stockBFDetail.setBfAct(resultSet.getDouble(Constants.BF_ACT));
+				
+				
+				stockBFDetails.add(stockBFDetail);
+				
+			}
+			
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStockBFDetailLast7Days Out");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		} finally {
+			closeResources();
+		}
+		
+		return stockBFDetails;
+	}
+
+	public List<StockBFDetail> getStockBFDetailLast30Days(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStockBFDetailLast30Days In");
+		
+		List<StockBFDetail> stockBFDetails = new ArrayList<>();
+		StockBFDetail stockBFDetail = null;
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_STOCK_BF_LAST_30_DAYS);
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				
+				stockBFDetail = new StockBFDetail();
+				
+				stockBFDetail.setVoucherEffectiveDate(resultSet.getString(Constants.EFFECTIVE_DATE));
+				stockBFDetail.setStockItemName(resultSet.getString(Constants.STOCK_ITEM_NAME));
+				stockBFDetail.setBfTgt(resultSet.getDouble(Constants.BF_TGT));
+				stockBFDetail.setBfAct(resultSet.getDouble(Constants.BF_ACT));
+				
+				
+				stockBFDetails.add(stockBFDetail);
+				
+			}
+			
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStockBFDetailLast30Days Out");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		} finally {
+			closeResources();
+		}
+		
+		return stockBFDetails;
+	}
+	
 	public List<Stocks> getStocks(TallyInputDTO tallyInputDTO) throws Exception {
 		
 		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStocks In");
@@ -952,9 +1120,9 @@ public class TallyDAO implements BaseDAO {
 				stocks.setVoucherNumber(resultSet.getString(Constants.VOUCHER_NUMBER));
 				stocks.setVoucherEffectiveDate(resultSet.getString(Constants.EFFECTIVE_DATE));
 				stocks.setStockItemName(resultSet.getString(Constants.STOCK_ITEM_NAME));
-				stocks.setRate(resultSet.getString(Constants.DB_RATE));
+				stocks.setRate(Utility.formatRate(resultSet.getString(Constants.DB_RATE)));
 				stocks.setAmount(resultSet.getString(Constants.DB_AMOUNT));
-				stocks.setBilledQty(resultSet.getString(Constants.BILLED_QTY));
+				stocks.setBilledQty(Utility.formatQty(resultSet.getString(Constants.BILLED_QTY)));
 				
 				stocks.setGsmTgt(resultSet.getString(Constants.GSM_TGT));
 				stocks.setGsmAct(resultSet.getString(Constants.GSM_ACT));
@@ -989,4 +1157,88 @@ public class TallyDAO implements BaseDAO {
 		return stockss;
 	}
 
+	public StockStatistics getStocksStatistics(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStocksStatistics In");
+		
+		StockStatistics statistics = new StockStatistics();
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_PRODUCTION_YEAR);
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				statistics.setStockYear(resultSet.getString(1));
+			}
+			
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_PRODUCTION_QUARTER);
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				statistics.setStockQuarter(resultSet.getString(2));
+			}
+			
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_PRODUCTION_MONTH);
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				statistics.setStockMonth(resultSet.getString(3));
+			}
+			
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_PRODUCTION_WEEK);
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				statistics.setStockWeek(resultSet.getString(2));
+			}
+			
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStocksStatistics Out");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		} finally {
+			closeResources();
+		}
+		
+		return statistics;
+	}
+	
+	public List<ProductionDashboardChart> getProductionDashboardChart(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getProductionDashboardChart In");
+		
+		List<ProductionDashboardChart> productionDashboardCharts = new ArrayList<>();
+		ProductionDashboardChart productionDashboardChart = null;
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_PRODUCTION_DASHBOARD_CHART);
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				
+				productionDashboardChart = new ProductionDashboardChart();
+				
+				productionDashboardChart.setDate(resultSet.getString(1));
+				productionDashboardChart.setQuantity(null != resultSet.getString(2) ? Integer.parseInt(resultSet.getString(2).trim()) : 0);
+				
+				productionDashboardCharts.add(productionDashboardChart);
+				
+			}
+			
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getProductionDashboardChart Out");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		} finally {
+			closeResources();
+		}
+		
+		return productionDashboardCharts;
+	}
 }

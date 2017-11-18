@@ -13,8 +13,10 @@ import javax.ws.rs.Produces;
 
 import com.india.tamilnadu.dto.Response;
 import com.india.tamilnadu.tally.vo.DayBookMasterVO;
+import com.india.tamilnadu.tally.vo.ProductionDashboardChart;
 import com.india.tamilnadu.tally.vo.StockBFDetail;
 import com.india.tamilnadu.tally.vo.StockGSMDetail;
+import com.india.tamilnadu.tally.vo.StockStatistics;
 import com.india.tamilnadu.vo.Login;
 
 @Produces({ "application/xml", "application/json" })
@@ -60,20 +62,44 @@ public interface TallyService {
 	@Path("/daybookjwt/")
 	javax.ws.rs.core.Response getDayBookJWT(@HeaderParam("Authorization") String token);
 	
-	@GET
+	/*@GET
 	@Path("/stock/")
-	List<DayBookMasterVO> getStock();
+	List<DayBookMasterVO> getStock();*/
 	
 	@GET
 	@Path("/stock/gsm/")
 	List<StockGSMDetail> getStockGSM();
 	
 	@GET
+	@Path("/stock/gsm/7")
+	List<StockGSMDetail> getStockGSMLast7Days();
+	
+	@GET
+	@Path("/stock/gsm/30")
+	List<StockGSMDetail> getStockGSMLast30Days();
+	
+	@GET
 	@Path("/stock/bf/")
 	List<StockBFDetail> getStockBF();
 	
 	@GET
+	@Path("/stock/bf/7")
+	List<StockBFDetail> getStockBFLast7Days();
+	
+	@GET
+	@Path("/stock/bf/30")
+	List<StockBFDetail> getStockBFLast30Days();
+	
+	@GET
 	@Path("/stocks")
 	List<StockBFDetail> getStocks();
+	
+	@GET
+	@Path("/stocks/productionstatistics")
+	StockStatistics getProductionStatistics();
+	
+	@GET
+	@Path("/stocks/productiondashboardchart")
+	List<ProductionDashboardChart> getProductionDashboardChart();
 	
 }

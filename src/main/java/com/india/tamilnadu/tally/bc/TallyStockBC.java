@@ -10,11 +10,13 @@ import org.slf4j.LoggerFactory;
 
 import com.india.tamilnadu.dao.TallyDAO;
 import com.india.tamilnadu.tally.dto.TallyInputDTO;
+import com.india.tamilnadu.tally.vo.ProductionDashboardChart;
 import com.india.tamilnadu.tally.vo.StockBFDetail;
 import com.india.tamilnadu.tally.vo.StockDetail;
 import com.india.tamilnadu.tally.vo.StockGSMDetail;
 import com.india.tamilnadu.tally.vo.StockItemDetail;
 import com.india.tamilnadu.tally.vo.StockMaster;
+import com.india.tamilnadu.tally.vo.StockStatistics;
 import com.india.tamilnadu.tally.vo.Stocks;
 
 public class TallyStockBC {
@@ -98,6 +100,32 @@ public class TallyStockBC {
 		return stockGSMDetails;
 	}
 	
+	public List<StockGSMDetail> getGSMDataLast7Days(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getGSMDataLast7Days In");
+		
+		//get data from DB
+		TallyDAO tallyDAO = new TallyDAO();
+		List<StockGSMDetail> stockGSMDetails = tallyDAO.getStockGSMDetailLast7Days(tallyInputDTO);
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getGSMDataLast7Days Out");
+		
+		return stockGSMDetails;
+	}
+
+	public List<StockGSMDetail> getGSMDataLast30Days(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getGSMDataLast30Days In");
+		
+		//get data from DB
+		TallyDAO tallyDAO = new TallyDAO();
+		List<StockGSMDetail> stockGSMDetails = tallyDAO.getStockGSMDetailLast30Days(tallyInputDTO);
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getGSMDataLast30Days Out");
+		
+		return stockGSMDetails;
+	}
+	
 	public List<StockBFDetail> getBFData(TallyInputDTO tallyInputDTO) throws Exception {
 		
 		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getBFData In");
@@ -111,6 +139,32 @@ public class TallyStockBC {
 		return stockBFDetails;
 	}
 	
+	public List<StockBFDetail> getBFDataLast7days(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getBFDataLast7days In");
+		
+		//get data from DB
+		TallyDAO tallyDAO = new TallyDAO();
+		List<StockBFDetail> stockBFDetails = tallyDAO.getStockBFDetailLast7Days(tallyInputDTO);
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getBFDataLast7days Out");
+		
+		return stockBFDetails;
+	}
+
+	public List<StockBFDetail> getBFDataLast30Days(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getBFDataLast30Days In");
+		
+		//get data from DB
+		TallyDAO tallyDAO = new TallyDAO();
+		List<StockBFDetail> stockBFDetails = tallyDAO.getStockBFDetailLast30Days(tallyInputDTO);
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getBFDataLast30Days Out");
+		
+		return stockBFDetails;
+	}
+
 	public List<Stocks> getStocks(TallyInputDTO tallyInputDTO) throws Exception {
 		
 		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStocks In");
@@ -123,4 +177,31 @@ public class TallyStockBC {
 		
 		return stockss;
 	}
+	
+	public StockStatistics getStocksStatistics(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStocksStatistics In");
+		
+		//get data from DB
+		TallyDAO tallyDAO = new TallyDAO();
+		StockStatistics statistics = tallyDAO.getStocksStatistics(tallyInputDTO);
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStocksStatistics Out");
+		
+		return statistics;
+	}
+	
+	public List<ProductionDashboardChart> getProductionDashboardChart(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getProductionDashboardChart In");
+		
+		//get data from DB
+		TallyDAO tallyDAO = new TallyDAO();
+		List<ProductionDashboardChart> productionDashboardCharts = tallyDAO.getProductionDashboardChart(tallyInputDTO);
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getProductionDashboardChart Out");
+		
+		return productionDashboardCharts;
+	}
+
 }

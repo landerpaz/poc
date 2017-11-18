@@ -12,6 +12,7 @@ import com.india.tamilnadu.security.util.JWTHelper;
 import com.india.tamilnadu.tally.bc.TallyDayBookBC;
 import com.india.tamilnadu.tally.bc.TallyStockBC;
 import com.india.tamilnadu.tally.dto.TallyInputDTO;
+import com.india.tamilnadu.tally.vo.StockStatistics;
 import com.india.tamilnadu.util.SaxParserHandler;
 import com.india.tamilnadu.util.TallyBean;
 import com.india.tamilnadu.util.TallyRequestContext;
@@ -50,7 +51,9 @@ public class TallyServiceImpl implements TallyService {
 				response.setRole(user.getRole());
 				response.setToken(user.getToken());
 				response.setFirstName(user.getFirstName());
-				response.setLastName(user.getLastName());				
+				response.setLastName(user.getLastName());
+				response.setCompanyId(user.getCompanyId());
+				response.setCompanyName(user.getCompanyName());
 			}
 			
 			LOG.info(LOG_BASE_FORMAT, trackingID, "userLogin Out");
@@ -426,6 +429,60 @@ public class TallyServiceImpl implements TallyService {
 		return stockGSMs;
 	}
 
+	public List getStockGSMLast7Days() {
+		
+		TallyInputDTO tallyInputDTO = null;
+		List stockGSMs = null;
+		long startTime = System.currentTimeMillis();
+		
+		try {
+			
+			tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
+			
+			LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStockGSMLast7Days In");
+			
+			TallyStockBC stockBC = new TallyStockBC();
+			stockGSMs = stockBC.getGSMDataLast7Days(tallyInputDTO);
+					
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "Number of day stock GSMs: "  + (null == stockGSMs? "0" : stockGSMs.size()));
+			LOG.info(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "getStockGSMLast7Days Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "exception captured in getStockGSMLast7Days", e.getMessage());
+			e.printStackTrace();
+		}
+	
+		return stockGSMs;
+	}
+
+	public List getStockGSMLast30Days() {
+		
+		TallyInputDTO tallyInputDTO = null;
+		List stockGSMs = null;
+		long startTime = System.currentTimeMillis();
+		
+		try {
+			
+			tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
+			
+			LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStockGSMLast30Days In");
+			
+			TallyStockBC stockBC = new TallyStockBC();
+			stockGSMs = stockBC.getGSMDataLast30Days(tallyInputDTO);
+					
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "Number of day stock GSMs: "  + (null == stockGSMs? "0" : stockGSMs.size()));
+			LOG.info(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "getStockGSMLast30Days Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "exception captured in getStockGSMLast30Days", e.getMessage());
+			e.printStackTrace();
+		}
+	
+		return stockGSMs;
+	}
+
 	public List getStockBF() {
 		
 		TallyInputDTO tallyInputDTO = null;
@@ -453,6 +510,60 @@ public class TallyServiceImpl implements TallyService {
 		return stockBFs;
 	}
 	
+	public List getStockBFLast7Days() {
+		
+		TallyInputDTO tallyInputDTO = null;
+		List stockBFs = null;
+		long startTime = System.currentTimeMillis();
+		
+		try {
+			
+			tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
+			
+			LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStockBFLast7Days In");
+			
+			TallyStockBC stockBC = new TallyStockBC();
+			stockBFs = stockBC.getBFDataLast7days(tallyInputDTO);
+					
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "Number of day stock BFs: "  + (null == stockBFs? "0" : stockBFs.size()));
+			LOG.info(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "getStockBFLast7Days Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "exception captured in getStockBFLast7Days", e.getMessage());
+			e.printStackTrace();
+		}
+	
+		return stockBFs;
+	}
+
+	public List getStockBFLast30Days() {
+		
+		TallyInputDTO tallyInputDTO = null;
+		List stockBFs = null;
+		long startTime = System.currentTimeMillis();
+		
+		try {
+			
+			tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
+			
+			LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStockBFLast30Days In");
+			
+			TallyStockBC stockBC = new TallyStockBC();
+			stockBFs = stockBC.getBFDataLast30Days(tallyInputDTO);
+					
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "Number of day stock BFs: "  + (null == stockBFs? "0" : stockBFs.size()));
+			LOG.info(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "getStockBFLast30Days Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "exception captured in getStockBFLast30Days", e.getMessage());
+			e.printStackTrace();
+		}
+	
+		return stockBFs;
+	}
+
 	public List getStocks() {
 		
 		TallyInputDTO tallyInputDTO = null;
@@ -478,6 +589,59 @@ public class TallyServiceImpl implements TallyService {
 		}
 	
 		return stockss;
+	}
+
+	public StockStatistics getProductionStatistics() {
+		
+		TallyInputDTO tallyInputDTO = null;
+		StockStatistics statistics = null;
+		long startTime = System.currentTimeMillis();
+		
+		try {
+			
+			tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
+			
+			LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getProductionStatistics In");
+			
+			TallyStockBC stockBC = new TallyStockBC();
+			statistics = stockBC.getStocksStatistics(tallyInputDTO);
+					
+			LOG.info(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "getProductionStatistics Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "exception captured in getProductionStatistics", e.getMessage());
+			e.printStackTrace();
+		}
+	
+		return statistics;
+	}
+	
+	public List getProductionDashboardChart() {
+		
+		TallyInputDTO tallyInputDTO = null;
+		List productionDashboardCharts = null;
+		long startTime = System.currentTimeMillis();
+		
+		try {
+			
+			tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
+			
+			LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getProductionDashboardChart In");
+			
+			TallyStockBC stockBC = new TallyStockBC();
+			productionDashboardCharts = stockBC.getProductionDashboardChart(tallyInputDTO);
+					
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "Number of day stock BFs: "  + (null == productionDashboardCharts? "0" : productionDashboardCharts.size()));
+			LOG.info(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "getProductionDashboardChart Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "exception captured in getProductionDashboardChart", e.getMessage());
+			e.printStackTrace();
+		}
+	
+		return productionDashboardCharts;
 	}
 
 }

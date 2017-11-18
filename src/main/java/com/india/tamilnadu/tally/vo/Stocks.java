@@ -5,9 +5,9 @@ public class Stocks {
 	private String voucherNumber;
 	private String voucherEffectiveDate;
 	private String stockItemName;
-	private String rate;
+	private double rate;
 	private String amount;
-	private String billedQty;
+	private double billedQty;
 	private String gsmTgt;
 	private String gsmAct;
 	private String bfTgt;
@@ -25,6 +25,18 @@ public class Stocks {
 	private String stockItemDetailsId;
 	private String voucherKey;
 	
+	public double getRate() {
+		return rate;
+	}
+	public void setRate(double rate) {
+		this.rate = rate;
+	}
+	public double getBilledQty() {
+		return billedQty;
+	}
+	public void setBilledQty(double billedQty) {
+		this.billedQty = billedQty;
+	}
 	public String getVoucherNumber() {
 		return voucherNumber;
 	}
@@ -43,23 +55,11 @@ public class Stocks {
 	public void setStockItemName(String stockItemName) {
 		this.stockItemName = stockItemName;
 	}
-	public String getRate() {
-		return rate;
-	}
-	public void setRate(String rate) {
-		this.rate = rate;
-	}
 	public String getAmount() {
 		return amount;
 	}
 	public void setAmount(String amount) {
 		this.amount = amount;
-	}
-	public String getBilledQty() {
-		return billedQty;
-	}
-	public void setBilledQty(String billedQty) {
-		this.billedQty = billedQty;
 	}
 	public String getGsmTgt() {
 		return gsmTgt;

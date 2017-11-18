@@ -34,4 +34,36 @@ public class Utility {
 		}
 		
 	}
+	
+	/*public static String formatQty(String qty) {
+		
+		if(null != qty && qty.contains("=")) {
+			return (qty.split("="))[0].trim();
+		} 
+		
+		return "";
+	}*/
+	
+	public static double formatQty(String qty) {
+		
+		if(null != qty && qty.contains("Kgs")) {
+			return Double.parseDouble((qty.split("Kgs"))[0].trim());
+		} 
+		
+		return 0;
+	}
+
+	public static double formatRate(String rate) {
+		
+		if(null != rate && rate.contains("/Kgs")) {
+			return Double.parseDouble(rate.trim().replace("/Kgs", ""));
+		} 
+		
+		return 0;
+	}
+
+	public static void main(String[] a) {
+		System.out.println(formatQty("392.000 Kgs = 0.3920 Ton"));
+	}
+
 }
