@@ -6,7 +6,14 @@ public class StockGSMDetail {
 	private String stockItemName;
 	private double gsmTgt;
 	private double gsmAct;
+	private String batchName;
 	
+	public String getBatchName() {
+		return batchName;
+	}
+	public void setBatchName(String batchName) {
+		this.batchName = batchName;
+	}
 	public String getVoucherEffectiveDate() {
 		return voucherEffectiveDate;
 	}

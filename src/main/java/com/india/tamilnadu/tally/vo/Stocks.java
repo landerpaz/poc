@@ -12,19 +12,42 @@ public class Stocks {
 	private String gsmAct;
 	private String bfTgt;
 	private String bfAct;
-	private String sizeAct;
+	private String cobb;
 	private String reelLen;
 	private String joints;
 	private String realDia;
 	private String moist;
-	private String sizeTgt1;
-	private String sizeAct1;
-	private String length1;
-	private String temp;
+	private String sizeAct;
+	private String sizeTgt;
 	private String units;
 	private String stockItemDetailsId;
 	private String voucherKey;
+	private String batchName;
 	
+	public String getSizeAct() {
+		return sizeAct;
+	}
+	public void setSizeAct(String sizeAct) {
+		this.sizeAct = sizeAct;
+	}
+	public String getSizeTgt() {
+		return sizeTgt;
+	}
+	public void setSizeTgt(String sizeTgt) {
+		this.sizeTgt = sizeTgt;
+	}
+	public String getCobb() {
+		return cobb;
+	}
+	public void setCobb(String cobb) {
+		this.cobb = cobb;
+	}
+	public String getBatchName() {
+		return batchName;
+	}
+	public void setBatchName(String batchName) {
+		this.batchName = batchName;
+	}
 	public double getRate() {
 		return rate;
 	}
@@ -85,12 +108,6 @@ public class Stocks {
 	public void setBfAct(String bfAct) {
 		this.bfAct = bfAct;
 	}
-	public String getSizeAct() {
-		return sizeAct;
-	}
-	public void setSizeAct(String sizeAct) {
-		this.sizeAct = sizeAct;
-	}
 	public String getReelLen() {
 		return reelLen;
 	}
@@ -114,30 +131,6 @@ public class Stocks {
 	}
 	public void setMoist(String moist) {
 		this.moist = moist;
-	}
-	public String getSizeTgt1() {
-		return sizeTgt1;
-	}
-	public void setSizeTgt1(String sizeTgt1) {
-		this.sizeTgt1 = sizeTgt1;
-	}
-	public String getSizeAct1() {
-		return sizeAct1;
-	}
-	public void setSizeAct1(String sizeAct1) {
-		this.sizeAct1 = sizeAct1;
-	}
-	public String getLength1() {
-		return length1;
-	}
-	public void setLength1(String length1) {
-		this.length1 = length1;
-	}
-	public String getTemp() {
-		return temp;
-	}
-	public void setTemp(String temp) {
-		this.temp = temp;
 	}
 	public String getUnits() {
 		return units;

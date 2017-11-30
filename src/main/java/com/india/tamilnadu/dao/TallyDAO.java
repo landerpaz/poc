@@ -57,7 +57,6 @@ public class TallyDAO implements BaseDAO {
 				tally = new Tally();
 				tally.setTallySummaryIid(resultSet.getString("tally_summary_id"));
 				tally.setReportId(resultSet.getString("report_id"));
-				tally.setReportName(resultSet.getString("report_name"));
 				tally.setReportKey(resultSet.getString("report_key"));
 				tally.setReportValue1(resultSet.getString("report_value1"));
 				tally.setReportValue2(resultSet.getString("report_value2"));
@@ -118,17 +117,26 @@ public class TallyDAO implements BaseDAO {
 			
 			connection = DatabaseManager.getInstance().getConnection();
 			connection.setAutoCommit(false);
+			
+			//DELETE
+			int parameterIndex = 1;
+			preparedStatement = connection.prepareStatement(Constants.DB_DELETE_TALLY_SUMMARY);
+			preparedStatement.setString(parameterIndex++, context.getCompanyId());
+			preparedStatement.executeUpdate();
+			
+			//ADD
 			preparedStatement = connection.prepareStatement(Constants.DB_ADD_TALLY_SUMMARY);
 			
-			int parameterIndex = 1;
+			parameterIndex = 1;
 			for(int index=0; index<context.getKeys().size(); index++) {
 				preparedStatement.setInt(parameterIndex++, context.getReportId());
-				preparedStatement.setString(parameterIndex++, context.getReportName());
+				//preparedStatement.setString(parameterIndex++, context.getReportName());
 				preparedStatement.setString(parameterIndex++, context.getKeys().get(index));
 				preparedStatement.setString(parameterIndex++, context.getValues1().get(index));
 				preparedStatement.setString(parameterIndex++, context.getValues2().get(index));
 				preparedStatement.setDate(parameterIndex++, Utility.getCurrentdate());
 				preparedStatement.setBoolean(parameterIndex++, context.isCheckFlag());
+				preparedStatement.setString(parameterIndex++, context.getCompanyId());
 				preparedStatement.addBatch();
 				
 				parameterIndex = 1;
@@ -187,10 +195,12 @@ public class TallyDAO implements BaseDAO {
 			System.out.println("Update query : " + Constants.DB_UPDATE_TALLY_SUMMARY);
 			System.out.println("tally summary id : " + tally.getTallySummaryIid());
 			System.out.println("tally report id : " + tally.getReportId());
+			System.out.println("tally company id : " + tally.getCompanyId());
 			
 			int parameterIndex = 1;
 			preparedStatement.setInt(parameterIndex++, Integer.parseInt(tally.getTallySummaryIid()));
 			preparedStatement.setInt(parameterIndex++, Integer.parseInt(tally.getReportId()));
+			preparedStatement.setString(parameterIndex++, tally.getCompanyId());
 			
 			preparedStatement.executeUpdate();
 			
@@ -225,6 +235,7 @@ public class TallyDAO implements BaseDAO {
 			
 			int parameterIndex = 1;
 			preparedStatement.setString(parameterIndex++, tallyInputDTO.getVoucherKey());
+			preparedStatement.setString(parameterIndex++, tallyInputDTO.getCompanyId());
 			
 			preparedStatement.executeUpdate();
 			
@@ -257,9 +268,6 @@ public class TallyDAO implements BaseDAO {
 			connection = DatabaseManager.getInstance().getConnection();
 			connection.setAutoCommit(false);
 			
-			
-			
-			
 			for(DayBookMasterVO dayBookMasterVO : tallyInputDTO.getDayBookMasterVOs()) {
 			
 				int parameterIndex = 1;
@@ -283,16 +291,11 @@ public class TallyDAO implements BaseDAO {
 				parameterIndex = 1;
 				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getVoucherKey());
 				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getVoucherType());
-				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getVoucherAction());
 				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getVoucherDate());
-				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getVoucherTypeName());
 				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getVoucherNumber());
 				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getPartyLedgerName());
 				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getEffectiveDate());
-				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getPersistedView());
-				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getAlterId());
 				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getMasterId());
-				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getLedgerName());
 				preparedStatement.setBoolean(parameterIndex++, false);
 				preparedStatement.setDate(parameterIndex++, Utility.getCurrentdate());
 				preparedStatement.setString(parameterIndex++, null);
@@ -406,19 +409,15 @@ public class TallyDAO implements BaseDAO {
 				int parameterIndex = 1;
 				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getVoucherKey());
 				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getVoucherType());
-				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getVoucherAction());
 				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getVoucherDate());
-				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getVoucherTypeName());
 				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getVoucherNumber());
 				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getPartyLedgerName());
 				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getEffectiveDate());
-				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getPersistedView());
-				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getAlterId());
 				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getMasterId());
-				preparedStatement.setString(parameterIndex++, dayBookMasterVO.getLedgerName());
 				preparedStatement.setBoolean(parameterIndex++, false);
 				preparedStatement.setDate(parameterIndex++, Utility.getCurrentdate());
 				preparedStatement.setString(parameterIndex++, null);
+				preparedStatement.setString(parameterIndex++, tallyInputDTO.getCompanyId());
 				
 				preparedStatement.executeUpdate();
 				
@@ -441,6 +440,7 @@ public class TallyDAO implements BaseDAO {
 					ledgerPreparedStatement.setString(parameterIndex++, dayBookMasterVO.getVoucherKey());
 					ledgerPreparedStatement.setDate(parameterIndex++, Utility.getCurrentdate());
 					ledgerPreparedStatement.setString(parameterIndex++, null);
+					ledgerPreparedStatement.setString(parameterIndex++, tallyInputDTO.getCompanyId());
 					ledgerPreparedStatement.executeUpdate();
 				}
 				
@@ -460,6 +460,7 @@ public class TallyDAO implements BaseDAO {
 					inventoryPreparedStatement.setString(parameterIndex++, dayBookMasterVO.getVoucherKey());
 					inventoryPreparedStatement.setDate(parameterIndex++, Utility.getCurrentdate());
 					inventoryPreparedStatement.setString(parameterIndex++, null);
+					inventoryPreparedStatement.setString(parameterIndex++, tallyInputDTO.getCompanyId());
 					inventoryPreparedStatement.executeUpdate();
 				}
 			
@@ -584,6 +585,7 @@ public class TallyDAO implements BaseDAO {
 			
 			connection = DatabaseManager.getInstance().getConnection();
 			preparedStatement = connection.prepareStatement(Constants.DB_GET_DAYBOOK_MASTER);
+			preparedStatement.setString(1, tallyInputDTO.getCompanyId());
 			resultSet = preparedStatement.executeQuery();
 		
 			while(resultSet.next()) {
@@ -591,16 +593,11 @@ public class TallyDAO implements BaseDAO {
 				dayBookMasterVO = new DayBookMasterVO();
 				dayBookMasterVO.setVoucherKey(resultSet.getString("VOUCHER_KEY"));
 				dayBookMasterVO.setVoucherType(resultSet.getString("VCH_TYPE"));
-				dayBookMasterVO.setVoucherAction(resultSet.getString("VOUCHER_ACTION"));
 				dayBookMasterVO.setVoucherDate(resultSet.getString("VOUCHER_DATE"));
-				dayBookMasterVO.setVoucherType(resultSet.getString("VOUCHER_TYPE_NAME"));
 				dayBookMasterVO.setVoucherNumber(resultSet.getString("VOUCHER_NUMBER"));
 				dayBookMasterVO.setPartyLedgerName(resultSet.getString("PARTY_LEDGER_NAME"));
 				dayBookMasterVO.setEffectiveDate(resultSet.getString("EFFECTIVE_DATE"));
-				dayBookMasterVO.setPersistedView(resultSet.getString("PERSISTED_VIEW"));
-				dayBookMasterVO.setAlterId(resultSet.getString("ALTER_ID"));
 				dayBookMasterVO.setMasterId(resultSet.getString("MASTER_ID"));
-				dayBookMasterVO.setLedgerName(resultSet.getString("LEDGER_NAME"));
 				dayBookMasterVO.setCheckFlag(resultSet.getString("FLAG"));
 				
 				dayBookMasterVOs.add(dayBookMasterVO);
@@ -618,7 +615,7 @@ public class TallyDAO implements BaseDAO {
 		return dayBookMasterVOs;
 	}
 	
-	public List<LedgerEntryVO> getTallyDayBookLedgerEntries() {
+	public List<LedgerEntryVO> getTallyDayBookLedgerEntries(String companyId) {
 		
 		List<LedgerEntryVO> ledgerEntryVOs = new ArrayList<>();
 		LedgerEntryVO ledgerEntryVO = null;
@@ -627,6 +624,7 @@ public class TallyDAO implements BaseDAO {
 			
 			connection = DatabaseManager.getInstance().getConnection();
 			preparedStatement = connection.prepareStatement(Constants.DB_GET_DAYBOOK_LEDGER);
+			preparedStatement.setString(1, companyId);
 			resultSet = preparedStatement.executeQuery();
 		
 			while(resultSet.next()) {
@@ -652,7 +650,7 @@ public class TallyDAO implements BaseDAO {
 		return ledgerEntryVOs;
 	}
 
-	public List<InventoryEntryVO> getTallyDayBookInventoryEntries() {
+	public List<InventoryEntryVO> getTallyDayBookInventoryEntries(String companyId) {
 		
 		List<InventoryEntryVO> inventoryEntryVOs = new ArrayList<>();
 		InventoryEntryVO inventoryEntryVO = null;
@@ -661,6 +659,7 @@ public class TallyDAO implements BaseDAO {
 			
 			connection = DatabaseManager.getInstance().getConnection();
 			preparedStatement = connection.prepareStatement(Constants.DB_GET_DAYBOOK_INVENTORY);
+			preparedStatement.setString(1, companyId);
 			resultSet = preparedStatement.executeQuery();
 		
 			while(resultSet.next()) {
@@ -832,10 +831,8 @@ public class TallyDAO implements BaseDAO {
 				stockItemDetail.setJoints(resultSet.getString(Constants.JOINTS));
 				stockItemDetail.setRealDia(resultSet.getString(Constants.REEL_DIA));
 				stockItemDetail.setMoist(resultSet.getString(Constants.MOIST));
-				stockItemDetail.setSizeTgt1(resultSet.getString(Constants.SIZE_TGT1));
-				stockItemDetail.setSizeAct1(resultSet.getString(Constants.SIZE_ACT1));
-				stockItemDetail.setLength1(resultSet.getString(Constants.LENGTH1));
-				stockItemDetail.setTemp(resultSet.getString(Constants.TEMP));
+				stockItemDetail.setSizeAct(resultSet.getString(Constants.SIZE_ACT));
+				stockItemDetail.setSizeTgt(resultSet.getString(Constants.SIZE_TGT));
 				stockItemDetail.setUnits(resultSet.getString(Constants.UNITS));
 				stockItemDetail.setVoucherKey(resultSet.getString(Constants.VOUCHER_KEY));
 				stockItemDetail.setStockDetailsId(resultSet.getString(Constants.STOCK_DETAILS_ID));
@@ -952,6 +949,9 @@ public class TallyDAO implements BaseDAO {
 			
 			connection = DatabaseManager.getInstance().getConnection();
 			preparedStatement = connection.prepareStatement(Constants.DB_GET_STOCK_GSM_DETAIL);
+			preparedStatement.setString(1, tallyInputDTO.getCompanyId());
+			preparedStatement.setDate(2, Utility.convertStringToDate(tallyInputDTO.getStartDate()));
+			preparedStatement.setDate(3, Utility.convertStringToDate(tallyInputDTO.getEndDate()));
 			resultSet = preparedStatement.executeQuery();
 		
 			while(resultSet.next()) {
@@ -965,6 +965,7 @@ public class TallyDAO implements BaseDAO {
 				
 				stockGSMDetail.setGsmTgt(resultSet.getDouble(Constants.GSM_TGT));
 				stockGSMDetail.setGsmAct(resultSet.getDouble(Constants.GSM_ACT));
+				stockGSMDetail.setBatchName(resultSet.getString("BATCH_NAME"));
 				
 				
 				stockGSMDetails.add(stockGSMDetail);
@@ -994,6 +995,9 @@ public class TallyDAO implements BaseDAO {
 			
 			connection = DatabaseManager.getInstance().getConnection();
 			preparedStatement = connection.prepareStatement(Constants.DB_GET_STOCK_BF_DETAIL);
+			preparedStatement.setString(1, tallyInputDTO.getCompanyId());
+			preparedStatement.setDate(2, Utility.convertStringToDate(tallyInputDTO.getStartDate()));
+			preparedStatement.setDate(3, Utility.convertStringToDate(tallyInputDTO.getEndDate()));
 			resultSet = preparedStatement.executeQuery();
 		
 			while(resultSet.next()) {
@@ -1004,6 +1008,7 @@ public class TallyDAO implements BaseDAO {
 				stockBFDetail.setStockItemName(resultSet.getString(Constants.STOCK_ITEM_NAME));
 				stockBFDetail.setBfTgt(resultSet.getDouble(Constants.BF_TGT));
 				stockBFDetail.setBfAct(resultSet.getDouble(Constants.BF_ACT));
+				stockBFDetail.setBatchName(resultSet.getString("BATCH_NAME"));
 				
 				
 				stockBFDetails.add(stockBFDetail);
@@ -1111,6 +1116,7 @@ public class TallyDAO implements BaseDAO {
 			
 			connection = DatabaseManager.getInstance().getConnection();
 			preparedStatement = connection.prepareStatement(Constants.DB_GET_STOCKS);
+			preparedStatement.setString(1, tallyInputDTO.getCompanyId());
 			resultSet = preparedStatement.executeQuery();
 		
 			while(resultSet.next()) {
@@ -1128,19 +1134,17 @@ public class TallyDAO implements BaseDAO {
 				stocks.setGsmAct(resultSet.getString(Constants.GSM_ACT));
 				stocks.setBfTgt(resultSet.getString(Constants.BF_TGT));
 				stocks.setBfAct(resultSet.getString(Constants.BF_ACT));
-				stocks.setSizeAct(resultSet.getString(Constants.SIZE_ACT));
+				stocks.setCobb(resultSet.getString(Constants.COBB));
 				stocks.setReelLen(resultSet.getString(Constants.REEL_LEN));
 				stocks.setJoints(resultSet.getString(Constants.JOINTS));
 				stocks.setRealDia(resultSet.getString(Constants.REEL_DIA));
 				stocks.setMoist(resultSet.getString(Constants.MOIST));
-				stocks.setSizeTgt1(resultSet.getString(Constants.SIZE_TGT1));
-				stocks.setSizeAct1(resultSet.getString(Constants.SIZE_ACT1));
-				stocks.setLength1(resultSet.getString(Constants.LENGTH1));
-				stocks.setTemp(resultSet.getString(Constants.TEMP));
+				stocks.setSizeAct(resultSet.getString(Constants.SIZE_ACT));
+				stocks.setSizeTgt(resultSet.getString(Constants.SIZE_TGT));
 				stocks.setUnits(resultSet.getString(Constants.UNITS));
 				stocks.setVoucherKey(resultSet.getString(Constants.VOUCHER_KEY));
 				stocks.setStockItemDetailsId(resultSet.getString(Constants.STOCK_ITEM_DETAILS_ID));
-				
+				stocks.setBatchName(resultSet.getString(Constants.BATCH_NAME));
 				stockss.add(stocks);
 				
 			}
@@ -1167,6 +1171,7 @@ public class TallyDAO implements BaseDAO {
 			
 			connection = DatabaseManager.getInstance().getConnection();
 			preparedStatement = connection.prepareStatement(Constants.DB_GET_PRODUCTION_YEAR);
+			preparedStatement.setString(1, tallyInputDTO.getCompanyId());
 			resultSet = preparedStatement.executeQuery();
 		
 			while(resultSet.next()) {
@@ -1174,6 +1179,7 @@ public class TallyDAO implements BaseDAO {
 			}
 			
 			preparedStatement = connection.prepareStatement(Constants.DB_GET_PRODUCTION_QUARTER);
+			preparedStatement.setString(1, tallyInputDTO.getCompanyId());
 			resultSet = preparedStatement.executeQuery();
 		
 			while(resultSet.next()) {
@@ -1181,6 +1187,7 @@ public class TallyDAO implements BaseDAO {
 			}
 			
 			preparedStatement = connection.prepareStatement(Constants.DB_GET_PRODUCTION_MONTH);
+			preparedStatement.setString(1, tallyInputDTO.getCompanyId());
 			resultSet = preparedStatement.executeQuery();
 		
 			while(resultSet.next()) {
@@ -1188,6 +1195,7 @@ public class TallyDAO implements BaseDAO {
 			}
 			
 			preparedStatement = connection.prepareStatement(Constants.DB_GET_PRODUCTION_WEEK);
+			preparedStatement.setString(1, tallyInputDTO.getCompanyId());
 			resultSet = preparedStatement.executeQuery();
 		
 			while(resultSet.next()) {
@@ -1217,6 +1225,7 @@ public class TallyDAO implements BaseDAO {
 			
 			connection = DatabaseManager.getInstance().getConnection();
 			preparedStatement = connection.prepareStatement(Constants.DB_GET_PRODUCTION_DASHBOARD_CHART);
+			preparedStatement.setString(1, tallyInputDTO.getCompanyId());
 			resultSet = preparedStatement.executeQuery();
 		
 			while(resultSet.next()) {

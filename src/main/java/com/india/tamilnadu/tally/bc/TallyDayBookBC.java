@@ -94,8 +94,8 @@ public class TallyDayBookBC {
 		//get data from DB
 		TallyDAO tallyDAO = new TallyDAO();
 		List<DayBookMasterVO> dayBookMasterVOs = tallyDAO.getTallyDayBookMaster(tallyInputDTO);
-		List<LedgerEntryVO> ledgerEntryVOs = tallyDAO.getTallyDayBookLedgerEntries();
-		List<InventoryEntryVO> inventoryEntryVOs = tallyDAO.getTallyDayBookInventoryEntries();
+		List<LedgerEntryVO> ledgerEntryVOs = tallyDAO.getTallyDayBookLedgerEntries(tallyInputDTO.getCompanyId());
+		List<InventoryEntryVO> inventoryEntryVOs = tallyDAO.getTallyDayBookInventoryEntries(tallyInputDTO.getCompanyId());
 		   
 		//group ledgerentries and inventoryentries for each voucherkey and load them in  daybookmaster
 		List<DayBookMasterVO> dayBookMasterVOsResult = frameTallyDayBookdataFromLedgerAndInv(dayBookMasterVOs, ledgerEntryVOs, inventoryEntryVOs);
@@ -152,6 +152,8 @@ public class TallyDayBookBC {
 		
 		long startTime = System.currentTimeMillis();
 	   
+		tallyInputDTO.setCompanyId("Spak");
+		
 		//Response response = new Response();
 		
 		LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "addTallyDayBookData In");
@@ -231,15 +233,15 @@ public class TallyDayBookBC {
             	
             	dayBookMasterVO = new DayBookMasterVO();
             	dayBookMasterVO.setVoucherType(getPrimaryData(doc, xpath, ENVELOPE_BODY_DATA_TALLYMESSAGE, VCHTYPE, index));
-            	dayBookMasterVO.setVoucherAction(getPrimaryData(doc, xpath, ENVELOPE_BODY_DATA_TALLYMESSAGE, ACTION, index));
+            	//dayBookMasterVO.setVoucherAction(getPrimaryData(doc, xpath, ENVELOPE_BODY_DATA_TALLYMESSAGE, ACTION, index));
             	dayBookMasterVO.setVoucherDate(getPrimaryData(doc, xpath, ENVELOPE_BODY_DATA_TALLYMESSAGE, DATE, index));
-            	dayBookMasterVO.setVoucherTypeName(getPrimaryData(doc, xpath, ENVELOPE_BODY_DATA_TALLYMESSAGE, VOUCHERTYPENAME, index));
+            	//dayBookMasterVO.setVoucherTypeName(getPrimaryData(doc, xpath, ENVELOPE_BODY_DATA_TALLYMESSAGE, VOUCHERTYPENAME, index));
             	dayBookMasterVO.setVoucherNumber(getPrimaryData(doc, xpath, ENVELOPE_BODY_DATA_TALLYMESSAGE, VOUCHERNUMBER, index));
             	dayBookMasterVO.setPartyLedgerName(getPrimaryData(doc, xpath, ENVELOPE_BODY_DATA_TALLYMESSAGE, PARTYLEDGERNAME, index));
             	dayBookMasterVO.setVoucherKey(getPrimaryData(doc, xpath, ENVELOPE_BODY_DATA_TALLYMESSAGE, VOUCHERKEY, index));
             	dayBookMasterVO.setEffectiveDate(getPrimaryData(doc, xpath, ENVELOPE_BODY_DATA_TALLYMESSAGE, EFFECTIVEDATE, index));
-            	dayBookMasterVO.setPersistedView(getPrimaryData(doc, xpath, ENVELOPE_BODY_DATA_TALLYMESSAGE, PERSISTEDVIEW, index));
-            	dayBookMasterVO.setAlterId(getPrimaryData(doc, xpath, ENVELOPE_BODY_DATA_TALLYMESSAGE, ALTERID, index));
+            	//dayBookMasterVO.setPersistedView(getPrimaryData(doc, xpath, ENVELOPE_BODY_DATA_TALLYMESSAGE, PERSISTEDVIEW, index));
+            	//dayBookMasterVO.setAlterId(getPrimaryData(doc, xpath, ENVELOPE_BODY_DATA_TALLYMESSAGE, ALTERID, index));
             	dayBookMasterVO.setMasterId(getPrimaryData(doc, xpath, ENVELOPE_BODY_DATA_TALLYMESSAGE, MASTERID, index));
             	
             	
@@ -368,15 +370,15 @@ public class TallyDayBookBC {
             	
             	dayBookMasterVO = new DayBookMasterVO();
             	dayBookMasterVO.setVoucherType(getPrimaryData(doc, xpath, tallyInputDTO.isTiny() ? ENVELOPE_BODY_DATA_TALLYMESSAGE_TINY : ENVELOPE_BODY_DATA_TALLYMESSAGE, VCHTYPE, index));
-            	dayBookMasterVO.setVoucherAction(getPrimaryData(doc, xpath, tallyInputDTO.isTiny() ? ENVELOPE_BODY_DATA_TALLYMESSAGE_TINY : ENVELOPE_BODY_DATA_TALLYMESSAGE, ACTION, index));
+            	//dayBookMasterVO.setVoucherAction(getPrimaryData(doc, xpath, tallyInputDTO.isTiny() ? ENVELOPE_BODY_DATA_TALLYMESSAGE_TINY : ENVELOPE_BODY_DATA_TALLYMESSAGE, ACTION, index));
             	dayBookMasterVO.setVoucherDate(getPrimaryData(doc, xpath, tallyInputDTO.isTiny() ? ENVELOPE_BODY_DATA_TALLYMESSAGE_TINY : ENVELOPE_BODY_DATA_TALLYMESSAGE, DATE, index));
-            	dayBookMasterVO.setVoucherTypeName(getPrimaryData(doc, xpath, tallyInputDTO.isTiny() ? ENVELOPE_BODY_DATA_TALLYMESSAGE_TINY : ENVELOPE_BODY_DATA_TALLYMESSAGE, VOUCHERTYPENAME, index));
+            	//dayBookMasterVO.setVoucherTypeName(getPrimaryData(doc, xpath, tallyInputDTO.isTiny() ? ENVELOPE_BODY_DATA_TALLYMESSAGE_TINY : ENVELOPE_BODY_DATA_TALLYMESSAGE, VOUCHERTYPENAME, index));
             	dayBookMasterVO.setVoucherNumber(getPrimaryData(doc, xpath, tallyInputDTO.isTiny() ? ENVELOPE_BODY_DATA_TALLYMESSAGE_TINY : ENVELOPE_BODY_DATA_TALLYMESSAGE, VOUCHERNUMBER, index));
             	dayBookMasterVO.setPartyLedgerName(getPrimaryData(doc, xpath, tallyInputDTO.isTiny() ? ENVELOPE_BODY_DATA_TALLYMESSAGE_TINY : ENVELOPE_BODY_DATA_TALLYMESSAGE, PARTYLEDGERNAME, index));
             	dayBookMasterVO.setVoucherKey(getPrimaryData(doc, xpath, tallyInputDTO.isTiny() ? ENVELOPE_BODY_DATA_TALLYMESSAGE_TINY : ENVELOPE_BODY_DATA_TALLYMESSAGE, VOUCHERKEY, index));
             	dayBookMasterVO.setEffectiveDate(getPrimaryData(doc, xpath, tallyInputDTO.isTiny() ? ENVELOPE_BODY_DATA_TALLYMESSAGE_TINY : ENVELOPE_BODY_DATA_TALLYMESSAGE, EFFECTIVEDATE, index));
-            	dayBookMasterVO.setPersistedView(getPrimaryData(doc, xpath, tallyInputDTO.isTiny() ? ENVELOPE_BODY_DATA_TALLYMESSAGE_TINY : ENVELOPE_BODY_DATA_TALLYMESSAGE, PERSISTEDVIEW, index));
-            	dayBookMasterVO.setAlterId(getPrimaryData(doc, xpath, tallyInputDTO.isTiny() ? ENVELOPE_BODY_DATA_TALLYMESSAGE_TINY : ENVELOPE_BODY_DATA_TALLYMESSAGE, ALTERID, index));
+            	//dayBookMasterVO.setPersistedView(getPrimaryData(doc, xpath, tallyInputDTO.isTiny() ? ENVELOPE_BODY_DATA_TALLYMESSAGE_TINY : ENVELOPE_BODY_DATA_TALLYMESSAGE, PERSISTEDVIEW, index));
+            	//dayBookMasterVO.setAlterId(getPrimaryData(doc, xpath, tallyInputDTO.isTiny() ? ENVELOPE_BODY_DATA_TALLYMESSAGE_TINY : ENVELOPE_BODY_DATA_TALLYMESSAGE, ALTERID, index));
             	dayBookMasterVO.setMasterId(getPrimaryData(doc, xpath, tallyInputDTO.isTiny() ? ENVELOPE_BODY_DATA_TALLYMESSAGE_TINY : ENVELOPE_BODY_DATA_TALLYMESSAGE, MASTERID, index));
             	
             	

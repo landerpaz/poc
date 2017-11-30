@@ -6,7 +6,14 @@ public class StockBFDetail {
 	private String stockItemName;
 	private double bfTgt;
 	private double bfAct;
+	private String batchName;
 	
+	public String getBatchName() {
+		return batchName;
+	}
+	public void setBatchName(String batchName) {
+		this.batchName = batchName;
+	}
 	public String getVoucherEffectiveDate() {
 		return voucherEffectiveDate;
 	}

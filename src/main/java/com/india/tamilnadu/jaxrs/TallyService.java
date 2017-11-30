@@ -31,20 +31,20 @@ public interface TallyService {
 	List<Tally> getTallySummary();
 	
 	@PUT
-	@Path("/tally/")
-	Response updateTallySummary(Tally tally);
+	@Path("/tally/{companyId}")
+	Response updateTallySummary(Tally tally, @PathParam("companyId") String companyId);
 	
 	@GET
-	@Path("/daybook/")
-	List<DayBookMasterVO> getDayBook();
+	@Path("/daybook/{companyId}")
+	List<DayBookMasterVO> getDayBook(@PathParam("companyId") String companyId);
 	
 	@POST
 	@Path("/daybook/")
 	Response addDayBook(String dayBook);
 	
 	@PUT
-	@Path("/daybook/{voucherKey}")
-	Response updateDayBookFlag(@PathParam("voucherKey") String voucherKey);
+	@Path("/daybook/{companyId}/{voucherKey}")
+	Response updateDayBookFlag(@PathParam("companyId") String companyId, @PathParam("voucherKey") String voucherKey);
 	
 	@POST
 	@Path("/daybooktiny/")
@@ -59,47 +59,56 @@ public interface TallyService {
 	Response userLogin(Login login);
 	
 	@GET
-	@Path("/daybookjwt/")
-	javax.ws.rs.core.Response getDayBookJWT(@HeaderParam("Authorization") String token);
+	@Path("/daybookjwt/{companyId}")
+	javax.ws.rs.core.Response getDayBookJWT(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId);
 	
 	/*@GET
 	@Path("/stock/")
 	List<DayBookMasterVO> getStock();*/
 	
 	@GET
-	@Path("/stock/gsm/")
-	List<StockGSMDetail> getStockGSM();
+	@Path("/stock/{name}/{companyId}/{startDate}/{endDate}")
+	List<StockGSMDetail> getStockGraph(@PathParam("name") String name, @PathParam("companyId") String companyId, 
+			@PathParam("startDate") String startDate, @PathParam("endDate") String endDate);
 	
 	@GET
-	@Path("/stock/gsm/7")
-	List<StockGSMDetail> getStockGSMLast7Days();
+	@Path("/stock/gsm/{companyId}")
+	List<StockGSMDetail> getStockGSM(@PathParam("companyId") String companyId);
+	
+	//not in use
+	@GET
+	@Path("/stock/gsm/7/{companyId}")
+	List<StockGSMDetail> getStockGSMLast7Days(@PathParam("companyId") String companyId);
+	
+	//not in use
+	@GET
+	@Path("/stock/gsm/30/{companyId}")
+	List<StockGSMDetail> getStockGSMLast30Days(@PathParam("companyId") String companyId);
 	
 	@GET
-	@Path("/stock/gsm/30")
-	List<StockGSMDetail> getStockGSMLast30Days();
+	@Path("/stock/bf/{companyId}")
+	List<StockBFDetail> getStockBF(@PathParam("companyId") String companyId);
+	
+	//not in use
+	@GET
+	@Path("/stock/bf/7/{companyId}")
+	List<StockBFDetail> getStockBFLast7Days(@PathParam("companyId") String companyId);
+	
+	//not in use
+	@GET
+	@Path("/stock/bf/30/{companyId}")
+	List<StockBFDetail> getStockBFLast30Days(@PathParam("companyId") String companyId);
 	
 	@GET
-	@Path("/stock/bf/")
-	List<StockBFDetail> getStockBF();
+	@Path("/stocks/{companyId}")
+	List<StockBFDetail> getStocks(@PathParam("companyId") String companyId);
 	
 	@GET
-	@Path("/stock/bf/7")
-	List<StockBFDetail> getStockBFLast7Days();
+	@Path("/stocks/productionstatistics/{companyId}")
+	StockStatistics getProductionStatistics(@PathParam("companyId") String companyId);
 	
 	@GET
-	@Path("/stock/bf/30")
-	List<StockBFDetail> getStockBFLast30Days();
-	
-	@GET
-	@Path("/stocks")
-	List<StockBFDetail> getStocks();
-	
-	@GET
-	@Path("/stocks/productionstatistics")
-	StockStatistics getProductionStatistics();
-	
-	@GET
-	@Path("/stocks/productiondashboardchart")
-	List<ProductionDashboardChart> getProductionDashboardChart();
+	@Path("/stocks/productiondashboardchart/{companyId}")
+	List<ProductionDashboardChart> getProductionDashboardChart(@PathParam("companyId") String companyId);
 	
 }

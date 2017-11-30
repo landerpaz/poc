@@ -135,6 +135,9 @@ public class TallyServiceImpl implements TallyService {
 	public Response addTallyData(String tallyData) {
 		System.out.println("...adding tally data");
 				
+		//This companyId will come through URL
+		String companyId = "Spak";
+		
 		TallyBean tallyBean = null;
 		System.out.println("Tally Data : " + tallyData);
 		
@@ -166,11 +169,11 @@ public class TallyServiceImpl implements TallyService {
 			System.out.println("Insert tally summary data in DB...");
 			
 			TallyRequestContext context = new TallyRequestContext();
-			context.setReportName("REQUEST_XML_TRAIL_BALANCE");
 			context.setKeys(tallyBean.getKeys());
 			context.setValues1(tallyBean.getValues1());
 			context.setValues2(tallyBean.getValues2());
 			context.setCheckFlag(false);
+			context.setCompanyId(companyId);
 			
 			TallyDAO tallyDAO = new TallyDAO();
 			int reportId = tallyDAO.getNextValueForReportId();
@@ -184,7 +187,7 @@ public class TallyServiceImpl implements TallyService {
 		return response;
 	}
 	
-	public Response updateTallySummary(Tally tally) {
+	public Response updateTallySummary(Tally tally, String companyId) {
 		System.out.println("...update tally data");
 		
 		Response response = new Response();
@@ -193,6 +196,7 @@ public class TallyServiceImpl implements TallyService {
 		
 		try {
 			TallyDAO tallyDAO = new TallyDAO();
+			tally.setCompanyId(companyId);
 			response = tallyDAO.updateTallySummary(tally);
 			
 		} catch (Exception e) {
@@ -203,7 +207,7 @@ public class TallyServiceImpl implements TallyService {
 		return response;
 	}
 	
-	public Response updateDayBookFlag(String voucherKey) {
+	public Response updateDayBookFlag(String companyId, String voucherKey) {
 		System.out.println("...update day book flag");
 		System.out.println("voucherKey : " + voucherKey);
 		
@@ -214,6 +218,7 @@ public class TallyServiceImpl implements TallyService {
 		try {
 			TallyInputDTO tallyInputDTO = new TallyInputDTO();
 			tallyInputDTO.setVoucherKey(voucherKey);
+			tallyInputDTO.setCompanyId(companyId);
 			
 			TallyDayBookBC dayBookBC = new TallyDayBookBC();
 			dayBookBC.updateTallyDayBookData(tallyInputDTO);
@@ -231,7 +236,7 @@ public class TallyServiceImpl implements TallyService {
 	 * 
 	 * 
 	 **/
-	public List getDayBook() {
+	public List getDayBook(String companyId) {
 		
 		TallyInputDTO tallyInputDTO = null;
 		List dayBookList = null;
@@ -240,6 +245,7 @@ public class TallyServiceImpl implements TallyService {
 		try {
 			
 			tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setCompanyId(companyId);
 			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
 			
 			LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getDayBook In");
@@ -258,7 +264,7 @@ public class TallyServiceImpl implements TallyService {
 		return dayBookList;
 	}
 	
-	public javax.ws.rs.core.Response getDayBookJWT(String token) {
+	public javax.ws.rs.core.Response getDayBookJWT(String token, String companyId) {
 		
 		TallyInputDTO tallyInputDTO = null;
 		List dayBookList = null;
@@ -267,6 +273,7 @@ public class TallyServiceImpl implements TallyService {
 		try {
 			
 			tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setCompanyId(companyId);
 			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
 			
 			System.out.println("token : " + token);
@@ -402,7 +409,7 @@ public class TallyServiceImpl implements TallyService {
 		return stockMasters;
 	}
 	
-	public List getStockGSM() {
+	public List getStockGraph(String name, String companyId, String startDate, String endDate) {
 		
 		TallyInputDTO tallyInputDTO = null;
 		List stockGSMs = null;
@@ -412,6 +419,45 @@ public class TallyServiceImpl implements TallyService {
 			
 			tallyInputDTO = new TallyInputDTO();
 			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
+			tallyInputDTO.setCompanyId(companyId);
+			tallyInputDTO.setName(name);
+			tallyInputDTO.setStartDate(startDate);
+			tallyInputDTO.setEndDate(endDate);
+			
+			LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStockGraph In");
+			
+			TallyStockBC stockBC = new TallyStockBC();
+			
+			if (name.equals("gsm")) {
+				stockGSMs = stockBC.getGSMData(tallyInputDTO);
+			} else if (name.equals("bf")) {
+				stockGSMs = stockBC.getBFData(tallyInputDTO);
+			} else {
+				LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "not a valid name");
+			}
+					
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "Number of day stock : "  + (null == stockGSMs? "0" : stockGSMs.size()));
+			LOG.info(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "getStockGraph Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "exception captured in getStockGraph", e.getMessage());
+			e.printStackTrace();
+		}
+	
+		return stockGSMs;
+	}
+
+	public List getStockGSM(String companyId) {
+		
+		TallyInputDTO tallyInputDTO = null;
+		List stockGSMs = null;
+		long startTime = System.currentTimeMillis();
+		
+		try {
+			
+			tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
+			tallyInputDTO.setCompanyId(companyId);
 			
 			LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStockGSM In");
 			
@@ -429,7 +475,7 @@ public class TallyServiceImpl implements TallyService {
 		return stockGSMs;
 	}
 
-	public List getStockGSMLast7Days() {
+	public List getStockGSMLast7Days(String companyId) {
 		
 		TallyInputDTO tallyInputDTO = null;
 		List stockGSMs = null;
@@ -456,7 +502,7 @@ public class TallyServiceImpl implements TallyService {
 		return stockGSMs;
 	}
 
-	public List getStockGSMLast30Days() {
+	public List getStockGSMLast30Days(String companyId) {
 		
 		TallyInputDTO tallyInputDTO = null;
 		List stockGSMs = null;
@@ -483,7 +529,7 @@ public class TallyServiceImpl implements TallyService {
 		return stockGSMs;
 	}
 
-	public List getStockBF() {
+	public List getStockBF(String companyId) {
 		
 		TallyInputDTO tallyInputDTO = null;
 		List stockBFs = null;
@@ -493,6 +539,7 @@ public class TallyServiceImpl implements TallyService {
 			
 			tallyInputDTO = new TallyInputDTO();
 			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
+			tallyInputDTO.setCompanyId(companyId);
 			
 			LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStockBF In");
 			
@@ -510,7 +557,7 @@ public class TallyServiceImpl implements TallyService {
 		return stockBFs;
 	}
 	
-	public List getStockBFLast7Days() {
+	public List getStockBFLast7Days(String companyId) {
 		
 		TallyInputDTO tallyInputDTO = null;
 		List stockBFs = null;
@@ -537,7 +584,7 @@ public class TallyServiceImpl implements TallyService {
 		return stockBFs;
 	}
 
-	public List getStockBFLast30Days() {
+	public List getStockBFLast30Days(String companyId) {
 		
 		TallyInputDTO tallyInputDTO = null;
 		List stockBFs = null;
@@ -564,7 +611,7 @@ public class TallyServiceImpl implements TallyService {
 		return stockBFs;
 	}
 
-	public List getStocks() {
+	public List getStocks(String companyId) {
 		
 		TallyInputDTO tallyInputDTO = null;
 		List stockss = null;
@@ -574,6 +621,7 @@ public class TallyServiceImpl implements TallyService {
 			
 			tallyInputDTO = new TallyInputDTO();
 			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
+			tallyInputDTO.setCompanyId(companyId);
 			
 			LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStocks In");
 			
@@ -591,7 +639,7 @@ public class TallyServiceImpl implements TallyService {
 		return stockss;
 	}
 
-	public StockStatistics getProductionStatistics() {
+	public StockStatistics getProductionStatistics(String companyId) {
 		
 		TallyInputDTO tallyInputDTO = null;
 		StockStatistics statistics = null;
@@ -601,6 +649,7 @@ public class TallyServiceImpl implements TallyService {
 			
 			tallyInputDTO = new TallyInputDTO();
 			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
+			tallyInputDTO.setCompanyId(companyId);
 			
 			LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getProductionStatistics In");
 			
@@ -617,7 +666,7 @@ public class TallyServiceImpl implements TallyService {
 		return statistics;
 	}
 	
-	public List getProductionDashboardChart() {
+	public List getProductionDashboardChart(String companyId) {
 		
 		TallyInputDTO tallyInputDTO = null;
 		List productionDashboardCharts = null;
@@ -627,6 +676,7 @@ public class TallyServiceImpl implements TallyService {
 			
 			tallyInputDTO = new TallyInputDTO();
 			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
+			tallyInputDTO.setCompanyId(companyId);
 			
 			LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getProductionDashboardChart In");
 			

@@ -7,12 +7,12 @@ public class Tally {
 
 	private String tallySummaryIid;
 	private String reportId;
-	private String reportName;
 	private String reportKey;
 	private String reportValue1;
 	private String reportValue2;
 	private String createdTime;
 	private String checkFlag;
+	private String companyId;
 	
 	public String getCheckFlag() {
 		return checkFlag;
@@ -32,14 +32,14 @@ public class Tally {
 	public void setReportId(String reportId) {
 		this.reportId = reportId;
 	}
-	public String getReportName() {
-		return reportName;
-	}
-	public void setReportName(String reportName) {
-		this.reportName = reportName;
-	}
 	public String getReportKey() {
 		return reportKey;
+	}
+	public String getCompanyId() {
+		return companyId;
+	}
+	public void setCompanyId(String companyId) {
+		this.companyId = companyId;
 	}
 	public void setReportKey(String reportKey) {
 		this.reportKey = reportKey;

@@ -7,10 +7,9 @@ public class TallyRequestContext {
 	private List<String> keys;
 	private List<String> values1;
 	private List<String> values2;
-	private String reportName;
+	private String companyId;
 	private int reportId;
 	private boolean checkFlag;
-	
 	
 	public boolean isCheckFlag() {
 		return checkFlag;
@@ -24,11 +23,11 @@ public class TallyRequestContext {
 	public void setReportId(int reportId) {
 		this.reportId = reportId;
 	}
-	public String getReportName() {
-		return reportName;
+	public String getCompanyId() {
+		return companyId;
 	}
-	public void setReportName(String reportName) {
-		this.reportName = reportName;
+	public void setCompanyId(String companyId) {
+		this.companyId = companyId;
 	}
 	public List<String> getKeys() {
 		return keys;

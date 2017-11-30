@@ -1,6 +1,8 @@
 package com.india.tamilnadu.util;
 
 import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.UUID;
 
 import com.india.tamilnadu.tally.vo.InventoryEntryVO;
@@ -63,7 +65,25 @@ public class Utility {
 	}
 
 	public static void main(String[] a) {
-		System.out.println(formatQty("392.000 Kgs = 0.3920 Ton"));
+		//System.out.println(formatQty("392.000 Kgs = 0.3920 Ton"));
+		System.out.println(convertStringToDate(""));
+	}
+	
+	public static Date convertStringToDate(String inputDate) {
+		
+	   //inputDate="2014-12-31";
+	   SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+	   java.util.Date date = null;
+	   
+		try {
+			date = sdf1.parse(inputDate);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return new Date(date.getTime()); 
+		   
 	}
 
 }
