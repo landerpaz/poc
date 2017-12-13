@@ -57,7 +57,7 @@ public class JWTHelper {
 			
 			//System.out.println(jwt);
 			
-			System.out.println(validateJWT("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2Vycy9Uek1Vb2NNRjRwIiwiZXhwIjoxNTA3NjE2OTMwLCJuYW1lIjoiRmlyc3ROYW1lIExhc3ROYW1lIiwic2NvcGUiOiJBZG1pbiJ9.1kKc6yu6qoz33Du_zVjPBhzlGuQuQIXX9JJZj_7B6qg"));
+			System.out.println(validateJWT("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2Vycy9Uek1Vb2NNRjRwIiwiZXhwIjoxNTEyMjM5MTYxLCJuYW1lIjoiRmlyc3ROYW1lIExhc3ROYW1lIiwic2NvcGUiOiJBZG1pbiJ9.9rTlwGI6ERK2w7Y0B9M_NKzjYpN9WrXQFhh5T1562I8"));
 			
 		} catch (Exception e) {
 			// TODO: handle exception

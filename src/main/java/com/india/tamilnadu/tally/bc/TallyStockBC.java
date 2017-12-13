@@ -11,6 +11,10 @@ import org.slf4j.LoggerFactory;
 import com.india.tamilnadu.dao.TallyDAO;
 import com.india.tamilnadu.tally.dto.TallyInputDTO;
 import com.india.tamilnadu.tally.vo.ProductionDashboardChart;
+import com.india.tamilnadu.tally.vo.ProductionSummary;
+import com.india.tamilnadu.tally.vo.ProductionSummaryByYear;
+import com.india.tamilnadu.tally.vo.SalesSummary;
+import com.india.tamilnadu.tally.vo.SalesSummaryByYear;
 import com.india.tamilnadu.tally.vo.StockBFDetail;
 import com.india.tamilnadu.tally.vo.StockDetail;
 import com.india.tamilnadu.tally.vo.StockGSMDetail;
@@ -184,7 +188,17 @@ public class TallyStockBC {
 		
 		//get data from DB
 		TallyDAO tallyDAO = new TallyDAO();
-		StockStatistics statistics = tallyDAO.getStocksStatistics(tallyInputDTO);
+		
+		//get weekly, monthly, quarterly and yealy from stock_master, stocker_details and stock_item_details tables
+		//StockStatistics statistics = tallyDAO.getStocksStatistics(tallyInputDTO);
+		
+		//get monthly, quarterly and yealy from history_data table
+		StockStatistics statistics = tallyDAO.getSummaryFromHistoryData(tallyInputDTO);
+		
+		statistics.setProductionSummaryByMonth(getProductionSummary(tallyInputDTO));
+		statistics.setSalesSummaryByMonth(getSalesSummary(tallyInputDTO));
+		statistics.setProductionSummaryByYear(getProductionSummaryByYear(tallyInputDTO));
+		statistics.setSalesSummaryByYear(getSalesSummaryByYear(tallyInputDTO));
 		
 		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStocksStatistics Out");
 		
@@ -204,4 +218,55 @@ public class TallyStockBC {
 		return productionDashboardCharts;
 	}
 
+	private List<ProductionSummary> getProductionSummary(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getProductionSummary In");
+		
+		//get data from DB
+		TallyDAO tallyDAO = new TallyDAO();
+		List<ProductionSummary> productionSummaries = tallyDAO.getProductionSummary(tallyInputDTO);
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getProductionSummary Out");
+		
+		return productionSummaries;
+	}
+	
+	private List<SalesSummary> getSalesSummary(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getSalesSummary In");
+		
+		//get data from DB
+		TallyDAO tallyDAO = new TallyDAO();
+		List<SalesSummary> salesSummaries = tallyDAO.getSalesSummary(tallyInputDTO);
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getSalesSummary Out");
+		
+		return salesSummaries;
+	}
+	
+	private List<ProductionSummaryByYear> getProductionSummaryByYear(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getProductionSummaryByYear In");
+		
+		//get data from DB
+		TallyDAO tallyDAO = new TallyDAO();
+		List<ProductionSummaryByYear> productionSummaries = tallyDAO.getProductionSummaryByYear(tallyInputDTO);
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getProductionSummaryByYear Out");
+		
+		return productionSummaries;
+	}
+	
+	private List<SalesSummaryByYear> getSalesSummaryByYear(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getSalesSummaryByYear In");
+		
+		//get data from DB
+		TallyDAO tallyDAO = new TallyDAO();
+		List<SalesSummaryByYear> salesSummaries = tallyDAO.getSalesSummaryByYear(tallyInputDTO);
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getSalesSummaryByYear Out");
+		
+		return salesSummaries;
+	}
 }

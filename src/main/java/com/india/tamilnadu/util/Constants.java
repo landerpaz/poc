@@ -44,7 +44,7 @@ public class Constants {
 	public static final String DB_ADD_DAYBOOK_INVENTORY = "insert into DAYBOOK_INVENTORY(STOCK_ITEM_NAME, AMOUNT, RATE, BILLED_QTY, VOUCHER_KEY, CREATED_DATE, MODIFIED_DATE, COMPANY_ID) values (?, ?, ?, ?, ?, ?, ?, ?)";
 	
 	//DAYBOOK_MASTER - GET
-	public static final String DB_GET_DAYBOOK_MASTER = "select VOUCHER_KEY, VCH_TYPE, DATE_FORMAT(VOUCHER_DATE,'%d-%m-%Y') VOUCHER_DATE, VOUCHER_NUMBER, PARTY_LEDGER_NAME, DATE_FORMAT(EFFECTIVE_DATE,'%d-%m-%Y') EFFECTIVE_DATE, MASTER_ID, FLAG, CREATED_DATE, MODIFIED_DATE from DAYBOOK_MASTER where company_id= ? and flag = false order by VOUCHER_DATE desc limit 50";
+	public static final String DB_GET_DAYBOOK_MASTER = "select VOUCHER_KEY, VCH_TYPE, DATE_FORMAT(VOUCHER_DATE,'%d-%m-%Y') VOUCHER_DATE_FORMATTED, VOUCHER_NUMBER, PARTY_LEDGER_NAME, DATE_FORMAT(EFFECTIVE_DATE,'%d-%m-%Y') EFFECTIVE_DATE, MASTER_ID, FLAG, CREATED_DATE, MODIFIED_DATE, VOUCHER_DATE from DAYBOOK_MASTER where company_id= ? and flag = false order by VOUCHER_DATE desc limit 50";
 	public static final String DB_GET_DAYBOOK_LEDGER = "select ID, LEDGER_NAME, AMOUNT, VOUCHER_KEY, CREATED_DATE, MODIFIED_DATE from DAYBOOK_LEDGER WHERE COMPANY_ID = ?";
 	public static final String DB_GET_DAYBOOK_INVENTORY = "select ID, STOCK_ITEM_NAME, AMOUNT, RATE, BILLED_QTY, VOUCHER_KEY, CREATED_DATE, MODIFIED_DATE from DAYBOOK_INVENTORY WHERE COMPANY_ID = ?";
 	
@@ -200,4 +200,27 @@ public class Constants {
 	public static final String UNITS = "UNITS";
 	public static final String DB_RATE = "RATE";
 	public static final String DB_AMOUNT = "AMOUNT";
+	
+	//sales and production summary
+	public static final String DB_GET_SALES_PRODUCTION_SUMMARY = "select MONTH, AMOUNT from HISTORY_DATA where COMPANY_ID = ? and GROUP_NAME = ? AND STATUS = ? AND YEAR = ?";
+	public static final String DB_GET_SALES_PRODUCTION_SUMMARY_BY_YEAR = "select YEAR, sum(AMOUNT) from HISTORY_DATA where GROUP_NAME = ? AND STATUS= ? AND COMPANY_ID = ? group by YEAR";
+
+	public static final String DB_GET_CURRENT_YEAR_SUMMARY = "select sum(AMOUNT) from HISTORY_DATA where GROUP_NAME = ? AND STATUS= ? AND COMPANY_ID = ? AND YEAR = ?";
+	public static final String DB_GET_CURRENT_MONTH_SUMMARY = "select sum(AMOUNT) from HISTORY_DATA where GROUP_NAME = ? AND STATUS= ? AND COMPANY_ID = ? AND YEAR = ? AND MONTH = ?";
+	
+	public static final String FIRST_QUARTER = "('January', 'Febrarury', 'March')";
+	public static final String SECOND_QUARTER = "('April', 'May', 'June')";
+	public static final String THIRD_QUARTER = "('July', 'August', 'September')";
+	public static final String FOURTH_QUARTER = "('October', 'November', 'December')";
+	
+	public static final String DB_GET_CURRENT_QUARTER_SUMMARY = "select sum(AMOUNT) from HISTORY_DATA where GROUP_NAME = ? AND STATUS= ? AND COMPANY_ID = ? AND YEAR = ? AND MONTH IN ";
+	
+	
+//	public static final String DB_GET_PRODUCTION_QUARTER = "select QUARTER(now()) qy, sum(sid.billed_qty) from STOCK_MASTER sm, STOCK_DETAILS sd, STOCK_ITEM_DETAILS sid "
+//			+ "where sm.voucher_key = sd.voucher_key and sd.STOCK_DETAILS_ID = sid.STOCK_DETAILS_ID  AND sm.COMPANY_ID = ? group by qy"; 
+//	
+//	public static final String DB_GET_PRODUCTION_MONTH = "select  YEAR(NOW()) as year1, MONTH(NOW()) as month1,  sum(sid.billed_qty) "
+//			+ "from STOCK_MASTER sm, STOCK_DETAILS sd, STOCK_ITEM_DETAILS sid where sm.voucher_key = sd.voucher_key and YEAR(sm.effective_date)=YEAR(NOW()) "
+//			+ "AND MONTH(sm.effective_date)=MONTH(NOW()) and sd.STOCK_DETAILS_ID = sid.STOCK_DETAILS_ID  AND sm.COMPANY_ID = ? group by YEAR(NOW()),MONTH(NOW())";
+	
 }

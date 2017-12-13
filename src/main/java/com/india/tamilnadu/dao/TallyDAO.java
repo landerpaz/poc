@@ -21,6 +21,10 @@ import com.india.tamilnadu.tally.vo.DayBookMasterVO;
 import com.india.tamilnadu.tally.vo.InventoryEntryVO;
 import com.india.tamilnadu.tally.vo.LedgerEntryVO;
 import com.india.tamilnadu.tally.vo.ProductionDashboardChart;
+import com.india.tamilnadu.tally.vo.ProductionSummary;
+import com.india.tamilnadu.tally.vo.ProductionSummaryByYear;
+import com.india.tamilnadu.tally.vo.SalesSummary;
+import com.india.tamilnadu.tally.vo.SalesSummaryByYear;
 import com.india.tamilnadu.tally.vo.StockBFDetail;
 import com.india.tamilnadu.tally.vo.StockItemDetail;
 import com.india.tamilnadu.tally.vo.StockDetail;
@@ -54,12 +58,14 @@ public class TallyDAO implements BaseDAO {
 		
 			while(resultSet.next()) {
 				
+				//System.out.println(resultSet.getString("report_value1") + " : " + resultSet.getString("report_value2"));
+				
 				tally = new Tally();
 				tally.setTallySummaryIid(resultSet.getString("tally_summary_id"));
 				tally.setReportId(resultSet.getString("report_id"));
 				tally.setReportKey(resultSet.getString("report_key"));
-				tally.setReportValue1(resultSet.getString("report_value1"));
-				tally.setReportValue2(resultSet.getString("report_value2"));
+				tally.setReportValue1(Integer.toString((int)(Math.abs(Double.parseDouble(resultSet.getString("report_value1"))))));
+				tally.setReportValue2(Integer.toString((int)(Math.abs(Double.parseDouble(resultSet.getString("report_value2"))))));
 				tally.setCreatedTime(resultSet.getString("created_date"));
 				tally.setCheckFlag(resultSet.getString("check_flag"));
 				
@@ -593,7 +599,7 @@ public class TallyDAO implements BaseDAO {
 				dayBookMasterVO = new DayBookMasterVO();
 				dayBookMasterVO.setVoucherKey(resultSet.getString("VOUCHER_KEY"));
 				dayBookMasterVO.setVoucherType(resultSet.getString("VCH_TYPE"));
-				dayBookMasterVO.setVoucherDate(resultSet.getString("VOUCHER_DATE"));
+				dayBookMasterVO.setVoucherDate(resultSet.getString("VOUCHER_DATE_FORMATTED"));
 				dayBookMasterVO.setVoucherNumber(resultSet.getString("VOUCHER_NUMBER"));
 				dayBookMasterVO.setPartyLedgerName(resultSet.getString("PARTY_LEDGER_NAME"));
 				dayBookMasterVO.setEffectiveDate(resultSet.getString("EFFECTIVE_DATE"));
@@ -1161,7 +1167,7 @@ public class TallyDAO implements BaseDAO {
 		return stockss;
 	}
 
-	public StockStatistics getStocksStatistics(TallyInputDTO tallyInputDTO) throws Exception {
+	/*public StockStatistics getStocksStatistics(TallyInputDTO tallyInputDTO) throws Exception {
 		
 		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getStocksStatistics In");
 		
@@ -1212,7 +1218,7 @@ public class TallyDAO implements BaseDAO {
 		}
 		
 		return statistics;
-	}
+	}*/
 	
 	public List<ProductionDashboardChart> getProductionDashboardChart(TallyInputDTO tallyInputDTO) throws Exception {
 		
@@ -1250,4 +1256,241 @@ public class TallyDAO implements BaseDAO {
 		
 		return productionDashboardCharts;
 	}
+	
+	public List<ProductionSummary> getProductionSummary(TallyInputDTO tallyInputDTO) {
+		
+		ProductionSummary productionSummary = null;
+		List<ProductionSummary> productionSummaries =  new ArrayList<ProductionSummary>();
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_SALES_PRODUCTION_SUMMARY);
+			preparedStatement.setString(1, tallyInputDTO.getCompanyId());
+			preparedStatement.setString(2, "PROD");
+			preparedStatement.setString(3, "Yes");
+			preparedStatement.setString(4, Utility.getCurrentFinancialYear());
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				
+				productionSummary = new ProductionSummary();
+				productionSummary.setMonth(resultSet.getString("MONTH"));
+				//productionSummary.setAmount(Integer.toString(Double.valueOf(resultSet.getString("AMOUNT")).intValue()));
+				productionSummary.setAmount(resultSet.getString("AMOUNT"));
+				
+				productionSummaries.add(productionSummary);
+				
+			}
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("Error in getting tally summry from DB...");
+			e.printStackTrace();
+		} finally {
+			closeResources();
+		}
+		
+		return productionSummaries;
+	}
+	
+	public List<SalesSummary> getSalesSummary(TallyInputDTO tallyInputDTO) {
+		
+		SalesSummary salesSummary = null;
+		List<SalesSummary> salesSummaries =  new ArrayList<SalesSummary>();
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_SALES_PRODUCTION_SUMMARY);
+			preparedStatement.setString(1, tallyInputDTO.getCompanyId());
+			preparedStatement.setString(2, "SALES");
+			preparedStatement.setString(3, "Yes");
+			preparedStatement.setString(4, Utility.getCurrentFinancialYear());
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				
+				salesSummary = new SalesSummary();
+				salesSummary.setMonth(resultSet.getString("MONTH"));
+				//salesSummary.setAmount(Integer.toString(Double.valueOf(resultSet.getString("AMOUNT")).intValue()));
+				salesSummary.setAmount(resultSet.getString("AMOUNT"));
+				
+				salesSummaries.add(salesSummary);
+				
+			}
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("Error in getting tally summry from DB...");
+			e.printStackTrace();
+		} finally {
+			closeResources();
+		}
+		
+		return salesSummaries;
+	}
+	
+	public List<ProductionSummaryByYear> getProductionSummaryByYear(TallyInputDTO tallyInputDTO) {
+		
+		ProductionSummaryByYear productionSummaryByYear = null;
+		List<ProductionSummaryByYear> productionSummaries =  new ArrayList<ProductionSummaryByYear>();
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_SALES_PRODUCTION_SUMMARY_BY_YEAR);
+			preparedStatement.setString(1, "PROD");
+			preparedStatement.setString(2, "Yes");
+			preparedStatement.setString(3, tallyInputDTO.getCompanyId());
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				
+				productionSummaryByYear = new ProductionSummaryByYear();
+				productionSummaryByYear.setYear(resultSet.getString(1));
+				productionSummaryByYear.setAmount(resultSet.getString(2));
+				
+				productionSummaries.add(productionSummaryByYear);
+				
+			}
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("Error in getting tally summry from DB...");
+			e.printStackTrace();
+		} finally {
+			closeResources();
+		}
+		
+		return productionSummaries;
+	}
+
+	
+
+	public List<SalesSummaryByYear> getSalesSummaryByYear(TallyInputDTO tallyInputDTO) {
+		
+		SalesSummaryByYear salesSummaryByYear = null;
+		List<SalesSummaryByYear> salesSummaries =  new ArrayList<SalesSummaryByYear>();
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_SALES_PRODUCTION_SUMMARY_BY_YEAR);
+			preparedStatement.setString(1, "SALES");
+			preparedStatement.setString(2, "Yes");
+			preparedStatement.setString(3, tallyInputDTO.getCompanyId());
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				
+				salesSummaryByYear = new SalesSummaryByYear();
+				salesSummaryByYear.setYear(resultSet.getString(1));
+				salesSummaryByYear.setAmount(resultSet.getString(2));
+				
+				salesSummaries.add(salesSummaryByYear);
+				
+			}
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("Error in getting tally summry from DB...");
+			e.printStackTrace();
+		} finally {
+			closeResources();
+		}
+		
+		return salesSummaries;
+	}
+	
+	public StockStatistics getSummaryFromHistoryData(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getSummaryFromHistoryData In");
+		
+		StockStatistics statistics = new StockStatistics();
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_CURRENT_YEAR_SUMMARY);
+			preparedStatement.setString(1, "SALES");
+			preparedStatement.setString(2, "Yes");
+			preparedStatement.setString(3, tallyInputDTO.getCompanyId());
+			preparedStatement.setString(4, Utility.getCurrentFinancialYear());
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				statistics.setYearlySales(resultSet.getString(1));
+			}
+			
+			preparedStatement = connection.prepareStatement(new StringBuilder(Constants.DB_GET_CURRENT_QUARTER_SUMMARY).append(Utility.getCurrentQuarter()).toString());
+			preparedStatement.setString(1, "SALES");
+			preparedStatement.setString(2, "Yes");
+			preparedStatement.setString(3, tallyInputDTO.getCompanyId());
+			preparedStatement.setString(4, Utility.getCurrentFinancialYear());
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				statistics.setQuarterlySales(resultSet.getString(1));
+			}
+	
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_CURRENT_MONTH_SUMMARY);
+			preparedStatement.setString(1, "SALES");
+			preparedStatement.setString(2, "Yes");
+			preparedStatement.setString(3, tallyInputDTO.getCompanyId());
+			preparedStatement.setString(4, Utility.getCurrentFinancialYear());
+			preparedStatement.setString(5, Utility.getCurrentMonth());
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				statistics.setMonthlySales(resultSet.getString(1));
+			}
+			
+			//production
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_CURRENT_YEAR_SUMMARY);
+			preparedStatement.setString(1, "PROD");
+			preparedStatement.setString(2, "Yes");
+			preparedStatement.setString(3, tallyInputDTO.getCompanyId());
+			preparedStatement.setString(4, Utility.getCurrentFinancialYear());
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				statistics.setYearlyProduction(resultSet.getString(1));
+			}
+			
+			//System.out.println(new StringBuilder(Constants.DB_GET_CURRENT_QUARTER_SUMMARY).append(Utility.getCurrentQuarter()).toString());
+			preparedStatement = connection.prepareStatement(new StringBuilder(Constants.DB_GET_CURRENT_QUARTER_SUMMARY).append(Utility.getCurrentQuarter()).toString());
+			preparedStatement.setString(1, "PROD");
+			preparedStatement.setString(2, "Yes");
+			preparedStatement.setString(3, tallyInputDTO.getCompanyId());
+			preparedStatement.setString(4, Utility.getCurrentFinancialYear());
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				statistics.setQuarterlyProduction(resultSet.getString(1));
+			}		
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_CURRENT_MONTH_SUMMARY);
+			preparedStatement.setString(1, "PROD");
+			preparedStatement.setString(2, "Yes");
+			preparedStatement.setString(3, tallyInputDTO.getCompanyId());
+			preparedStatement.setString(4, Utility.getCurrentFinancialYear());
+			preparedStatement.setString(5, Utility.getCurrentMonth());
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				statistics.setMonthlyProduction(resultSet.getString(1));
+			}
+			
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getSummaryFromHistoryData Out");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		} finally {
+			closeResources();
+		}
+		
+		return statistics;
+	}
+
 }

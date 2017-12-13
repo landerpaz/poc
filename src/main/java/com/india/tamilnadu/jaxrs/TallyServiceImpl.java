@@ -2,6 +2,7 @@ package com.india.tamilnadu.jaxrs;
 
 import java.util.List;
 
+import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,13 @@ import static com.india.tamilnadu.util.Constants.LOG_DATA_FORMAT;
 public class TallyServiceImpl implements TallyService {
 
 	private final Logger LOG = LoggerFactory.getLogger(TallyServiceImpl.class);
+	
+	//public void addAttachments(MultipartBody body) {
+	public void addAttachments(String body) {
+		//System.out.println(body.getType());
+		System.out.println("In");
+		System.out.println(body);
+	}
 	
 	public Response userLogin(Login login) {
 		
