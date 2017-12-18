@@ -13,11 +13,17 @@ import io.jsonwebtoken.SignatureAlgorithm;
 
 public class JWTHelper {
 
-	public static String getJWT(User user) throws Exception {
+	public static String getJWT(User user, String userAgent) throws Exception {
+		
+		int expTime = 60;
+		
+		if(userAgent.contains("Mobile")) {
+			expTime = 525600; //1 year
+		} 
 		
 		return Jwts.builder()
 				  .setSubject("users/TzMUocMF4p")
-				  .setExpiration(new DateTime().plusMinutes(60).toDate())
+				  .setExpiration(new DateTime().plusMinutes(expTime).toDate())
 				  .claim("name", user.getFirstName() + " " + user.getLastName())
 				  .claim("scope", user.getRole())
 				  .signWith(
@@ -35,7 +41,7 @@ public class JWTHelper {
 			
 			Jws<Claims> claims = Jwts.parser()
 			  .setSigningKey("secret".getBytes("UTF-8"))
-			  .parseClaimsJws(jwt);
+			  .parseClaimsJws(jwt.replace("Bearer ", ""));
 		
 			scope = (String)claims.getBody().get("scope");
 			
@@ -53,11 +59,11 @@ public class JWTHelper {
 			user.setFirstName("FirstName");
 			user.setLastName("LastName");
 			user.setRole("Admin");
-			//String jwt = getJWT(user);
+			String jwt = getJWT(user, "Mobile");
 			
-			//System.out.println(jwt);
+			System.out.println(jwt);
 			
-			System.out.println(validateJWT("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2Vycy9Uek1Vb2NNRjRwIiwiZXhwIjoxNTEyMjM5MTYxLCJuYW1lIjoiRmlyc3ROYW1lIExhc3ROYW1lIiwic2NvcGUiOiJBZG1pbiJ9.9rTlwGI6ERK2w7Y0B9M_NKzjYpN9WrXQFhh5T1562I8"));
+			//System.out.println(validateJWT("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2Vycy9Uek1Vb2NNRjRwIiwiZXhwIjoxNTEyMjM5MTYxLCJuYW1lIjoiRmlyc3ROYW1lIExhc3ROYW1lIiwic2NvcGUiOiJBZG1pbiJ9.9rTlwGI6ERK2w7Y0B9M_NKzjYpN9WrXQFhh5T1562I8"));
 			
 		} catch (Exception e) {
 			// TODO: handle exception

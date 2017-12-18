@@ -46,7 +46,7 @@
 
     <init-param>
         <param-name>cors.supportedHeaders</param-name>
-        <param-value>Content-Type</param-value>
+        <param-value>Content-Type, Accept, Authorization</param-value>
     </init-param>
     
     <init-param>

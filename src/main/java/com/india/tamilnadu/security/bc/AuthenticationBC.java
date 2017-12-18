@@ -1,5 +1,6 @@
 package com.india.tamilnadu.security.bc;
 
+import com.india.tamilnadu.dao.AuthenticationDAO;
 import com.india.tamilnadu.dto.Response;
 import com.india.tamilnadu.security.util.JWTHelper;
 import com.india.tamilnadu.vo.Login;
@@ -7,17 +8,21 @@ import com.india.tamilnadu.vo.User;
 
 public class AuthenticationBC {
 	
-	public User authenticate(Login login, String trackingId) throws Exception {
+	public User authenticate(Login login, String trackingId, String userAgent) throws Exception {
 		
 		User user = new User();
 		
-		//authenticate user against DB/LDAP/Hardcoded logic
-		user = authenticateCredentials(login);
+		//authenticate user against Hardcoded logic
+		//user = authenticateCredentials(login);
+		
+		//authenticate user against DB logic
+		AuthenticationDAO authenticationDAO = new AuthenticationDAO();
+		user = authenticationDAO.authenticate(login);
 		
 		//if auth success, get jwt and store them in concurrent mapping
 		//key - jwt  | value - auth object(created time , exp time)
 		if(user.isAuthenticate()) {
-			user.setToken(JWTHelper.getJWT(user));
+			user.setToken(JWTHelper.getJWT(user, userAgent));
 		}
 		
 		return user;

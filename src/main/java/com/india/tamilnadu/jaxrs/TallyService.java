@@ -30,16 +30,16 @@ public interface TallyService {
 	Response addTallyData(String tallyData);
 	
 	@GET
-	@Path("/tally/")
-	List<Tally> getTallySummary();
+	@Path("/tally/{companyId}")
+	javax.ws.rs.core.Response getTallySummary(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId);
 	
 	@PUT
 	@Path("/tally/{companyId}")
-	Response updateTallySummary(Tally tally, @PathParam("companyId") String companyId);
+	javax.ws.rs.core.Response updateTallySummary(@HeaderParam("Authorization") String token, Tally tally, @PathParam("companyId") String companyId);
 	
 	@GET
 	@Path("/daybook/{companyId}")
-	List<DayBookMasterVO> getDayBook(@PathParam("companyId") String companyId);
+	javax.ws.rs.core.Response getDayBook(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId);
 	
 	@POST
 	@Path("/daybook/")
@@ -47,7 +47,7 @@ public interface TallyService {
 	
 	@PUT
 	@Path("/daybook/{companyId}/{voucherKey}")
-	Response updateDayBookFlag(@PathParam("companyId") String companyId, @PathParam("voucherKey") String voucherKey);
+	javax.ws.rs.core.Response updateDayBookFlag(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId, @PathParam("voucherKey") String voucherKey);
 	
 	@POST
 	@Path("/daybooktiny/")
@@ -59,7 +59,7 @@ public interface TallyService {
 	
 	@POST
 	@Path("/userLogin/")
-	Response userLogin(Login login);
+	Response userLogin(@HeaderParam("User-Agent") String userAgent, Login login);
 	
 	@GET
 	@Path("/daybookjwt/{companyId}")
@@ -108,7 +108,7 @@ public interface TallyService {
 	
 	@GET
 	@Path("/stocks/productionstatistics/{companyId}")
-	StockStatistics getProductionStatistics(@PathParam("companyId") String companyId);
+	javax.ws.rs.core.Response getProductionStatistics(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId);
 	
 	@GET
 	@Path("/stocks/productiondashboardchart/{companyId}")

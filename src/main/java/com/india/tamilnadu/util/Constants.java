@@ -29,7 +29,7 @@ public class Constants {
 	//TRIAL_BALANCE
 	public static final String DB_ADD_TALLY_SUMMARY = "insert into TRIAL_BALANCE(report_id, report_key, report_value1, report_value2, created_date, check_flag, company_id) values (?, ?, ?, ?, ?, ?, ?)";
 	public static final String DB_GET_TALLY_SUMMARY_REPORT_ID_NEXTVAL = "select max(report_id) report_id from TRIAL_BALANCE"; //delete this later as logic is changed to delete all records before insert
-	public static final String DB_GET_TALLY_SUMMARY = "select tally_summary_id, report_id, report_key, report_value1, report_value2, DATE_FORMAT(created_date,'%d-%m-%Y') created_date, check_flag from TRIAL_BALANCE where check_flag = false and report_id in (select max(report_id) from TRIAL_BALANCE)";
+	public static final String DB_GET_TALLY_SUMMARY = "select tally_summary_id, report_id, report_key, report_value1, report_value2, DATE_FORMAT(created_date,'%d-%m-%Y') created_date, check_flag from TRIAL_BALANCE where company_id = ? and check_flag = false and report_id in (select max(report_id) from TRIAL_BALANCE)";
 	public static final String DB_UPDATE_TALLY_SUMMARY = "update TRIAL_BALANCE set check_flag = true where tally_summary_id = ? and report_id = ? and company_id = ?";
 	public static final String DB_DELETE_TALLY_SUMMARY= "delete from TRIAL_BALANCE where company_id = ?";
 	
@@ -215,6 +215,7 @@ public class Constants {
 	
 	public static final String DB_GET_CURRENT_QUARTER_SUMMARY = "select sum(AMOUNT) from HISTORY_DATA where GROUP_NAME = ? AND STATUS= ? AND COMPANY_ID = ? AND YEAR = ? AND MONTH IN ";
 	
+	public static final String DB_AUTHENTICATION = "SELECT COMPANY_ID, ROLE_ID FROM USERS WHERE USER_NAME = ? AND PWD = ? AND USER_STATUS =? ";
 	
 //	public static final String DB_GET_PRODUCTION_QUARTER = "select QUARTER(now()) qy, sum(sid.billed_qty) from STOCK_MASTER sm, STOCK_DETAILS sd, STOCK_ITEM_DETAILS sid "
 //			+ "where sm.voucher_key = sd.voucher_key and sd.STOCK_DETAILS_ID = sid.STOCK_DETAILS_ID  AND sm.COMPANY_ID = ? group by qy"; 

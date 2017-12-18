@@ -45,7 +45,7 @@ public class TallyDAO implements BaseDAO {
 	ResultSet resultSet = null;
 	PreparedStatement preparedStatement = null;
 	
-	public List<Tally> getTallySummary() {
+	public List<Tally> getTallySummary(TallyInputDTO tallyInputDTO) {
 		
 		Tally tally = null;
 		List<Tally> tallySummaryList =  new ArrayList<Tally>();
@@ -54,6 +54,7 @@ public class TallyDAO implements BaseDAO {
 			
 			connection = DatabaseManager.getInstance().getConnection();
 			preparedStatement = connection.prepareStatement(Constants.DB_GET_TALLY_SUMMARY);
+			preparedStatement.setString(1, tallyInputDTO.getCompanyId());
 			resultSet = preparedStatement.executeQuery();
 		
 			while(resultSet.next()) {

@@ -13,7 +13,14 @@ public class Tally {
 	private String createdTime;
 	private String checkFlag;
 	private String companyId;
+	private String trackingId;
 	
+	public String getTrackingId() {
+		return trackingId;
+	}
+	public void setTrackingId(String trackingId) {
+		this.trackingId = trackingId;
+	}
 	public String getCheckFlag() {
 		return checkFlag;
 	}
