@@ -180,11 +180,11 @@ public class TallyServiceImpl implements TallyService {
 		
 	}
 	
-	public Response addTallyData(String tallyData) {
+	public Response addTallyData(String tallyData, String companyId) {
 		System.out.println("...adding tally data");
 				
 		//This companyId will come through URL
-		String companyId = "Spak";
+		//String companyId = "Spak";
 		
 		TallyBean tallyBean = null;
 		System.out.println("Tally Data : " + tallyData);

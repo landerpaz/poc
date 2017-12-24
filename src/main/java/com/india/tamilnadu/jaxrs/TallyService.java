@@ -25,9 +25,13 @@ import com.india.tamilnadu.vo.Login;
 @Produces({ "application/xml", "application/json" })
 public interface TallyService {
 
-	@POST
+	/*@POST
 	@Path("/tally/")
-	Response addTallyData(String tallyData);
+	Response addTallyData(String tallyData);*/
+	
+	@POST
+	@Path("/tally/{companyId}")
+	Response addTallyData(String tallyData, @PathParam("companyId") String companyId);
 	
 	@GET
 	@Path("/tally/{companyId}")
