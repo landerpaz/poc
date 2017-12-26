@@ -1,14 +1,17 @@
 package com.india.tamilnadu.security.bc;
 
+import java.util.List;
+
 import com.india.tamilnadu.dao.AuthenticationDAO;
 import com.india.tamilnadu.dto.Response;
 import com.india.tamilnadu.security.util.JWTHelper;
 import com.india.tamilnadu.vo.Login;
+import com.india.tamilnadu.vo.Role;
 import com.india.tamilnadu.vo.User;
 
 public class AuthenticationBC {
 	
-	public User authenticate(Login login, String trackingId, String userAgent) throws Exception {
+	public User authenticate(String userName, byte[] pwd, String trackingId, String userAgent) throws Exception {
 		
 		User user = new User();
 		
@@ -17,7 +20,7 @@ public class AuthenticationBC {
 		
 		//authenticate user against DB logic
 		AuthenticationDAO authenticationDAO = new AuthenticationDAO();
-		user = authenticationDAO.authenticate(login);
+		user = authenticationDAO.authenticate(userName, pwd);
 		
 		//if auth success, get jwt and store them in concurrent mapping
 		//key - jwt  | value - auth object(created time , exp time)
@@ -56,5 +59,16 @@ public class AuthenticationBC {
 		
 		return user;
 	}
+	
+	public List<User> getUsers(String companyId, String trackingId) throws Exception {
+		
+		AuthenticationDAO authenticationDAO = new AuthenticationDAO();
+		return authenticationDAO.getUsers(companyId);
+	}
 
+	public List<Role> getRoles(String trackingId) throws Exception {
+		
+		AuthenticationDAO authenticationDAO = new AuthenticationDAO();
+		return authenticationDAO.getRoles();
+	}
 }

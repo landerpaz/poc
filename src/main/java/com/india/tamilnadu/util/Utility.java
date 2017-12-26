@@ -1,11 +1,18 @@
 package com.india.tamilnadu.util;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.UUID;
 
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+
+import com.india.tamilnadu.dao.AuthenticationDAO;
 import com.india.tamilnadu.tally.vo.InventoryEntryVO;
 
 public class Utility {
@@ -101,7 +108,24 @@ public class Utility {
 		//System.out.println(removeDecimal("121231.00"));
 		//System.out.println(Math.abs(-1232131.99));
 		//System.out.println(Long.toString(Math.round(Math.abs(Double.parseDouble("-23123.99")))));
-		System.out.println(getCurrentQuarter());
+		//System.out.println(getCurrentQuarter());
+		
+		String password = "Spak#007";
+		String salt = "spak3"; //user name 
+		String pwd1 = new String(hashPassword(password.toCharArray(), salt.getBytes(), 2, 256));
+		String pwd2 = new String(hashPassword(password.toCharArray(), salt.getBytes(), 2, 256));
+		System.out.println(new String(hashPassword(password.toCharArray(), salt.getBytes(), 2, 256)));
+		//System.out.println(pwd1.equals(pwd2));
+		
+		AuthenticationDAO authenticationDAO = new AuthenticationDAO();
+		
+		try {
+			authenticationDAO.insertPwd(salt, new String(hashPassword(password.toCharArray(), salt.getBytes(), 2, 256)));
+			//authenticationDAO.updatePwd(new String(hashPassword(password.toCharArray(), salt.getBytes(), 2, 256)), salt);
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
 	}
 	
 	public static Date convertStringToDate(String inputDate) {
@@ -162,4 +186,18 @@ public class Utility {
 		
 		return Long.toString(Math.round(Math.abs(Double.parseDouble(qty))));
 	}
+	
+	public static byte[] hashPassword( final char[] password, final byte[] salt, final int iterations, final int keyLength ) {
+		 
+       try {
+           SecretKeyFactory skf = SecretKeyFactory.getInstance( "PBKDF2WithHmacSHA512" );
+           PBEKeySpec spec = new PBEKeySpec( password, salt, iterations, keyLength );
+           SecretKey key = skf.generateSecret( spec );
+           byte[] res = key.getEncoded( );
+           return res;
+ 
+       } catch( NoSuchAlgorithmException | InvalidKeySpecException e ) {
+           throw new RuntimeException( e );
+       }
+   }
 }

@@ -26,7 +26,9 @@ import com.india.tamilnadu.util.TallyBean;
 import com.india.tamilnadu.util.TallyRequestContext;
 import com.india.tamilnadu.util.Utility;
 import com.india.tamilnadu.vo.Login;
+import com.india.tamilnadu.vo.Role;
 import com.india.tamilnadu.vo.User;
+import com.india.tamilnadu.vo.UserManager;
 
 import static com.india.tamilnadu.util.Constants.LOG_BASE_FORMAT;
 import static com.india.tamilnadu.util.Constants.LOG_DATA_FORMAT;
@@ -63,7 +65,8 @@ public class TallyServiceImpl implements TallyService {
 			
 			//authenticate user
 			AuthenticationBC authenticationBC = new AuthenticationBC();
-			User user = authenticationBC.authenticate(login, trackingID, userAgent);
+			User user = authenticationBC.authenticate(login.getEmail(), 
+					Utility.hashPassword(login.getPassword().toCharArray(), login.getEmail().getBytes(), 2, 256), trackingID, userAgent);
 			if(user.isAuthenticate()) {
 				response.setStatusMessage("AUTH_SUCCESS");
 				response.setRole(user.getRole());
@@ -78,7 +81,6 @@ public class TallyServiceImpl implements TallyService {
 		
 		} catch (AuthenticationException e) {
 			LOG.error(LOG_DATA_FORMAT, trackingID, "exception captured in authenticate", e.getMessage());
-			e.printStackTrace();
 			
 			response.setStatus("401");
 			response.setStatusMessage("AUTH ERROR");
@@ -792,6 +794,44 @@ public class TallyServiceImpl implements TallyService {
 		}
 	
 		return productionDashboardCharts;
+	}
+	
+	public javax.ws.rs.core.Response getUsers(String token, String companyId) {
+		
+		UserManager userManager = new UserManager();
+		List<User> users = new ArrayList<>();
+		List<Role> roles = new ArrayList<>();
+		String trackingId = Utility.getRandomNumber();
+		long startTime = System.currentTimeMillis();
+		
+		LOG.info(LOG_BASE_FORMAT, trackingId, "getUsers In");
+		
+		try {
+			
+			String scope = JWTHelper.validateJWT(token);
+			
+			AuthenticationBC authenticationBC = new AuthenticationBC();
+			users = authenticationBC.getUsers(companyId, trackingId);
+			roles = authenticationBC.getRoles(trackingId);
+			
+			userManager.setUsers(users);
+			userManager.setRoles(roles);
+			
+			LOG.debug(LOG_BASE_FORMAT, trackingId, "getUsers: Number of users: "  + (null == users? "0" : users.size()));
+			LOG.info(LOG_DATA_FORMAT, trackingId, "getUsers : getUsers Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, trackingId, "exception captured in getUsers", e.getMessage());
+			e.printStackTrace();
+			
+			if(e.getMessage().contains("getUsers : JWT signature does not match")) { 
+				return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
+			}
+			
+			return javax.ws.rs.core.Response.serverError().build();
+		}
+	
+		return javax.ws.rs.core.Response.ok(userManager).build();
 	}
 
 }

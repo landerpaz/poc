@@ -21,6 +21,7 @@ import com.india.tamilnadu.tally.vo.StockBFDetail;
 import com.india.tamilnadu.tally.vo.StockGSMDetail;
 import com.india.tamilnadu.tally.vo.StockStatistics;
 import com.india.tamilnadu.vo.Login;
+import com.india.tamilnadu.vo.User;
 
 @Produces({ "application/xml", "application/json" })
 public interface TallyService {
@@ -122,5 +123,9 @@ public interface TallyService {
 	@Path("/stocks/upload")
 	//public void addAttachments(MultipartBody body);
 	public void addAttachments(String body);
+	
+	@GET
+	@Path("/tally/users/{companyId}")
+	javax.ws.rs.core.Response getUsers(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId);
 	
 }
