@@ -1,5 +1,7 @@
 package com.india.tamilnadu.dao;
 
+import static com.india.tamilnadu.util.Constants.LOG_BASE_FORMAT;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,7 +18,9 @@ import com.india.tamilnadu.jaxrs.Tally;
 import com.india.tamilnadu.tally.bc.TallyDayBookBC;
 import com.india.tamilnadu.tally.dto.TallyInputDTO;
 import com.india.tamilnadu.util.Constants;
+import com.india.tamilnadu.util.Utility;
 import com.india.tamilnadu.vo.Login;
+import com.india.tamilnadu.vo.LoginUser;
 import com.india.tamilnadu.vo.Role;
 import com.india.tamilnadu.vo.User;
 
@@ -153,15 +157,11 @@ public class AuthenticationDAO {
 				
 			} 
 			
-		} catch (AuthenticationException e) {
-			// TODO: handle exception
-			System.out.println("Authentication failed...");
-			throw new AuthenticationException();
-			
 		} catch (Exception e) {
 			// TODO: handle exception
 			System.out.println("Error in getting users from DB...");
 			e.printStackTrace();
+			throw new Exception("Server error");
 		} finally {
 			closeResources();
 		}
@@ -191,20 +191,74 @@ public class AuthenticationDAO {
 				
 			} 
 			
-		} catch (AuthenticationException e) {
-			// TODO: handle exception
-			System.out.println("Authentication failed...");
-			throw new AuthenticationException();
-			
 		} catch (Exception e) {
 			// TODO: handle exception
 			System.out.println("Error in getting roles from DB...");
 			e.printStackTrace();
+			throw new Exception("Server error");
 		} finally {
 			closeResources();
 		}
 		
 		return roles;
+	}
+	
+	public void updateUsers(User user) throws Exception {
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_UPDATE_USERS);
+			preparedStatement.setString(1, user.getRole());
+			preparedStatement.setString(2, user.getUserStatus());
+			preparedStatement.setDate(3, Utility.getCurrentdate());
+			preparedStatement.setString(4, user.getUserName());
+			preparedStatement.setString(5, user.getCompanyId());
+			
+			preparedStatement.executeUpdate();
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("Error in updating users in DB...");
+			e.printStackTrace();
+			throw new Exception("Server error");
+		} finally {
+			closeResources();
+		}
+	}
+
+	public void addUser(LoginUser loginUser) throws Exception {
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_ADD_USERS);
+			preparedStatement.setString(1, loginUser.getEmail());
+			preparedStatement.setString(2, loginUser.getPassword());
+			preparedStatement.setString(3, loginUser.getCompanyId());
+			preparedStatement.setInt(4, 2); //role
+			preparedStatement.setString(5, "inactive"); //status
+			preparedStatement.setDate(6, Utility.getCurrentdate());
+			preparedStatement.setDate(7, Utility.getCurrentdate());
+			
+			preparedStatement.executeUpdate();
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("Error in adding users in DB...");
+			e.printStackTrace();
+			
+			if(null != e && e.getMessage().contains("Duplicate")) {
+				LOG.warn(LOG_BASE_FORMAT, "User is already available");
+				throw new Exception(e.getMessage());
+				
+			} else {
+				throw new RuntimeException(e);
+			}
+			
+		} finally {
+			closeResources();
+		}
 	}
 
 	private void closeResources() {

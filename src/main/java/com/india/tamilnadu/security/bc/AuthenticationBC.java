@@ -6,6 +6,7 @@ import com.india.tamilnadu.dao.AuthenticationDAO;
 import com.india.tamilnadu.dto.Response;
 import com.india.tamilnadu.security.util.JWTHelper;
 import com.india.tamilnadu.vo.Login;
+import com.india.tamilnadu.vo.LoginUser;
 import com.india.tamilnadu.vo.Role;
 import com.india.tamilnadu.vo.User;
 
@@ -70,5 +71,17 @@ public class AuthenticationBC {
 		
 		AuthenticationDAO authenticationDAO = new AuthenticationDAO();
 		return authenticationDAO.getRoles();
+	}
+	
+	public void updateUser(String trackingId, User user) throws Exception {
+		
+		AuthenticationDAO authenticationDAO = new AuthenticationDAO();
+		authenticationDAO.updateUsers(user);
+	}
+	
+	public void addUser(String trackingId, LoginUser loginUser) throws Exception {
+		
+		AuthenticationDAO authenticationDAO = new AuthenticationDAO();
+		authenticationDAO.addUser(loginUser);
 	}
 }

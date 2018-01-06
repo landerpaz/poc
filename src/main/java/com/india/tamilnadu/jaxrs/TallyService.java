@@ -21,6 +21,8 @@ import com.india.tamilnadu.tally.vo.StockBFDetail;
 import com.india.tamilnadu.tally.vo.StockGSMDetail;
 import com.india.tamilnadu.tally.vo.StockStatistics;
 import com.india.tamilnadu.vo.Login;
+import com.india.tamilnadu.vo.LoginUser;
+import com.india.tamilnadu.vo.Message;
 import com.india.tamilnadu.vo.User;
 
 @Produces({ "application/xml", "application/json" })
@@ -127,5 +129,21 @@ public interface TallyService {
 	@GET
 	@Path("/tally/users/{companyId}")
 	javax.ws.rs.core.Response getUsers(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId);
+	
+	@PUT
+	@Path("/tally/users/{companyId}")
+	javax.ws.rs.core.Response updateUser(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId, User user);
+	
+	@POST
+	@Path("/tally/users")
+	javax.ws.rs.core.Response addUser(LoginUser loginUser);
+	
+	@POST
+	@Path("/tally/message/{companyId}")
+	javax.ws.rs.core.Response addMessage(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId, Message message);
+	
+	@GET
+	@Path("/tally/message/{companyId}")
+	javax.ws.rs.core.Response getMessage(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId);
 	
 }

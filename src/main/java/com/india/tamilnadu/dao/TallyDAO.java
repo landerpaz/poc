@@ -36,6 +36,9 @@ import com.india.tamilnadu.util.Constants;
 import com.india.tamilnadu.util.TallyBean;
 import com.india.tamilnadu.util.TallyRequestContext;
 import com.india.tamilnadu.util.Utility;
+import com.india.tamilnadu.vo.LoginUser;
+import com.india.tamilnadu.vo.Message;
+import com.india.tamilnadu.vo.User;
 
 public class TallyDAO implements BaseDAO {
 	
@@ -1494,4 +1497,68 @@ public class TallyDAO implements BaseDAO {
 		return statistics;
 	}
 
+	public void addMessage(Message message) throws Exception {
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_ADD_MESSAGE);
+			preparedStatement.setString(1, message.getMessage());
+			preparedStatement.setString(2, message.getUrl());
+			preparedStatement.setString(3, message.getRole());
+			preparedStatement.setString(4, "active");
+			preparedStatement.setDate(5, Utility.getCurrentdate());
+			preparedStatement.setString(6, message.getCompanyId());
+			preparedStatement.setString(7, message.getTitle());
+			
+			preparedStatement.executeUpdate();
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("Error in adding messages in DB...");
+			e.printStackTrace();
+			
+			throw new RuntimeException(e);
+			
+		} finally {
+			closeResources();
+		}
+	}
+	
+	public List<Message> getMessage(String companyId) throws Exception {
+		
+		Message message = null;
+		List<Message> messages = new ArrayList<>();
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_MESSAGE);
+			preparedStatement.setString(1, companyId);
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				
+				message = new Message();
+				message.setMessage(resultSet.getString(1));
+				message.setUrl(resultSet.getString(2));
+				message.setCreatedDate(resultSet.getString(3));
+				message.setRole(resultSet.getString(4));
+				message.setTitle(resultSet.getString(5));
+				
+				messages.add(message);
+				
+			} 
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("Error in getting messages from DB...");
+			e.printStackTrace();
+			throw new Exception("Server error");
+		} finally {
+			closeResources();
+		}
+		
+		return messages;
+	}
 }

@@ -6,7 +6,6 @@ import java.util.List;
 import javax.security.sasl.AuthenticationException;
 
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
-import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.cxf.transport.http.HttpServletRequestSnapshot;
@@ -17,6 +16,7 @@ import com.india.tamilnadu.dao.TallyDAO;
 import com.india.tamilnadu.dto.Response;
 import com.india.tamilnadu.security.bc.AuthenticationBC;
 import com.india.tamilnadu.security.util.JWTHelper;
+import com.india.tamilnadu.tally.bc.MessageBC;
 import com.india.tamilnadu.tally.bc.TallyDayBookBC;
 import com.india.tamilnadu.tally.bc.TallyStockBC;
 import com.india.tamilnadu.tally.dto.TallyInputDTO;
@@ -26,6 +26,8 @@ import com.india.tamilnadu.util.TallyBean;
 import com.india.tamilnadu.util.TallyRequestContext;
 import com.india.tamilnadu.util.Utility;
 import com.india.tamilnadu.vo.Login;
+import com.india.tamilnadu.vo.LoginUser;
+import com.india.tamilnadu.vo.Message;
 import com.india.tamilnadu.vo.Role;
 import com.india.tamilnadu.vo.User;
 import com.india.tamilnadu.vo.UserManager;
@@ -832,6 +834,158 @@ public class TallyServiceImpl implements TallyService {
 		}
 	
 		return javax.ws.rs.core.Response.ok(userManager).build();
+	}
+	
+	public javax.ws.rs.core.Response updateUser(String token, String companyId, User user) {
+		
+		String trackingId = Utility.getRandomNumber();
+		long startTime = System.currentTimeMillis();
+		
+		LOG.info(LOG_BASE_FORMAT, trackingId, "updateUser In");
+		
+		Response response = new Response();
+		response.setStatus("Success");
+		response.setStatusMessage("Success");
+		
+		try {
+			
+			String scope = JWTHelper.validateJWT(token);
+			
+			AuthenticationBC authenticationBC = new AuthenticationBC();
+			user.setCompanyId(companyId);
+			authenticationBC.updateUser(trackingId, user);
+			
+			LOG.info(LOG_DATA_FORMAT, trackingId, "updateUser : updateUser Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, trackingId, "exception captured in updateUser", e.getMessage());
+			e.printStackTrace();
+			
+			if(e.getMessage().contains("updateUser : JWT signature does not match")) { 
+				return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
+			}
+			
+			return javax.ws.rs.core.Response.serverError().build();
+		}
+	
+		return javax.ws.rs.core.Response.ok(response).build();
+	}
+	
+	public javax.ws.rs.core.Response addUser(LoginUser loginUser) {
+		
+		String trackingId = Utility.getRandomNumber();
+		long startTime = System.currentTimeMillis();
+		
+		LOG.info(LOG_BASE_FORMAT, trackingId, "addUser In");
+		
+		Response response = new Response();
+		response.setStatus("Success");
+		response.setStatusMessage("Success");
+		
+		try {
+			
+			//String scope = JWTHelper.validateJWT(token);
+			
+			AuthenticationBC authenticationBC = new AuthenticationBC();
+			//loginUser.setCompanyId(companyId);
+			loginUser.setPassword(new String(Utility.hashPassword(loginUser.getPassword().toCharArray(), loginUser.getEmail().getBytes(), 2, 256)));
+			authenticationBC.addUser(trackingId, loginUser);
+			
+			LOG.info(LOG_DATA_FORMAT, trackingId, "addUser : addUser Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, trackingId, "exception captured in updateUser", e.getMessage());
+			e.printStackTrace();
+			
+			/*if(e.getMessage().contains("updateUser : JWT signature does not match")) { 
+				return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
+			}*/
+			
+			if(null != e && e.getMessage().contains("Duplicate")) {
+				response.setStatus("Duplicate");
+				response.setStatusMessage("Duplicate");
+				return javax.ws.rs.core.Response.ok(response).build();
+			}
+			
+			return javax.ws.rs.core.Response.serverError().build();
+		}
+	
+		return javax.ws.rs.core.Response.ok(response).build();
+	}
+
+	public javax.ws.rs.core.Response addMessage(String token, String companyId, Message message) {
+		
+		String trackingId = Utility.getRandomNumber();
+		long startTime = System.currentTimeMillis();
+		
+		LOG.info(LOG_BASE_FORMAT, trackingId, "addMessage In");
+		
+		Response response = new Response();
+		response.setStatus("Success");
+		response.setStatusMessage("Success");
+		
+		try {
+			
+			String scope = JWTHelper.validateJWT(token);
+			
+			MessageBC messageBC = new MessageBC();
+			message.setCompanyId(companyId);
+			messageBC.addMessage(trackingId, message);
+			
+			LOG.info(LOG_DATA_FORMAT, trackingId, "addMessage : addMessage Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, trackingId, "exception captured in updateUser", e.getMessage());
+			e.printStackTrace();
+			
+			/*if(e.getMessage().contains("updateUser : JWT signature does not match")) { 
+				return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
+			}*/
+			
+			if(null != e && e.getMessage().contains("Duplicate")) {
+				response.setStatus("Duplicate");
+				response.setStatusMessage("Duplicate");
+				return javax.ws.rs.core.Response.ok(response).build();
+			}
+			
+			return javax.ws.rs.core.Response.serverError().build();
+		}
+	
+		return javax.ws.rs.core.Response.ok(response).build();
+	}
+	
+	public javax.ws.rs.core.Response getMessage(String token, String companyId) {
+		
+		UserManager userManager = new UserManager();
+		List<Message> messages = new ArrayList<>();
+		String trackingId = Utility.getRandomNumber();
+		long startTime = System.currentTimeMillis();
+		
+		LOG.info(LOG_BASE_FORMAT, trackingId, "getMessage In");
+		
+		try {
+			
+			String scope = JWTHelper.validateJWT(token);
+			
+			MessageBC messageBC = new MessageBC();
+			messages = messageBC.getMessage(companyId, trackingId);
+			messages = messageBC.getMessage(companyId, trackingId);
+			
+			LOG.debug(LOG_BASE_FORMAT, trackingId, "getMessage: Number of users: "  + (null == messages? "0" : messages.size()));
+			LOG.info(LOG_DATA_FORMAT, trackingId, "getMessage : getMessage Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, trackingId, "exception captured in getMessage", e.getMessage());
+			e.printStackTrace();
+			
+			if(e.getMessage().contains("getMessage : JWT signature does not match")) { 
+				return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
+			}
+			
+			return javax.ws.rs.core.Response.serverError().build();
+		}
+	
+		return javax.ws.rs.core.Response.ok(messages).build();
 	}
 
 }
