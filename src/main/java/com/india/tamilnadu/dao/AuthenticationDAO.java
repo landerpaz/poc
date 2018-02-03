@@ -152,6 +152,8 @@ public class AuthenticationDAO {
 				user.setUserStatus(resultSet.getString(3));
 				user.setCreatedDate(resultSet.getString(4));
 				user.setRoleName(resultSet.getString(5));
+				user.setFirstName(resultSet.getString(6));
+				user.setLastName(resultSet.getString(7));
 				
 				users.add(user);
 				
@@ -240,6 +242,8 @@ public class AuthenticationDAO {
 			preparedStatement.setString(5, "inactive"); //status
 			preparedStatement.setDate(6, Utility.getCurrentdate());
 			preparedStatement.setDate(7, Utility.getCurrentdate());
+			preparedStatement.setString(8, loginUser.getFirstName());
+			preparedStatement.setString(9, loginUser.getLastName());
 			
 			preparedStatement.executeUpdate();
 			

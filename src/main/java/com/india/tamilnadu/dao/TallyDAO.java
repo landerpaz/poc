@@ -23,6 +23,7 @@ import com.india.tamilnadu.tally.vo.LedgerEntryVO;
 import com.india.tamilnadu.tally.vo.ProductionDashboardChart;
 import com.india.tamilnadu.tally.vo.ProductionSummary;
 import com.india.tamilnadu.tally.vo.ProductionSummaryByYear;
+import com.india.tamilnadu.tally.vo.SalesOrder;
 import com.india.tamilnadu.tally.vo.SalesSummary;
 import com.india.tamilnadu.tally.vo.SalesSummaryByYear;
 import com.india.tamilnadu.tally.vo.StockBFDetail;
@@ -1560,5 +1561,202 @@ public class TallyDAO implements BaseDAO {
 		}
 		
 		return messages;
+	}
+	
+	public List<SalesOrder> getSalesOrder(String companyId) throws Exception {
+		
+		SalesOrder salesOrder = null;
+		List<SalesOrder> salesOrders = new ArrayList<>();
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_SALES_ORDER);
+			preparedStatement.setString(1, companyId);
+			resultSet = preparedStatement.executeQuery();
+		
+			int index = 1;
+			
+			while(resultSet.next()) {
+				
+				salesOrder = new SalesOrder();
+				salesOrder.setId(resultSet.getString(index++));
+				salesOrder.setOrderNumber(resultSet.getString(index++));
+				salesOrder.setVoucherKey(resultSet.getString(index++));
+				salesOrder.setCompany(resultSet.getString(index++));
+				salesOrder.setOrderDate(resultSet.getString(index++));
+				//salesOrder.setBf(resultSet.getString(index++));
+				//salesOrder.setGsm(resultSet.getString(index++));
+				salesOrder.setBf(Utility.zeroTruncating(resultSet.getDouble(index++)));
+				salesOrder.setGsm(Utility.zeroTruncating(resultSet.getDouble(index++)));
+				salesOrder.setSize(resultSet.getString(index++));
+				salesOrder.setWeight(resultSet.getString(index++));
+				salesOrder.setReel(resultSet.getString(index++));
+				salesOrder.setOrderStatus(resultSet.getString(index++));
+				salesOrder.setAltered(resultSet.getString(index++));
+				salesOrders.add(salesOrder);
+				
+				index = 1;
+				
+			} 
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("Error in getSalesOrder DAO...");
+			e.printStackTrace();
+			throw new Exception("Server error");
+		} finally {
+			closeResources();
+		}
+		
+		return salesOrders;
+	}
+	
+	public List<SalesOrder> getSalesOrderByBfGsmSize(String companyId) throws Exception {
+		
+		SalesOrder salesOrder = null;
+		List<SalesOrder> salesOrders = new ArrayList<>();
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_SALES_ORDER_BY_BF_GSM_SIZE);
+			preparedStatement.setString(1, companyId);
+			resultSet = preparedStatement.executeQuery();
+		
+			int index = 1;
+			
+			while(resultSet.next()) {
+				
+				salesOrder = new SalesOrder();
+				salesOrder.setBf(Utility.zeroTruncating(resultSet.getDouble(index++)));
+				salesOrder.setGsm(Utility.zeroTruncating(resultSet.getDouble(index++)));
+				salesOrder.setSize(resultSet.getString(index++));
+				salesOrder.setWeight(resultSet.getString(index++));
+				salesOrders.add(salesOrder);
+				
+				index = 1;
+				
+			} 
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("Error in getSalesOrderByBfGsmSize DAO...");
+			e.printStackTrace();
+			throw new Exception("Server error");
+		} finally {
+			closeResources();
+		}
+		
+		return salesOrders;
+	}
+	
+	public List<SalesOrder> getSalesOrderByBf(String companyId) throws Exception {
+		
+		SalesOrder salesOrder = null;
+		List<SalesOrder> salesOrders = new ArrayList<>();
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_SALES_ORDER_BY_BF);
+			preparedStatement.setString(1, companyId);
+			resultSet = preparedStatement.executeQuery();
+		
+			int index = 1;
+			
+			while(resultSet.next()) {
+				
+				salesOrder = new SalesOrder();
+				salesOrder.setBf(Utility.zeroTruncating(resultSet.getDouble(index++)));
+				salesOrder.setWeight(resultSet.getString(index++));
+				salesOrders.add(salesOrder);
+				
+				index = 1;
+				
+			} 
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("Error in getSalesOrderByBF DAO...");
+			e.printStackTrace();
+			throw new Exception("Server error");
+		} finally {
+			closeResources();
+		}
+		
+		return salesOrders;
+	}
+	
+	public List<SalesOrder> getSalesOrderByBfGsm(String companyId) throws Exception {
+		
+		SalesOrder salesOrder = null;
+		List<SalesOrder> salesOrders = new ArrayList<>();
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_SALES_ORDER_BY_BF_GSM);
+			preparedStatement.setString(1, companyId);
+			resultSet = preparedStatement.executeQuery();
+		
+			int index = 1;
+			
+			while(resultSet.next()) {
+				
+				salesOrder = new SalesOrder();
+				salesOrder.setBf(Utility.zeroTruncating(resultSet.getDouble(index++)));
+				salesOrder.setGsm(Utility.zeroTruncating(resultSet.getDouble(index++)));
+				salesOrder.setWeight(resultSet.getString(index++));
+				salesOrders.add(salesOrder);
+				
+				index = 1;
+				
+			} 
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("Error in getSalesOrderByBFAndGsm DAO...");
+			e.printStackTrace();
+			throw new Exception("Server error");
+		} finally {
+			closeResources();
+		}
+		
+		return salesOrders;
+	}
+	
+	public Response deleteSalesOrder(TallyInputDTO tallyInputDTO) {
+		
+		Response response = new Response();
+		response.setStatus(Constants.RESPONSE_STATUS_SUCCESS);
+		response.setStatusMessage(Constants.RESPONSE_MESSAGE_PRODUCT_ADD_SUCCESS);
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_UPDATE_SALES_ORDER);
+			
+			System.out.println("Update query : " + Constants.DB_UPDATE_SALES_ORDER + ":" + tallyInputDTO.getId() + ":" + tallyInputDTO.getCompanyId());
+			
+			int parameterIndex = 1;
+			preparedStatement.setString(parameterIndex++, tallyInputDTO.getId());
+			preparedStatement.setString(parameterIndex++, tallyInputDTO.getCompanyId());
+			
+			preparedStatement.executeUpdate();
+			
+		} catch (Exception e) {
+			
+			// TODO: handle exception
+			System.out.println("Error in updating sales_orders order_status flag field in DB...");
+			e.printStackTrace();
+			
+			response.setStatus(Constants.RESPONSE_STATUS_FAILED);
+			response.setStatusMessage(Constants.RESPONSE_MESSAGE_PRODUCT_ADD_FAILED);
+		} finally {
+			closeResources();
+		}
+		
+		return response;
 	}
 }

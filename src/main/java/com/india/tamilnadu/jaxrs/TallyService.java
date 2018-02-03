@@ -146,4 +146,24 @@ public interface TallyService {
 	@Path("/tally/message/{companyId}")
 	javax.ws.rs.core.Response getMessage(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId);
 	
+	@GET
+	@Path("/tally/salesOrder/{companyId}")
+	javax.ws.rs.core.Response getSalesOrder(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId);
+		
+	@GET
+	@Path("/tally/salesOrderByBf/{companyId}")
+	javax.ws.rs.core.Response getSalesOrderByBf(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId);
+	
+	@GET
+	@Path("/tally/salesOrderByBfGsm/{companyId}")
+	javax.ws.rs.core.Response getSalesOrderByBfGsm(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId);
+	
+	@GET
+	@Path("/tally/salesOrderByBfGsmSize/{companyId}")
+	javax.ws.rs.core.Response getSalesOrderByBfGsmSize(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId);
+
+	@PUT
+	@Path("/tally/salesOrder/{companyId}/{id}")
+	javax.ws.rs.core.Response deleteSalesOrder(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId, @PathParam("id") String id);
+	
 }

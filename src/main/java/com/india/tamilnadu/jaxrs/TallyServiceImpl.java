@@ -17,9 +17,11 @@ import com.india.tamilnadu.dto.Response;
 import com.india.tamilnadu.security.bc.AuthenticationBC;
 import com.india.tamilnadu.security.util.JWTHelper;
 import com.india.tamilnadu.tally.bc.MessageBC;
+import com.india.tamilnadu.tally.bc.SalesOrderBC;
 import com.india.tamilnadu.tally.bc.TallyDayBookBC;
 import com.india.tamilnadu.tally.bc.TallyStockBC;
 import com.india.tamilnadu.tally.dto.TallyInputDTO;
+import com.india.tamilnadu.tally.vo.SalesOrder;
 import com.india.tamilnadu.tally.vo.StockStatistics;
 import com.india.tamilnadu.util.SaxParserHandler;
 import com.india.tamilnadu.util.TallyBean;
@@ -969,7 +971,6 @@ public class TallyServiceImpl implements TallyService {
 			
 			MessageBC messageBC = new MessageBC();
 			messages = messageBC.getMessage(companyId, trackingId);
-			messages = messageBC.getMessage(companyId, trackingId);
 			
 			LOG.debug(LOG_BASE_FORMAT, trackingId, "getMessage: Number of users: "  + (null == messages? "0" : messages.size()));
 			LOG.info(LOG_DATA_FORMAT, trackingId, "getMessage : getMessage Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
@@ -987,5 +988,180 @@ public class TallyServiceImpl implements TallyService {
 	
 		return javax.ws.rs.core.Response.ok(messages).build();
 	}
+	
+	public javax.ws.rs.core.Response getSalesOrderByBf(String token, String companyId) {
+		
+		UserManager userManager = new UserManager();
+		List<SalesOrder> salesOrders = new ArrayList<>();
+		String trackingId = Utility.getRandomNumber();
+		long startTime = System.currentTimeMillis();
+		
+		LOG.info(LOG_BASE_FORMAT, trackingId, "getSalesOrderByBf In");
+		
+		try {
+			
+			String scope = JWTHelper.validateJWT(token);
+			
+			SalesOrderBC salesOrderBC = new SalesOrderBC();
+			salesOrders = salesOrderBC.getSalesOrderByBf(companyId, trackingId);
+			
+			LOG.debug(LOG_BASE_FORMAT, trackingId, "getSalesOrderByBf: Number of users: "  + (null == salesOrders? "0" : salesOrders.size()));
+			LOG.info(LOG_DATA_FORMAT, trackingId, "getSalesOrderByBf : getMessage Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, trackingId, "exception captured in getSalesOrderByBf", e.getMessage());
+			e.printStackTrace();
+			
+			if(e.getMessage().contains("getSalesOrderByBfGsm : JWT signature does not match")) { 
+				return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
+			}
+			
+			return javax.ws.rs.core.Response.serverError().build();
+		}
+	
+		return javax.ws.rs.core.Response.ok(salesOrders).build();
+	}
+	
+	public javax.ws.rs.core.Response getSalesOrderByBfGsm(String token, String companyId) {
+			
+			UserManager userManager = new UserManager();
+			List<SalesOrder> salesOrders = new ArrayList<>();
+			String trackingId = Utility.getRandomNumber();
+			long startTime = System.currentTimeMillis();
+			
+			LOG.info(LOG_BASE_FORMAT, trackingId, "getMessage In");
+			
+			try {
+				
+				String scope = JWTHelper.validateJWT(token);
+				
+				SalesOrderBC salesOrderBC = new SalesOrderBC();
+				salesOrders = salesOrderBC.getSalesOrderByBfGsm(companyId, trackingId);
+				
+				LOG.debug(LOG_BASE_FORMAT, trackingId, "getSalesOrderByBfGsm: Number of users: "  + (null == salesOrders? "0" : salesOrders.size()));
+				LOG.info(LOG_DATA_FORMAT, trackingId, "getSalesOrderByBfGsm : getMessage Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+			
+			} catch (Exception e) {
+				LOG.error(LOG_DATA_FORMAT, trackingId, "exception captured in getSalesOrderByBfGsm", e.getMessage());
+				e.printStackTrace();
+				
+				if(e.getMessage().contains("getSalesOrderByBfGsm : JWT signature does not match")) { 
+					return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
+				}
+				
+				return javax.ws.rs.core.Response.serverError().build();
+			}
+		
+			return javax.ws.rs.core.Response.ok(salesOrders).build();
+		}
+	
+	public javax.ws.rs.core.Response getSalesOrderByBfGsmSize(String token, String companyId) {
+		
+		UserManager userManager = new UserManager();
+		List<SalesOrder> salesOrders = new ArrayList<>();
+		String trackingId = Utility.getRandomNumber();
+		long startTime = System.currentTimeMillis();
+		
+		LOG.info(LOG_BASE_FORMAT, trackingId, "getSalesOrderByBfGsmSize In");
+		
+		try {
+			
+			String scope = JWTHelper.validateJWT(token);
+			
+			SalesOrderBC salesOrderBC = new SalesOrderBC();
+			salesOrders = salesOrderBC.getSalesOrderByBfGsmSize(companyId, trackingId);
+			
+			LOG.debug(LOG_BASE_FORMAT, trackingId, "getSalesOrderByBfGsmSize: Number of users: "  + (null == salesOrders? "0" : salesOrders.size()));
+			LOG.info(LOG_DATA_FORMAT, trackingId, "getSalesOrderByBfGsmSize : getMessage Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, trackingId, "exception captured in getSalesOrderByBfGsmSize", e.getMessage());
+			e.printStackTrace();
+			
+			if(e.getMessage().contains("getSalesOrderByBfGsmSize : JWT signature does not match")) { 
+				return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
+			}
+			
+			return javax.ws.rs.core.Response.serverError().build();
+		}
+	
+		return javax.ws.rs.core.Response.ok(salesOrders).build();
+	}
+	
+	public javax.ws.rs.core.Response getSalesOrder(String token, String companyId) {
+		
+		UserManager userManager = new UserManager();
+		List<SalesOrder> salesOrders = new ArrayList<>();
+		String trackingId = Utility.getRandomNumber();
+		long startTime = System.currentTimeMillis();
+		
+		LOG.info(LOG_BASE_FORMAT, trackingId, "getMessage In");
+		
+		try {
+			
+			String scope = JWTHelper.validateJWT(token);
+			
+			SalesOrderBC salesOrderBC = new SalesOrderBC();
+			salesOrders = salesOrderBC.getSalesOrder(companyId, trackingId);
+			
+			LOG.debug(LOG_BASE_FORMAT, trackingId, "getMessage: Number of users: "  + (null == salesOrders? "0" : salesOrders.size()));
+			LOG.info(LOG_DATA_FORMAT, trackingId, "getMessage : getMessage Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, trackingId, "exception captured in getMessage", e.getMessage());
+			e.printStackTrace();
+			
+			if(e.getMessage().contains("getMessage : JWT signature does not match")) { 
+				return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
+			}
+			
+			return javax.ws.rs.core.Response.serverError().build();
+		}
+	
+		return javax.ws.rs.core.Response.ok(salesOrders).build();
+	}
+
+	public javax.ws.rs.core.Response deleteSalesOrder(String token, String companyId, String id) {
+		System.out.println("...update sales order order_status flag");
+		System.out.println("id : " + id);
+		
+		Response response = new Response();
+		response.setStatus("Success");
+		response.setStatusMessage("Success");
+		String trackingID = null;
+		
+		try {
+			
+			trackingID = Utility.getRandomNumber();
+			
+			LOG.info(LOG_BASE_FORMAT, trackingID, "deleteSalesOrder In");
+			LOG.info(LOG_BASE_FORMAT, trackingID, "deleteSalesOrder : token : " + token);
+			
+			String scope = JWTHelper.validateJWT(token);
+			
+			LOG.info(LOG_BASE_FORMAT, trackingID, "deleteSalesOrder : scope : " + scope);
+			
+			TallyInputDTO tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setId(id);
+			tallyInputDTO.setCompanyId(companyId);
+			
+			SalesOrderBC salesOrderBC = new SalesOrderBC();
+			salesOrderBC.deleteSalesOrder(tallyInputDTO);
+			
+		} catch (Exception e) {
+			//commented for JWT implementation
+			//response.setStatus("Failed");
+			//response.setStatusMessage("Failed");
+			
+			if(e.getMessage().contains("JWT signature does not match")) { 
+				return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
+			}
+			
+			return javax.ws.rs.core.Response.serverError().build();
+		}
+		
+		return javax.ws.rs.core.Response.ok(response).build();
+	}
+	
 
 }

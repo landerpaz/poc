@@ -3,6 +3,7 @@ package com.india.tamilnadu.util;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.Date;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -17,7 +18,6 @@ import com.india.tamilnadu.tally.vo.InventoryEntryVO;
 
 public class Utility {
 
-	
 	public static String getCurrentQuarter() {
 		
 		int quarter = (Calendar.getInstance().get(Calendar.MONTH) / 3); // 0 to 3
@@ -110,7 +110,7 @@ public class Utility {
 		//System.out.println(Long.toString(Math.round(Math.abs(Double.parseDouble("-23123.99")))));
 		//System.out.println(getCurrentQuarter());
 		
-		String password = "Spak#007";
+		/*String password = "Spak#007";
 		String salt = "spak3"; //user name 
 		String pwd1 = new String(hashPassword(password.toCharArray(), salt.getBytes(), 2, 256));
 		String pwd2 = new String(hashPassword(password.toCharArray(), salt.getBytes(), 2, 256));
@@ -125,7 +125,13 @@ public class Utility {
 		} catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
-		}
+		}*/
+		
+		
+		Double price = 5.00;
+		DecimalFormat format = new DecimalFormat("0.##");
+		System.out.println(format.format(price));
+		
 	}
 	
 	public static Date convertStringToDate(String inputDate) {
@@ -200,4 +206,10 @@ public class Utility {
            throw new RuntimeException( e );
        }
    }
+	
+   public static String zeroTruncating(Double value) {
+	   DecimalFormat format = new DecimalFormat("0.##");
+	   return format.format(value);
+   }
+   
 }
