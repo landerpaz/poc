@@ -22,6 +22,7 @@ import com.india.tamilnadu.tally.bc.TallyDayBookBC;
 import com.india.tamilnadu.tally.bc.TallyStockBC;
 import com.india.tamilnadu.tally.dto.TallyInputDTO;
 import com.india.tamilnadu.tally.vo.SalesOrder;
+import com.india.tamilnadu.tally.vo.SalesOrderConsolidated;
 import com.india.tamilnadu.tally.vo.StockStatistics;
 import com.india.tamilnadu.util.SaxParserHandler;
 import com.india.tamilnadu.util.TallyBean;
@@ -1088,7 +1089,7 @@ public class TallyServiceImpl implements TallyService {
 		return javax.ws.rs.core.Response.ok(salesOrders).build();
 	}
 	
-	public javax.ws.rs.core.Response getSalesOrder(String token, String companyId) {
+	public javax.ws.rs.core.Response getSalesOrder(String token, String status, String companyId) {
 		
 		UserManager userManager = new UserManager();
 		List<SalesOrder> salesOrders = new ArrayList<>();
@@ -1102,7 +1103,7 @@ public class TallyServiceImpl implements TallyService {
 			String scope = JWTHelper.validateJWT(token);
 			
 			SalesOrderBC salesOrderBC = new SalesOrderBC();
-			salesOrders = salesOrderBC.getSalesOrder(companyId, trackingId);
+			salesOrders = salesOrderBC.getSalesOrder(companyId, trackingId, status);
 			
 			LOG.debug(LOG_BASE_FORMAT, trackingId, "getMessage: Number of users: "  + (null == salesOrders? "0" : salesOrders.size()));
 			LOG.info(LOG_DATA_FORMAT, trackingId, "getMessage : getMessage Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
@@ -1111,7 +1112,7 @@ public class TallyServiceImpl implements TallyService {
 			LOG.error(LOG_DATA_FORMAT, trackingId, "exception captured in getMessage", e.getMessage());
 			e.printStackTrace();
 			
-			if(e.getMessage().contains("getMessage : JWT signature does not match")) { 
+			if(null != e && null != e.getMessage() && e.getMessage().contains("getMessage : JWT signature does not match")) { 
 				return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
 			}
 			
@@ -1121,7 +1122,7 @@ public class TallyServiceImpl implements TallyService {
 		return javax.ws.rs.core.Response.ok(salesOrders).build();
 	}
 
-	public javax.ws.rs.core.Response deleteSalesOrder(String token, String companyId, String id) {
+	public javax.ws.rs.core.Response deleteSalesOrder(String token, String type, String companyId, String id) {
 		System.out.println("...update sales order order_status flag");
 		System.out.println("id : " + id);
 		
@@ -1144,6 +1145,7 @@ public class TallyServiceImpl implements TallyService {
 			TallyInputDTO tallyInputDTO = new TallyInputDTO();
 			tallyInputDTO.setId(id);
 			tallyInputDTO.setCompanyId(companyId);
+			tallyInputDTO.setType(type);
 			
 			SalesOrderBC salesOrderBC = new SalesOrderBC();
 			salesOrderBC.deleteSalesOrder(tallyInputDTO);
@@ -1162,6 +1164,370 @@ public class TallyServiceImpl implements TallyService {
 		
 		return javax.ws.rs.core.Response.ok(response).build();
 	}
+
+	/*public javax.ws.rs.core.Response updateSalesOrders(String token, String companyId, String salesOrders) {
+		
+		
+		System.out.println("salesOrders....................." + salesOrders);
+		
 	
+		return javax.ws.rs.core.Response.ok("").build();
+	}*/
+
+
+	public javax.ws.rs.core.Response createSalesOrderPlan(String token, String companyId, List<SalesOrder> salesOrders) {
+		
+		String trackingId = Utility.getRandomNumber();
+		long startTime = System.currentTimeMillis();
+		
+		LOG.info(LOG_BASE_FORMAT, trackingId, "createSalesOrderPlan In");
+		
+		Response response = new Response();
+		response.setStatus("Success");
+		response.setStatusMessage("Success");
+		
+		try {
+			
+			String scope = JWTHelper.validateJWT(token);
+			
+			TallyInputDTO tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setCompanyId(companyId);
+			tallyInputDTO.setSalesOrders(salesOrders);
+			
+			SalesOrderBC salesOrderBC = new SalesOrderBC();
+			salesOrderBC.updateSalesOrders(tallyInputDTO, null); //passing batch number as null as new batch number will be generated in DAO
+			
+			for(SalesOrder salesOrder : salesOrders) {
+				System.out.println(salesOrder.getId());
+				System.out.println(salesOrder.getOrderStatus());
+				System.out.println(salesOrder.getAltered());
+				
+			}
+			
+			LOG.info(LOG_DATA_FORMAT, trackingId, "createSalesOrderPlan : createSalesOrderPlan Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, trackingId, "exception captured in createSalesOrderPlan", e.getMessage());
+			e.printStackTrace();
+			
+			//if(e.getMessage().contains("updateUser : JWT signature does not match")) { 
+				//return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
+			//}
+			
+			if(null != e && e.getMessage().contains("Duplicate")) {
+				response.setStatus("Duplicate");
+				response.setStatusMessage("Duplicate");
+				return javax.ws.rs.core.Response.ok(response).build();
+			}
+			
+			return javax.ws.rs.core.Response.serverError().build();
+		}
+	
+		return javax.ws.rs.core.Response.ok(response).build();
+	}
+
+	public javax.ws.rs.core.Response updateSalesOrderPlan(String token, String companyId, String batchNumber, List<SalesOrder> salesOrders) {
+		
+		String trackingId = Utility.getRandomNumber();
+		long startTime = System.currentTimeMillis();
+		
+		LOG.info(LOG_BASE_FORMAT, trackingId, "updateSalesOrderPlan In");
+		
+		Response response = new Response();
+		response.setStatus("Success");
+		response.setStatusMessage("Success");
+		
+		try {
+			
+			String scope = JWTHelper.validateJWT(token);
+			
+			TallyInputDTO tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setCompanyId(companyId);
+			tallyInputDTO.setSalesOrders(salesOrders);
+			
+			SalesOrderBC salesOrderBC = new SalesOrderBC();
+			salesOrderBC.updateSalesOrders(tallyInputDTO, batchNumber); 
+			
+			for(SalesOrder salesOrder : salesOrders) {
+				System.out.println(salesOrder.getId());
+				System.out.println(salesOrder.getOrderStatus());
+				System.out.println(salesOrder.getAltered());
+				
+			}
+			
+			LOG.info(LOG_DATA_FORMAT, trackingId, "updateSalesOrderPlan : updateSalesOrderPlan Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, trackingId, "exception captured in updateSalesOrderPlan", e.getMessage());
+			e.printStackTrace();
+			
+			//if(e.getMessage().contains("updateUser : JWT signature does not match")) { 
+				//return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
+			//}
+			
+			if(null != e && e.getMessage().contains("Duplicate")) {
+				response.setStatus("Duplicate");
+				response.setStatusMessage("Duplicate");
+				return javax.ws.rs.core.Response.ok(response).build();
+			}
+			
+			return javax.ws.rs.core.Response.serverError().build();
+		}
+	
+		return javax.ws.rs.core.Response.ok(response).build();
+	}
+
+	/*public javax.ws.rs.core.Response updateSalesOrders(String token, String companyId, SalesOrderConsolidated salesOrderConsolidated) {
+		
+		String trackingId = Utility.getRandomNumber();
+		long startTime = System.currentTimeMillis();
+		
+		LOG.info(LOG_BASE_FORMAT, trackingId, "updateSalesOrders In");
+		
+		Response response = new Response();
+		response.setStatus("Success");
+		response.setStatusMessage("Success");
+		
+		try {
+			
+			String scope = JWTHelper.validateJWT(token);
+			
+			TallyInputDTO tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setCompanyId(companyId);
+			tallyInputDTO.setSalesOrders(salesOrderConsolidated.getSalesOrders());
+			tallyInputDTO.setConsBf(salesOrderConsolidated.getConsBf());
+			tallyInputDTO.setConsBfGsm(salesOrderConsolidated.getConsBfGsm());
+			tallyInputDTO.setConsBfGsmSize(salesOrderConsolidated.getConsBfGsmSize());
+			
+			SalesOrderBC salesOrderBC = new SalesOrderBC();
+			salesOrderBC.updateSalesOrders(tallyInputDTO);
+			
+			for(SalesOrder salesOrder : salesOrderConsolidated.getSalesOrders()) {
+				System.out.println(salesOrder.getId());
+				System.out.println(salesOrder.getOrderStatus());
+				System.out.println(salesOrder.getAltered());
+				
+			}
+			
+			LOG.info(LOG_DATA_FORMAT, trackingId, "updateSalesOrders : updateSalesOrders Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, trackingId, "exception captured in updateSalesOrders", e.getMessage());
+			e.printStackTrace();
+			
+			if(e.getMessage().contains("updateUser : JWT signature does not match")) { 
+				return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
+			}
+			
+			if(null != e && e.getMessage().contains("Duplicate")) {
+				response.setStatus("Duplicate");
+				response.setStatusMessage("Duplicate");
+				return javax.ws.rs.core.Response.ok(response).build();
+			}
+			
+			return javax.ws.rs.core.Response.serverError().build();
+		}
+	
+		return javax.ws.rs.core.Response.ok(response).build();
+	}*/
+
+	/**
+	 *This method fetches day book data from DB 
+	 * 
+	 * 
+	 **/
+/*	public javax.ws.rs.core.Response getSalesOrdersPlanned(String token, String companyId) {
+		
+		TallyInputDTO tallyInputDTO = null;
+		List salesOrdersPlannedSummary = null;
+		long startTime = System.currentTimeMillis();
+		
+		try {
+			
+			String scope = JWTHelper.validateJWT(token);
+			
+			tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setCompanyId(companyId);
+			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
+			
+			LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getSalesOrdersPlanned In");
+			
+			SalesOrderBC salesOrderBC = new SalesOrderBC();
+			salesOrdersPlannedSummary = salesOrderBC.getSalesOrdersPlanned(tallyInputDTO);
+					
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "Number of day book entries : "  + (null == salesOrdersPlannedSummary? "0" : salesOrdersPlannedSummary.size()));
+			LOG.info(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "getSalesOrdersPlanned Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+			
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "exception captured in getSalesOrdersPlanned", e.getMessage());
+			e.printStackTrace();
+			
+			if(e.getMessage().contains("JWT signature does not match")) { 
+				return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
+			}
+			
+			return javax.ws.rs.core.Response.serverError().build();
+		}
+	
+		return javax.ws.rs.core.Response.ok(salesOrdersPlannedSummary).build();
+	}*/
+	
+	public javax.ws.rs.core.Response getSalesOrdersPlanned(String token, String companyId) {
+		
+		TallyInputDTO tallyInputDTO = null;
+		List salesOrdersPlannedSummary = null;
+		long startTime = System.currentTimeMillis();
+		
+		try {
+			
+			String scope = JWTHelper.validateJWT(token);
+			
+			tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setCompanyId(companyId);
+			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
+			
+			LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getSalesOrdersPlanned In");
+			
+			SalesOrderBC salesOrderBC = new SalesOrderBC();
+			salesOrdersPlannedSummary = salesOrderBC.getSalesOrdersPlanned(tallyInputDTO);
+					
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "Number of day book entries : "  + (null == salesOrdersPlannedSummary? "0" : salesOrdersPlannedSummary.size()));
+			LOG.info(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "getSalesOrdersPlanned Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+			
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "exception captured in getSalesOrdersPlanned", e.getMessage());
+			e.printStackTrace();
+			
+			if(null != e && null != e.getMessage() && e.getMessage().contains("JWT signature does not match")) { 
+				return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
+			}
+			
+			return javax.ws.rs.core.Response.serverError().build();
+		}
+	
+		return javax.ws.rs.core.Response.ok(salesOrdersPlannedSummary).build();
+	}
+	
+	/**
+	 *This method fetches day book data from DB 
+	 * 
+	 * 
+	 **/
+	public javax.ws.rs.core.Response getSalesOrdersDispatch(String token, String companyId, String batchNo) {
+		
+		TallyInputDTO tallyInputDTO = null;
+		List salesOrdersDispatch = null;
+		long startTime = System.currentTimeMillis();
+		
+		try {
+			
+			String scope = JWTHelper.validateJWT(token);
+			
+			tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setCompanyId(companyId);
+			tallyInputDTO.setBatchNo(batchNo);
+			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
+			
+			LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getSalesOrdersDispatch In");
+			
+			SalesOrderBC salesOrderBC = new SalesOrderBC();
+			salesOrdersDispatch = salesOrderBC.getSalesOrdersDispatched(tallyInputDTO);
+					
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "Number of day book entries : "  + (null == salesOrdersDispatch? "0" : salesOrdersDispatch.size()));
+			LOG.info(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "getSalesOrdersDispatch Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+			
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "exception captured in getSalesOrdersDispatch", e.getMessage());
+			e.printStackTrace();
+			
+			if(null != e && null != e.getMessage() && e.getMessage().contains("JWT signature does not match")) { 
+				return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
+			}
+			
+			return javax.ws.rs.core.Response.serverError().build();
+		}
+	
+		return javax.ws.rs.core.Response.ok(salesOrdersDispatch).build();
+	}
+	
+	public javax.ws.rs.core.Response updateSalesOrderPlannedReel(String token, String companyId, String id, String reel) {
+		
+		String trackingId = Utility.getRandomNumber();
+		long startTime = System.currentTimeMillis();
+		
+		LOG.info(LOG_BASE_FORMAT, trackingId, "updateSalesOrderPlannedReel In");
+		LOG.info(LOG_BASE_FORMAT, token, "token : " + token);
+		LOG.info(LOG_BASE_FORMAT, token, "companyId : " + companyId);
+		LOG.info(LOG_BASE_FORMAT, token, "reel : " + reel);
+		
+		Response response = new Response();
+		response.setStatus("Success");
+		response.setStatusMessage("Success");
+		
+		try {
+			
+			String scope = JWTHelper.validateJWT(token);
+			
+			TallyInputDTO tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setCompanyId(companyId);
+			tallyInputDTO.setId(id);
+			tallyInputDTO.setReel(reel);
+			
+			SalesOrderBC salesOrderBC = new SalesOrderBC();
+			salesOrderBC.updateSalesOrderPlannedReel(tallyInputDTO);
+			
+			LOG.info(LOG_DATA_FORMAT, trackingId, "updateSalesOrders : updateSalesOrderPlannedReel Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, trackingId, "exception captured in updateSalesOrderPlannedReel", e.getMessage());
+			e.printStackTrace();
+			
+			return javax.ws.rs.core.Response.serverError().build();
+		}
+	
+		return javax.ws.rs.core.Response.ok(response).build();
+	}
+	
+	public javax.ws.rs.core.Response deleteSalesOrdersPlanned(String token, String companyId, String id, String salesOrderPlannedId, String altered, String weight) {
+		
+		String trackingId = Utility.getRandomNumber();
+		long startTime = System.currentTimeMillis();
+		
+		LOG.info(LOG_BASE_FORMAT, trackingId, "deleteSalesOrdersPlanned In");
+		LOG.info(LOG_BASE_FORMAT, trackingId, "companyId : " + companyId);
+		LOG.info(LOG_BASE_FORMAT, trackingId, "id : " + id);
+		LOG.info(LOG_BASE_FORMAT, trackingId, "salesOrderPlannedId : " + salesOrderPlannedId);
+		LOG.info(LOG_BASE_FORMAT, trackingId, "weight : " + weight);
+		LOG.info(LOG_BASE_FORMAT, trackingId, "altered : " + altered);
+		
+		Response response = new Response();
+		response.setStatus("Success");
+		response.setStatusMessage("Success");
+		
+		try {
+			
+			String scope = JWTHelper.validateJWT(token);
+			
+			TallyInputDTO tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setCompanyId(companyId);
+			tallyInputDTO.setId(id);
+			tallyInputDTO.setSalesOrderedPlannedId(salesOrderPlannedId);
+			tallyInputDTO.setWeight(weight);
+			tallyInputDTO.setAltered(altered);
+			
+			SalesOrderBC salesOrderBC = new SalesOrderBC();
+			salesOrderBC.deleteSalesOrdersPlanned(tallyInputDTO); 
+			
+			LOG.info(LOG_DATA_FORMAT, trackingId, "deleteSalesOrdersPlanned : deleteSalesOrdersPlanned Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, trackingId, "exception captured in deleteSalesOrdersPlanned", e.getMessage());
+			e.printStackTrace();
+			
+			return javax.ws.rs.core.Response.serverError().build();
+		}
+	
+		return javax.ws.rs.core.Response.ok(response).build();
+	}
 
 }

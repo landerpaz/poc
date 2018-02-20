@@ -3,6 +3,7 @@ package com.india.tamilnadu.util;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.Date;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -128,8 +129,8 @@ public class Utility {
 		}*/
 		
 		
-		Double price = 5.00;
-		DecimalFormat format = new DecimalFormat("0.##");
+		Double price = 5.10234234324;
+		DecimalFormat format = new DecimalFormat("0.00");
 		System.out.println(format.format(price));
 		
 	}
@@ -208,8 +209,55 @@ public class Utility {
    }
 	
    public static String zeroTruncating(Double value) {
-	   DecimalFormat format = new DecimalFormat("0.##");
-	   return format.format(value);
+	   String result = null;
+	   try {
+		   DecimalFormat format = new DecimalFormat("0.##");
+		   result = format.format(value);
+	   } catch (Exception e) {
+		// TODO: handle exception
+	   }
+	   return result;
    }
    
+   public static String roundToTwoDecimal(Double value) {
+	   String result = null;
+	   try {
+		   DecimalFormat format = new DecimalFormat("0.00");
+		   result = format.format(value);
+	   } catch (Exception e) {
+		// TODO: handle exception
+	   }
+	   return result;
+   }
+   
+   public static String getBatchNumber() {
+	   DateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+	   java.util.Date date = new java.util.Date();
+	   return dateFormat.format(date);
+   }
+   
+   public static String getReel(String size, double weight) {
+		String reel =  null;
+		
+		if (null != size) {
+			
+			double sizeValue = Double.parseDouble(size);
+			//double weightValue = Double.parseDouble(weight);
+			
+			double temp = (weight * 1000) / (sizeValue * 10);
+			//System.out.println("temp : " + temp);
+			int valueX = (int) Math.round(temp);
+			reel = Integer.toString(valueX);
+		}
+		
+		return reel;
+		
+	}
+   
+   public static String calculateDispatchReal(double real, double realInStock) {
+		
+	return Double.toString(real - realInStock);	
+	
+		
+	}
 }

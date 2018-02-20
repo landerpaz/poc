@@ -1,8 +1,10 @@
 package com.india.tamilnadu.tally.vo;
 
-public class SalesOrder {
+public class SalesOrderPlanned {
 
+	private String salesOrderPlannedId;
 	private String id;
+	private String batchNumber;
 	private String orderNumber;
 	private String voucherKey;
 	private String orderDate;
@@ -15,13 +17,46 @@ public class SalesOrder {
 	private String reel;
 	private String orderStatus;
 	private String altered;
+	private String createdDate;
+	private String modifiedDate;
+	private String companyId;
 	private String reelInStock;
 	
+	public String getSalesOrderPlannedId() {
+		return salesOrderPlannedId;
+	}
+	public void setSalesOrderPlannedId(String salesOrderPlannedId) {
+		this.salesOrderPlannedId = salesOrderPlannedId;
+	}
 	public String getReelInStock() {
 		return reelInStock;
 	}
 	public void setReelInStock(String reelInStock) {
 		this.reelInStock = reelInStock;
+	}
+	public String getCompanyId() {
+		return companyId;
+	}
+	public void setCompanyId(String companyId) {
+		this.companyId = companyId;
+	}
+	public String getCreatedDate() {
+		return createdDate;
+	}
+	public void setCreatedDate(String createdDate) {
+		this.createdDate = createdDate;
+	}
+	public String getModifiedDate() {
+		return modifiedDate;
+	}
+	public void setModifiedDate(String modifiedDate) {
+		this.modifiedDate = modifiedDate;
+	}
+	public String getBatchNumber() {
+		return batchNumber;
+	}
+	public void setBatchNumber(String batchNumber) {
+		this.batchNumber = batchNumber;
 	}
 	public String getNewWeight() {
 		return newWeight;

@@ -17,6 +17,7 @@ import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 import com.india.tamilnadu.dto.Response;
 import com.india.tamilnadu.tally.vo.DayBookMasterVO;
 import com.india.tamilnadu.tally.vo.ProductionDashboardChart;
+import com.india.tamilnadu.tally.vo.SalesOrder;
 import com.india.tamilnadu.tally.vo.StockBFDetail;
 import com.india.tamilnadu.tally.vo.StockGSMDetail;
 import com.india.tamilnadu.tally.vo.StockStatistics;
@@ -147,8 +148,8 @@ public interface TallyService {
 	javax.ws.rs.core.Response getMessage(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId);
 	
 	@GET
-	@Path("/tally/salesOrder/{companyId}")
-	javax.ws.rs.core.Response getSalesOrder(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId);
+	@Path("/tally/salesOrder/{status}/{companyId}")
+	javax.ws.rs.core.Response getSalesOrder(@HeaderParam("Authorization") String token, @PathParam("status") String status, @PathParam("companyId") String companyId);
 		
 	@GET
 	@Path("/tally/salesOrderByBf/{companyId}")
@@ -163,7 +164,34 @@ public interface TallyService {
 	javax.ws.rs.core.Response getSalesOrderByBfGsmSize(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId);
 
 	@PUT
-	@Path("/tally/salesOrder/{companyId}/{id}")
-	javax.ws.rs.core.Response deleteSalesOrder(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId, @PathParam("id") String id);
+	@Path("/tally/salesOrder/{type}/{companyId}/{id}")
+	javax.ws.rs.core.Response deleteSalesOrder(@HeaderParam("Authorization") String token, @PathParam("type") String type, @PathParam("companyId") String companyId, @PathParam("id") String id);
+	
+	@POST
+	@Path("/tally/salesOrders/{companyId}")
+	javax.ws.rs.core.Response createSalesOrderPlan(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId, 
+			List<SalesOrder> salesOrders);
+	
+	@POST
+	@Path("/tally/salesOrders/{companyId}/{batchNumber}")
+	javax.ws.rs.core.Response updateSalesOrderPlan(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId, 
+			@PathParam("batchNumber") String batchNumber, List<SalesOrder> salesOrders);
+	
+	@GET
+	@Path("/tally/salesOrdersPlanned/{companyId}")
+	javax.ws.rs.core.Response getSalesOrdersPlanned(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId);
+	
+	@GET
+	@Path("/tally/salesOrdersDispatch/{companyId}/{batchNo}")
+	javax.ws.rs.core.Response getSalesOrdersDispatch(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId, @PathParam("batchNo") String batchNo);
+	
+	@PUT
+	@Path("/tally/salesOrdersPlannedReel/{companyId}/{id}/{reel}")
+	javax.ws.rs.core.Response updateSalesOrderPlannedReel(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId, @PathParam("id") String id, @PathParam("reel") String reel);
+	
+	@PUT
+	@Path("/tally/salesOrdersPlanned/{companyId}/{id}/{salesOrderPlannedId}/{altered}/{weight}")
+	javax.ws.rs.core.Response deleteSalesOrdersPlanned(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId, 
+			@PathParam("id") String id, @PathParam("salesOrderPlannedId") String salesOrderPlannedId, @PathParam("altered") String altered, @PathParam("weight") String weight);
 	
 }

@@ -24,6 +24,8 @@ import com.india.tamilnadu.tally.vo.ProductionDashboardChart;
 import com.india.tamilnadu.tally.vo.ProductionSummary;
 import com.india.tamilnadu.tally.vo.ProductionSummaryByYear;
 import com.india.tamilnadu.tally.vo.SalesOrder;
+import com.india.tamilnadu.tally.vo.SalesOrderDispatch;
+import com.india.tamilnadu.tally.vo.SalesOrderPlanned;
 import com.india.tamilnadu.tally.vo.SalesSummary;
 import com.india.tamilnadu.tally.vo.SalesSummaryByYear;
 import com.india.tamilnadu.tally.vo.StockBFDetail;
@@ -1563,7 +1565,7 @@ public class TallyDAO implements BaseDAO {
 		return messages;
 	}
 	
-	public List<SalesOrder> getSalesOrder(String companyId) throws Exception {
+	public List<SalesOrder> getSalesOrder(String companyId, String status) throws Exception {
 		
 		SalesOrder salesOrder = null;
 		List<SalesOrder> salesOrders = new ArrayList<>();
@@ -1572,7 +1574,14 @@ public class TallyDAO implements BaseDAO {
 			
 			connection = DatabaseManager.getInstance().getConnection();
 			preparedStatement = connection.prepareStatement(Constants.DB_GET_SALES_ORDER);
-			preparedStatement.setString(1, companyId);
+			
+			if(status.equals("active")) {
+				preparedStatement.setInt(1, 0);
+			} else { //status = inactive
+				preparedStatement.setInt(1, 1);
+			}
+			
+			preparedStatement.setString(2, companyId);
 			resultSet = preparedStatement.executeQuery();
 		
 			int index = 1;
@@ -1740,6 +1749,13 @@ public class TallyDAO implements BaseDAO {
 			System.out.println("Update query : " + Constants.DB_UPDATE_SALES_ORDER + ":" + tallyInputDTO.getId() + ":" + tallyInputDTO.getCompanyId());
 			
 			int parameterIndex = 1;
+			
+			if(tallyInputDTO.getType().equals("restore")) {
+				preparedStatement.setInt(parameterIndex++, 0);
+			} else { //type = remove
+				preparedStatement.setInt(parameterIndex++, 1);
+			}
+			
 			preparedStatement.setString(parameterIndex++, tallyInputDTO.getId());
 			preparedStatement.setString(parameterIndex++, tallyInputDTO.getCompanyId());
 			
@@ -1753,6 +1769,566 @@ public class TallyDAO implements BaseDAO {
 			
 			response.setStatus(Constants.RESPONSE_STATUS_FAILED);
 			response.setStatusMessage(Constants.RESPONSE_MESSAGE_PRODUCT_ADD_FAILED);
+		} finally {
+			closeResources();
+		}
+		
+		return response;
+	}
+	
+	public Response updateSalesOrders(TallyInputDTO tallyInputDTO, String batchNumber) {
+		
+		Response response = new Response();
+		response.setStatus(Constants.RESPONSE_STATUS_SUCCESS);
+		response.setStatusMessage(Constants.RESPONSE_MESSAGE_PRODUCT_ADD_SUCCESS);
+		PreparedStatement preparedStatementModified = null;
+		PreparedStatement preparedStatementPlanned = null;
+		
+		try {
+			
+			if(null == batchNumber) {
+				batchNumber = Utility.getBatchNumber();
+			}
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_UPDATE_COMPLETED_SALES_ORDERS); //SALES_ORDERS
+			preparedStatementModified = connection.prepareStatement(Constants.DB_UPDATE_MODIFIED_SALES_ORDERS); //SALES_ORDERS
+			preparedStatementPlanned = connection.prepareStatement(Constants.DB_ADD_SALES_ORDERS_PLANNED); //SALES_ORDERS_PLANNED
+			
+			System.out.println("Update query : " + Constants.DB_UPDATE_COMPLETED_SALES_ORDERS + ":" + tallyInputDTO.getCompanyId());
+			System.out.println("Update query : " + Constants.DB_UPDATE_MODIFIED_SALES_ORDERS + ":" + tallyInputDTO.getCompanyId());
+			System.out.println("Update query : " + Constants.DB_ADD_SALES_ORDERS_PLANNED + ":" + tallyInputDTO.getCompanyId());
+			
+			List<SalesOrder> salesOrders = tallyInputDTO.getSalesOrders();
+			int parameterIndex = 1;
+			
+			connection.setAutoCommit(false);
+			
+			//New weight = actual ordered weight - planned weight
+			//weight = planned weight
+			
+			for(SalesOrder salesOrder : salesOrders) {
+				if(salesOrder.getAltered().equals("1")) { //sales order modified
+					preparedStatementModified.setDouble(parameterIndex++, Double.parseDouble(salesOrder.getNewWeight())); //pending weight , yet to be planned (original weight - planned weight)
+					preparedStatementModified.setDouble(parameterIndex++, Double.parseDouble(Utility.getReel(salesOrder.getSize(), Double.parseDouble(salesOrder.getNewWeight()))));
+					preparedStatementModified.setString(parameterIndex++, salesOrder.getId());
+					preparedStatementModified.setString(parameterIndex++, tallyInputDTO.getCompanyId());
+					preparedStatementModified.executeUpdate();
+					
+				} else { //sales order not modified
+					preparedStatement.setString(parameterIndex++, salesOrder.getId());
+					preparedStatement.setString(parameterIndex++, tallyInputDTO.getCompanyId());
+					preparedStatement.executeUpdate();
+				}
+				
+				parameterIndex = 1;
+				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getId());
+				preparedStatementPlanned.setString(parameterIndex++, batchNumber);
+				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getVoucherKey());
+				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getOrderDate());
+				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getCompany());
+				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getSize());
+				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getWeight()); //planned weight.
+				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getOrderStatus());
+				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getAltered());
+				preparedStatementPlanned.setString(parameterIndex++, tallyInputDTO.getCompanyId());
+				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getOrderNumber());
+				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getBf());
+				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getGsm());
+				//preparedStatementPlanned.setString(parameterIndex++, Utility.getReel(salesOrder.getSize(), Double.parseDouble(salesOrder.getWeight())));
+				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getReel());
+				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getReelInStock());
+				
+				preparedStatementPlanned.executeUpdate();
+				
+				parameterIndex = 1;
+			}
+			
+			connection.commit();
+			
+		} catch (Exception e) {
+			
+			try {
+				connection.rollback();
+			} catch (Exception ex) {
+				// TODO: handle exception
+			}
+			// TODO: handle exception
+			System.out.println("Error in updating sales_orders order_status flag field in DB...");
+			e.printStackTrace();
+			
+			response.setStatus(Constants.RESPONSE_STATUS_FAILED);
+			response.setStatusMessage(Constants.RESPONSE_MESSAGE_PRODUCT_ADD_FAILED);
+		} finally {
+			
+			try {
+				if(null != preparedStatementModified) {
+					preparedStatementModified.close();
+				}
+				if(null != preparedStatementPlanned) {
+					preparedStatementPlanned.close();
+				}
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+			
+			closeResources();
+		}
+		
+		return response;
+	}
+
+	
+	/*public Response updateSalesOrders(TallyInputDTO tallyInputDTO) {
+		
+		Response response = new Response();
+		response.setStatus(Constants.RESPONSE_STATUS_SUCCESS);
+		response.setStatusMessage(Constants.RESPONSE_MESSAGE_PRODUCT_ADD_SUCCESS);
+		PreparedStatement preparedStatementModified = null;
+		PreparedStatement preparedStatementPlanned = null;
+		PreparedStatement preparedStatementPlannedJSON = null;
+		
+		try {
+			
+			String batchNumber = Utility.getBatchNumber();
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_UPDATE_COMPLETED_SALES_ORDERS);
+			preparedStatementModified = connection.prepareStatement(Constants.DB_UPDATE_MODIFIED_SALES_ORDERS);
+			preparedStatementPlanned = connection.prepareStatement(Constants.DB_ADD_SALES_ORDERS_PLANNED);
+			
+			preparedStatementPlannedJSON = connection.prepareStatement(Constants.DB_ADD_SALES_ORDERS_PLANNED_JSON);
+			
+			System.out.println("Update query : " + Constants.DB_UPDATE_COMPLETED_SALES_ORDERS + ":" + tallyInputDTO.getCompanyId());
+			System.out.println("Update query : " + Constants.DB_UPDATE_MODIFIED_SALES_ORDERS + ":" + tallyInputDTO.getCompanyId());
+			System.out.println("Update query : " + Constants.DB_ADD_SALES_ORDERS_PLANNED + ":" + tallyInputDTO.getCompanyId());
+			
+			List<SalesOrder> salesOrders = tallyInputDTO.getSalesOrders();
+			int parameterIndex = 1;
+			
+			connection.setAutoCommit(false);
+			
+			for(SalesOrder salesOrder : salesOrders) {
+				if(salesOrder.getAltered().equals("1")) { //sales order modified
+					preparedStatementModified.setDouble(parameterIndex++, Double.parseDouble(salesOrder.getNewWeight())); //pending weight , yet to be planned (original weight - planned weight)
+					preparedStatementModified.setDouble(parameterIndex++, Double.parseDouble(Utility.getReel(salesOrder.getSize(), Double.parseDouble(salesOrder.getNewWeight()))));
+					preparedStatementModified.setString(parameterIndex++, salesOrder.getId());
+					preparedStatementModified.setString(parameterIndex++, tallyInputDTO.getCompanyId());
+					preparedStatementModified.executeUpdate();
+					
+				} else { //sales order not modified
+					preparedStatement.setString(parameterIndex++, salesOrder.getId());
+					preparedStatement.setString(parameterIndex++, tallyInputDTO.getCompanyId());
+					preparedStatement.executeUpdate();
+				}
+				
+				parameterIndex = 1;
+				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getId());
+				preparedStatementPlanned.setString(parameterIndex++, batchNumber);
+				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getVoucherKey());
+				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getOrderDate());
+				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getCompany());
+				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getSize());
+				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getWeight()); //planned weight.
+				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getOrderStatus());
+				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getAltered());
+				preparedStatementPlanned.setString(parameterIndex++, tallyInputDTO.getCompanyId());
+				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getOrderNumber());
+				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getBf());
+				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getGsm());
+				preparedStatementPlanned.setString(parameterIndex++, Utility.getReel(salesOrder.getSize(), Double.parseDouble(salesOrder.getWeight())));
+				
+				preparedStatementPlanned.executeUpdate();
+				
+				parameterIndex = 1;
+			}
+			
+			preparedStatementPlannedJSON.setString(parameterIndex++, batchNumber);
+			preparedStatementPlannedJSON.setString(parameterIndex++, "BF"); //json type
+			preparedStatementPlannedJSON.setString(parameterIndex++, tallyInputDTO.getConsBf()); //json value
+			preparedStatementPlannedJSON.setString(parameterIndex++, tallyInputDTO.getCompanyId());
+			
+			preparedStatementPlannedJSON.executeUpdate();
+			
+			parameterIndex = 1;
+			preparedStatementPlannedJSON.setString(parameterIndex++, batchNumber);
+			preparedStatementPlannedJSON.setString(parameterIndex++, "GSM"); //json type
+			preparedStatementPlannedJSON.setString(parameterIndex++, tallyInputDTO.getConsBf()); //json value
+			preparedStatementPlannedJSON.setString(parameterIndex++, tallyInputDTO.getCompanyId());
+			
+			preparedStatementPlannedJSON.executeUpdate();
+			
+			parameterIndex = 1;
+			preparedStatementPlannedJSON.setString(parameterIndex++, batchNumber);
+			preparedStatementPlannedJSON.setString(parameterIndex++, "SIZE"); //json type
+			preparedStatementPlannedJSON.setString(parameterIndex++, tallyInputDTO.getConsBf()); //json value
+			preparedStatementPlannedJSON.setString(parameterIndex++, tallyInputDTO.getCompanyId());
+			
+			preparedStatementPlannedJSON.executeUpdate();
+			
+			
+			connection.commit();
+			
+		} catch (Exception e) {
+			
+			try {
+				connection.rollback();
+			} catch (Exception ex) {
+				// TODO: handle exception
+			}
+			// TODO: handle exception
+			System.out.println("Error in updating sales_orders order_status flag field in DB...");
+			e.printStackTrace();
+			
+			response.setStatus(Constants.RESPONSE_STATUS_FAILED);
+			response.setStatusMessage(Constants.RESPONSE_MESSAGE_PRODUCT_ADD_FAILED);
+		} finally {
+			
+			try {
+				if(null != preparedStatementModified) {
+					preparedStatementModified.close();
+				}
+				if(null != preparedStatementPlanned) {
+					preparedStatementPlanned.close();
+				}
+				if(null != preparedStatementPlannedJSON) {
+					preparedStatementPlanned.close();
+				}
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+			
+			closeResources();
+		}
+		
+		return response;
+	}*/
+
+	public List<SalesOrderPlanned> getSalesOrdersPlanned(String companyId) throws Exception {
+		
+		SalesOrderPlanned salesOrderPlanned = null;
+		List<SalesOrderPlanned> salesOrderPlanneds = new ArrayList<SalesOrderPlanned>();
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_SALES_ORDERS_PLANNED);
+			preparedStatement.setString(1, companyId);
+			resultSet = preparedStatement.executeQuery();
+		
+			int index = 1;
+			
+			while(resultSet.next()) {
+				
+				salesOrderPlanned = new SalesOrderPlanned();
+				
+				salesOrderPlanned.setSalesOrderPlannedId(resultSet.getString(index++));
+				salesOrderPlanned.setId(resultSet.getString(index++));
+				salesOrderPlanned.setBatchNumber(resultSet.getString(index++));
+				salesOrderPlanned.setVoucherKey(resultSet.getString(index++));
+				salesOrderPlanned.setOrderDate(resultSet.getString(index++));
+				salesOrderPlanned.setCompany(resultSet.getString(index++));
+				salesOrderPlanned.setSize(resultSet.getString(index++));
+				salesOrderPlanned.setWeight(resultSet.getString(index++));
+				salesOrderPlanned.setOrderStatus(resultSet.getString(index++));
+				salesOrderPlanned.setAltered(resultSet.getString(index++));
+				salesOrderPlanned.setCreatedDate(resultSet.getString(index++));
+				salesOrderPlanned.setModifiedDate(resultSet.getString(index++));
+				salesOrderPlanned.setCompanyId(resultSet.getString(index++));
+				salesOrderPlanned.setOrderNumber(resultSet.getString(index++));
+				salesOrderPlanned.setBf(Utility.zeroTruncating(resultSet.getDouble(index++)));
+				salesOrderPlanned.setGsm(Utility.zeroTruncating(resultSet.getDouble(index++)));
+				salesOrderPlanned.setReel(resultSet.getString(index++));
+				salesOrderPlanned.setReelInStock(resultSet.getString(index++));
+				salesOrderPlanneds.add(salesOrderPlanned);
+				
+				index = 1;
+			} 
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("Error in getSalesOrderPlanned DAO...");
+			e.printStackTrace();
+			throw new Exception("Server error");
+		} finally {
+			closeResources();
+		}
+		
+		return salesOrderPlanneds;
+	}
+	
+	public List<SalesOrderDispatch> getSalesOrdersDispatch(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		SalesOrderDispatch salesOrderDispatch = null;
+		List<SalesOrderDispatch> salesOrderDispatchs = new ArrayList<SalesOrderDispatch>();
+		double reel = 0.0;
+		double reelInstock = 0.0;
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_SALES_ORDERS_DISPATCH);
+			preparedStatement.setString(1, tallyInputDTO.getCompanyId());
+			preparedStatement.setString(2, tallyInputDTO.getBatchNo());
+			resultSet = preparedStatement.executeQuery();
+		
+			int index = 1;
+			
+			while(resultSet.next()) {
+				
+				salesOrderDispatch = new SalesOrderDispatch();
+				
+				salesOrderDispatch.setCompany(resultSet.getString(index++));
+				salesOrderDispatch.setOrderNumber(resultSet.getString(index++));
+				salesOrderDispatch.setBf(Utility.zeroTruncating(resultSet.getDouble(index++)));
+				salesOrderDispatch.setGsm(Utility.zeroTruncating(resultSet.getDouble(index++)));
+				salesOrderDispatch.setSize(resultSet.getString(index++));
+				salesOrderDispatch.setWeight(resultSet.getString(index++));
+				//salesOrderDispatch.setReel(resultSet.getString(index++));
+				//salesOrderDispatch.setReelInStock(resultSet.getString(index++));
+				
+				reel = resultSet.getDouble(index++);
+				reelInstock = resultSet.getDouble(index++);
+				salesOrderDispatch.setReel(Utility.calculateDispatchReal(reel, reelInstock));
+				salesOrderDispatch.setReelInStock(Double.toString(reelInstock));
+				
+				salesOrderDispatchs.add(salesOrderDispatch);
+				
+				index = 1;
+			} 
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("Error in getSalesOrderPlanned DAO...");
+			e.printStackTrace();
+			throw new Exception("Server error");
+		} finally {
+			closeResources();
+		}
+		
+		return salesOrderDispatchs;
+	}
+	
+	
+	public List<SalesOrder> getSalesOrderPlannedByBf(String companyId, String batchNo) throws Exception {
+		
+		SalesOrder salesOrder = null;
+		List<SalesOrder> salesOrders = new ArrayList<>();
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_SALES_ORDER_PLANNED_BY_BF);
+			preparedStatement.setString(1, batchNo);
+			preparedStatement.setString(2, companyId);
+			resultSet = preparedStatement.executeQuery();
+		
+			int index = 1;
+			
+			while(resultSet.next()) {
+				
+				salesOrder = new SalesOrder();
+				salesOrder.setBf(Utility.zeroTruncating(resultSet.getDouble(index++)));
+				salesOrder.setWeight(resultSet.getString(index++));
+				salesOrders.add(salesOrder);
+				
+				index = 1;
+				
+			} 
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("Error in getSalesOrderByBF DAO...");
+			e.printStackTrace();
+			throw new Exception("Server error");
+		} finally {
+			closeResources();
+		}
+		
+		return salesOrders;
+	}
+	
+	public List<SalesOrder> getSalesOrderPlannedByBfGsm(String companyId, String batchNo) throws Exception {
+		
+		SalesOrder salesOrder = null;
+		List<SalesOrder> salesOrders = new ArrayList<>();
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_SALES_ORDER_PLANNED_BY_BF_GSM);
+			preparedStatement.setString(1, batchNo);
+			preparedStatement.setString(2, companyId);
+			resultSet = preparedStatement.executeQuery();
+		
+			int index = 1;
+			
+			while(resultSet.next()) {
+				
+				salesOrder = new SalesOrder();
+				salesOrder.setBf(Utility.zeroTruncating(resultSet.getDouble(index++)));
+				salesOrder.setGsm(Utility.zeroTruncating(resultSet.getDouble(index++)));
+				salesOrder.setWeight(resultSet.getString(index++));
+				salesOrders.add(salesOrder);
+				
+				index = 1;
+				
+			} 
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("Error in getSalesOrderByBFAndGsm DAO...");
+			e.printStackTrace();
+			throw new Exception("Server error");
+		} finally {
+			closeResources();
+		}
+		
+		return salesOrders;
+	}
+	
+	public List<SalesOrder> getSalesOrderPlannedByBfGsmSize(String companyId, String batchNo) throws Exception {
+		
+		SalesOrder salesOrder = null;
+		List<SalesOrder> salesOrders = new ArrayList<>();
+		double reel = 0.0;
+		double reelInstock = 0.0;
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_SALES_ORDER_PLANNED_BY_BF_GSM_SIZE);
+			preparedStatement.setString(1, batchNo);
+			preparedStatement.setString(2, companyId);
+			resultSet = preparedStatement.executeQuery();
+		
+			int index = 1;
+			
+			while(resultSet.next()) {
+				
+				salesOrder = new SalesOrder();
+				salesOrder.setBf(Utility.zeroTruncating(resultSet.getDouble(index++)));
+				salesOrder.setGsm(Utility.zeroTruncating(resultSet.getDouble(index++)));
+				salesOrder.setSize(resultSet.getString(index++));
+				salesOrder.setWeight(resultSet.getString(index++));
+				
+				reel = resultSet.getDouble(index++);
+				reelInstock = resultSet.getDouble(index++);
+				salesOrder.setReel(Utility.calculateDispatchReal(reel, reelInstock));
+				salesOrder.setReelInStock(Double.toString(reelInstock));
+				salesOrders.add(salesOrder);
+				
+				index = 1;
+				
+			} 
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("Error in getSalesOrderByBfGsmSize DAO...");
+			e.printStackTrace();
+			throw new Exception("Server error");
+		} finally {
+			closeResources();
+		}
+		
+		return salesOrders;
+	}
+	
+	public Response updateSalesOrderPlannedReel(TallyInputDTO tallyInputDTO) {
+		
+		Response response = new Response();
+		response.setStatus(Constants.RESPONSE_STATUS_SUCCESS);
+		response.setStatusMessage(Constants.RESPONSE_MESSAGE_PRODUCT_ADD_SUCCESS);
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_UPDATE_SALES_ORDERS_PLANNED_REEL);
+			
+			System.out.println("Update query : " + Constants.DB_UPDATE_SALES_ORDERS_PLANNED_REEL);
+			
+			int parameterIndex = 1;
+			preparedStatement.setString(parameterIndex++, tallyInputDTO.getReel());
+			preparedStatement.setString(parameterIndex++, tallyInputDTO.getCompanyId());
+			preparedStatement.setString(parameterIndex++, tallyInputDTO.getId());
+			
+			preparedStatement.executeUpdate();
+			
+		} catch (Exception e) {
+			
+			// TODO: handle exception
+			System.out.println("Error in updating sales order planned reel field in DB...");
+			e.printStackTrace();
+			
+			response.setStatus(Constants.RESPONSE_STATUS_FAILED);
+			response.setStatusMessage(Constants.RESPONSE_MESSAGE_PRODUCT_ADD_FAILED);
+		} finally {
+			closeResources();
+		}
+		
+		return response;
+	}
+	
+	public Response deleteSalesOrderPlanned(TallyInputDTO tallyInputDTO) {
+		
+		Response response = new Response();
+		response.setStatus(Constants.RESPONSE_STATUS_SUCCESS);
+		response.setStatusMessage(Constants.RESPONSE_MESSAGE_PRODUCT_ADD_SUCCESS);
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			connection.setAutoCommit(false);
+			
+			preparedStatement = connection.prepareStatement(Constants.DB_DELETE_SALES_ORDER_PLANNED);
+			
+			System.out.println("Update query : " + Constants.DB_DELETE_SALES_ORDER_PLANNED + ":" + tallyInputDTO.getId() + ":" + tallyInputDTO.getCompanyId());
+			
+			int parameterIndex = 1;
+			preparedStatement.setString(parameterIndex++, tallyInputDTO.getSalesOrderedPlannedId());
+			preparedStatement.setString(parameterIndex++, tallyInputDTO.getCompanyId());
+			
+			preparedStatement.executeUpdate();
+			
+			//
+			if(tallyInputDTO.getAltered().equals("1")) {
+				preparedStatement = connection.prepareStatement(Constants.DB_UPDATE_MODIFIED_SALES_ORDERS_RESTORED);
+				
+				System.out.println("Update query : " + Constants.DB_UPDATE_MODIFIED_SALES_ORDERS_RESTORED + ":" + tallyInputDTO.getId() + ":" + tallyInputDTO.getCompanyId());
+				
+				parameterIndex = 1;
+				preparedStatement.setDouble(parameterIndex++, Double.parseDouble(tallyInputDTO.getWeight()));
+				preparedStatement.setString(parameterIndex++, tallyInputDTO.getId());
+				preparedStatement.setString(parameterIndex++, tallyInputDTO.getCompanyId());
+				
+				preparedStatement.executeUpdate();
+			} else {
+				preparedStatement = connection.prepareStatement(Constants.DB_UPDATE_COMPLETED_SALES_ORDERS_RESTORED);
+				
+				System.out.println("Update query : " + Constants.DB_UPDATE_COMPLETED_SALES_ORDERS_RESTORED + ":" + tallyInputDTO.getId() + ":" + tallyInputDTO.getCompanyId());
+				
+				parameterIndex = 1;
+				preparedStatement.setString(parameterIndex++, tallyInputDTO.getId());
+				preparedStatement.setString(parameterIndex++, tallyInputDTO.getCompanyId());
+				
+				preparedStatement.executeUpdate();
+			}
+			
+			connection.commit();
+			
+		} catch (Exception e) {
+			
+			// TODO: handle exception
+			System.out.println("Error in deleting sales_orders_planned in DB...");
+			e.printStackTrace();
+			
+			response.setStatus(Constants.RESPONSE_STATUS_FAILED);
+			response.setStatusMessage(Constants.RESPONSE_MESSAGE_PRODUCT_ADD_FAILED);
+			
+			try {
+				if(null != connection) {connection.rollback();}
+			}catch (Exception ex) {
+				// TODO: handle exception
+			}
 		} finally {
 			closeResources();
 		}

@@ -3,6 +3,7 @@ package com.india.tamilnadu.tally.dto;
 import java.util.List;
 
 import com.india.tamilnadu.tally.vo.DayBookMasterVO;
+import com.india.tamilnadu.tally.vo.SalesOrder;
 
 public class TallyInputDTO {
 
@@ -16,7 +17,77 @@ public class TallyInputDTO {
 	private String startDate;
 	private String endDate;
 	private String id;
+	private List<SalesOrder> salesOrders;
+	private String batchNo;
+	private String consBf;
+	private String consBfGsm;
+	private String consBfGsmSize;
+	private String reel;
+	private String altered;
+	private String salesOrderedPlannedId;
+	private String weight;
+	private String type;
 	
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
+	}
+	public String getWeight() {
+		return weight;
+	}
+	public void setWeight(String weight) {
+		this.weight = weight;
+	}
+	public String getAltered() {
+		return altered;
+	}
+	public void setAltered(String altered) {
+		this.altered = altered;
+	}
+	public String getSalesOrderedPlannedId() {
+		return salesOrderedPlannedId;
+	}
+	public void setSalesOrderedPlannedId(String salesOrderedPlannedId) {
+		this.salesOrderedPlannedId = salesOrderedPlannedId;
+	}
+	public String getReel() {
+		return reel;
+	}
+	public void setReel(String reel) {
+		this.reel = reel;
+	}
+	public String getConsBf() {
+		return consBf;
+	}
+	public void setConsBf(String consBf) {
+		this.consBf = consBf;
+	}
+	public String getConsBfGsm() {
+		return consBfGsm;
+	}
+	public void setConsBfGsm(String consBfGsm) {
+		this.consBfGsm = consBfGsm;
+	}
+	public String getConsBfGsmSize() {
+		return consBfGsmSize;
+	}
+	public void setConsBfGsmSize(String consBfGsmSize) {
+		this.consBfGsmSize = consBfGsmSize;
+	}
+	public String getBatchNo() {
+		return batchNo;
+	}
+	public void setBatchNo(String batchNo) {
+		this.batchNo = batchNo;
+	}
+	public List<SalesOrder> getSalesOrders() {
+		return salesOrders;
+	}
+	public void setSalesOrders(List<SalesOrder> salesOrders) {
+		this.salesOrders = salesOrders;
+	}
 	public String getId() {
 		return id;
 	}
