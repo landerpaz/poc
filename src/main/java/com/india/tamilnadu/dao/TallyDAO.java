@@ -1557,7 +1557,8 @@ public class TallyDAO implements BaseDAO {
 			// TODO: handle exception
 			System.out.println("Error in getting messages from DB...");
 			e.printStackTrace();
-			throw new Exception("Server error");
+			//throw new Exception("Server error");
+			throw new RuntimeException(e);
 		} finally {
 			closeResources();
 		}
@@ -1613,7 +1614,8 @@ public class TallyDAO implements BaseDAO {
 			// TODO: handle exception
 			System.out.println("Error in getSalesOrder DAO...");
 			e.printStackTrace();
-			throw new Exception("Server error");
+			//throw new Exception("Server error");
+			throw new RuntimeException(e);
 		} finally {
 			closeResources();
 		}
@@ -1652,7 +1654,8 @@ public class TallyDAO implements BaseDAO {
 			// TODO: handle exception
 			System.out.println("Error in getSalesOrderByBfGsmSize DAO...");
 			e.printStackTrace();
-			throw new Exception("Server error");
+			//throw new Exception("Server error");
+			throw new RuntimeException(e);
 		} finally {
 			closeResources();
 		}
@@ -1689,7 +1692,8 @@ public class TallyDAO implements BaseDAO {
 			// TODO: handle exception
 			System.out.println("Error in getSalesOrderByBF DAO...");
 			e.printStackTrace();
-			throw new Exception("Server error");
+			//throw new Exception("Server error");
+			throw new RuntimeException(e);
 		} finally {
 			closeResources();
 		}
@@ -1727,7 +1731,8 @@ public class TallyDAO implements BaseDAO {
 			// TODO: handle exception
 			System.out.println("Error in getSalesOrderByBFAndGsm DAO...");
 			e.printStackTrace();
-			throw new Exception("Server error");
+			//throw new Exception("Server error");
+			throw new RuntimeException(e);
 		} finally {
 			closeResources();
 		}
@@ -2048,7 +2053,8 @@ public class TallyDAO implements BaseDAO {
 			// TODO: handle exception
 			System.out.println("Error in getSalesOrderPlanned DAO...");
 			e.printStackTrace();
-			throw new Exception("Server error");
+			//throw new Exception("Server error");
+			throw new RuntimeException(e);
 		} finally {
 			closeResources();
 		}
@@ -2100,7 +2106,8 @@ public class TallyDAO implements BaseDAO {
 			// TODO: handle exception
 			System.out.println("Error in getSalesOrderPlanned DAO...");
 			e.printStackTrace();
-			throw new Exception("Server error");
+			//throw new Exception("Server error");
+			throw new RuntimeException(e);
 		} finally {
 			closeResources();
 		}
@@ -2139,7 +2146,8 @@ public class TallyDAO implements BaseDAO {
 			// TODO: handle exception
 			System.out.println("Error in getSalesOrderByBF DAO...");
 			e.printStackTrace();
-			throw new Exception("Server error");
+			//throw new Exception("Server error");
+			throw new RuntimeException(e);
 		} finally {
 			closeResources();
 		}
@@ -2178,7 +2186,8 @@ public class TallyDAO implements BaseDAO {
 			// TODO: handle exception
 			System.out.println("Error in getSalesOrderByBFAndGsm DAO...");
 			e.printStackTrace();
-			throw new Exception("Server error");
+			//throw new Exception("Server error");
+			throw new RuntimeException(e);
 		} finally {
 			closeResources();
 		}
@@ -2225,7 +2234,8 @@ public class TallyDAO implements BaseDAO {
 			// TODO: handle exception
 			System.out.println("Error in getSalesOrderByBfGsmSize DAO...");
 			e.printStackTrace();
-			throw new Exception("Server error");
+			//throw new Exception("Server error");
+			throw new RuntimeException(e);
 		} finally {
 			closeResources();
 		}
