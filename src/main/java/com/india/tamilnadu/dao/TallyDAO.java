@@ -1587,28 +1587,30 @@ public class TallyDAO implements BaseDAO {
 		
 			int index = 1;
 			
-			while(resultSet.next()) {
-				
-				salesOrder = new SalesOrder();
-				salesOrder.setId(resultSet.getString(index++));
-				salesOrder.setOrderNumber(resultSet.getString(index++));
-				salesOrder.setVoucherKey(resultSet.getString(index++));
-				salesOrder.setCompany(resultSet.getString(index++));
-				salesOrder.setOrderDate(resultSet.getString(index++));
-				//salesOrder.setBf(resultSet.getString(index++));
-				//salesOrder.setGsm(resultSet.getString(index++));
-				salesOrder.setBf(Utility.zeroTruncating(resultSet.getDouble(index++)));
-				salesOrder.setGsm(Utility.zeroTruncating(resultSet.getDouble(index++)));
-				salesOrder.setSize(resultSet.getString(index++));
-				salesOrder.setWeight(resultSet.getString(index++));
-				salesOrder.setReel(resultSet.getString(index++));
-				salesOrder.setOrderStatus(resultSet.getString(index++));
-				salesOrder.setAltered(resultSet.getString(index++));
-				salesOrders.add(salesOrder);
-				
-				index = 1;
-				
-			} 
+			if(null != resultSet) {
+				while(resultSet.next()) {
+					
+					salesOrder = new SalesOrder();
+					salesOrder.setId(resultSet.getString(index++));
+					salesOrder.setOrderNumber(resultSet.getString(index++));
+					salesOrder.setVoucherKey(resultSet.getString(index++));
+					salesOrder.setCompany(resultSet.getString(index++));
+					salesOrder.setOrderDate(resultSet.getString(index++));
+					//salesOrder.setBf(resultSet.getString(index++));
+					//salesOrder.setGsm(resultSet.getString(index++));
+					salesOrder.setBf(Utility.zeroTruncating(resultSet.getDouble(index++)));
+					salesOrder.setGsm(Utility.zeroTruncating(resultSet.getDouble(index++)));
+					salesOrder.setSize(resultSet.getString(index++));
+					salesOrder.setWeight(resultSet.getString(index++));
+					salesOrder.setReel(resultSet.getString(index++));
+					salesOrder.setOrderStatus(resultSet.getString(index++));
+					salesOrder.setAltered(resultSet.getString(index++));
+					salesOrders.add(salesOrder);
+					
+					index = 1;
+					
+				} 
+			}
 			
 		} catch (Exception e) {
 			// TODO: handle exception
