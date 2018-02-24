@@ -23,6 +23,8 @@ import com.india.tamilnadu.tally.vo.LedgerEntryVO;
 import com.india.tamilnadu.tally.vo.ProductionDashboardChart;
 import com.india.tamilnadu.tally.vo.ProductionSummary;
 import com.india.tamilnadu.tally.vo.ProductionSummaryByYear;
+import com.india.tamilnadu.tally.vo.Receipt;
+import com.india.tamilnadu.tally.vo.Sales;
 import com.india.tamilnadu.tally.vo.SalesOrder;
 import com.india.tamilnadu.tally.vo.SalesOrderDispatch;
 import com.india.tamilnadu.tally.vo.SalesOrderPlanned;
@@ -2346,5 +2348,118 @@ public class TallyDAO implements BaseDAO {
 		}
 		
 		return response;
+	}
+	
+	public List<Sales> getSales(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getSales In");
+		
+		List<Sales> salesList = new ArrayList<>();
+		Sales sales = null;
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			if(tallyInputDTO.isSelectAll()) {
+				preparedStatement = connection.prepareStatement(Constants.DB_GET_SALES_DETAILS_ALL);
+				preparedStatement.setString(1, tallyInputDTO.getCompanyId());
+			} else {
+				preparedStatement = connection.prepareStatement(Constants.DB_GET_SALES_DETAILS);
+				preparedStatement.setInt(1, Integer.parseInt(tallyInputDTO.getId()));
+				preparedStatement.setString(2, tallyInputDTO.getCompanyId());
+			}
+			
+			resultSet = preparedStatement.executeQuery();
+		
+			
+			while(resultSet.next()) {
+				
+				int index = 1;
+				sales = new Sales();
+				
+				sales.setSalesId(resultSet.getString(index++));
+				sales.setCustId(resultSet.getString(index++));
+				sales.setVoucherNumber(resultSet.getString(index++));
+				sales.setPartyLedgerName(resultSet.getString(index++));
+				sales.setDate(resultSet.getString(index++));
+				sales.setEffectiveDate(resultSet.getString(index++));
+				sales.setVoucherType(resultSet.getString(index++));
+				sales.setVoucherKey(resultSet.getString(index++));
+				sales.setLedgerName(resultSet.getString(index++));
+				sales.setAmount(resultSet.getString(index++));
+				sales.setCreatedDate(resultSet.getString(index++));
+				sales.setModifiesDate(resultSet.getString(index++));
+				sales.setCompanyId(resultSet.getString(index++));
+				
+				salesList.add(sales);
+				
+			}
+			
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getSales Out");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		} finally {
+			closeResources();
+		}
+		
+		return salesList;
+	}
+	
+	public List<Receipt> getReceipts(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getReceipts In");
+		
+		List<Receipt> receiptList = new ArrayList<>();
+		Receipt receipt = null;
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			if(tallyInputDTO.isSelectAll()) {
+				preparedStatement = connection.prepareStatement(Constants.DB_GET_RECEIPT_DETAILS_ALL);
+				preparedStatement.setString(1, tallyInputDTO.getCompanyId());
+			} else {
+				preparedStatement = connection.prepareStatement(Constants.DB_GET_RECEIPT_DETAILS);
+				preparedStatement.setInt(1, Integer.parseInt(tallyInputDTO.getId()));
+				preparedStatement.setString(2, tallyInputDTO.getCompanyId());
+			}
+			resultSet = preparedStatement.executeQuery();
+		
+			
+			while(resultSet.next()) {
+				
+				int index = 1;
+				receipt = new Receipt();
+				
+				receipt.setReceiptId(resultSet.getString(index++));
+				receipt.setCustId(resultSet.getString(index++));
+				receipt.setVoucherNumber(resultSet.getString(index++));
+				receipt.setPartyLedgerName(resultSet.getString(index++));
+				receipt.setDate(resultSet.getString(index++));
+				receipt.setEffectiveDate(resultSet.getString(index++));
+				receipt.setVoucherType(resultSet.getString(index++));
+				receipt.setVoucherKey(resultSet.getString(index++));
+				receipt.setLedgerName(resultSet.getString(index++));
+				receipt.setAmount(resultSet.getString(index++));
+				receipt.setCreatedDate(resultSet.getString(index++));
+				receipt.setModifiesDate(resultSet.getString(index++));
+				receipt.setCompanyId(resultSet.getString(index++));
+				
+				receiptList.add(receipt);
+				
+			}
+			
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getReceipts Out");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		} finally {
+			closeResources();
+		}
+		
+		return receiptList;
 	}
 }

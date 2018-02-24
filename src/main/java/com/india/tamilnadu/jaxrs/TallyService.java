@@ -194,4 +194,13 @@ public interface TallyService {
 	javax.ws.rs.core.Response deleteSalesOrdersPlanned(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId, 
 			@PathParam("id") String id, @PathParam("salesOrderPlannedId") String salesOrderPlannedId, @PathParam("altered") String altered, @PathParam("weight") String weight);
 	
+	@GET
+	@Path("/tally/sales/{companyId}/{id}")
+	javax.ws.rs.core.Response getSales(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId, @PathParam("id") String id);
+	
+	
+	@GET
+	@Path("/tally/receipt/{companyId}/{id}")
+	javax.ws.rs.core.Response getReceipts(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId, @PathParam("id") String id);
+	
 }

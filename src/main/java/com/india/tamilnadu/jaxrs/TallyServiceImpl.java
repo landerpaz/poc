@@ -17,6 +17,8 @@ import com.india.tamilnadu.dto.Response;
 import com.india.tamilnadu.security.bc.AuthenticationBC;
 import com.india.tamilnadu.security.util.JWTHelper;
 import com.india.tamilnadu.tally.bc.MessageBC;
+import com.india.tamilnadu.tally.bc.ReceiptBC;
+import com.india.tamilnadu.tally.bc.SalesBC;
 import com.india.tamilnadu.tally.bc.SalesOrderBC;
 import com.india.tamilnadu.tally.bc.TallyDayBookBC;
 import com.india.tamilnadu.tally.bc.TallyStockBC;
@@ -1529,5 +1531,90 @@ public class TallyServiceImpl implements TallyService {
 	
 		return javax.ws.rs.core.Response.ok(response).build();
 	}
+	
+	public javax.ws.rs.core.Response getSales(String token, String companyId, String id) {
+		
+		TallyInputDTO tallyInputDTO = null;
+		List salesList = null;
+		long startTime = System.currentTimeMillis();
+		
+		try {
+			
+			String scope = JWTHelper.validateJWT(token);
+			
+			tallyInputDTO = new TallyInputDTO();
+			if(null != id && id.equals("all")) {
+				tallyInputDTO.setSelectAll(true);
+			} else {
+				tallyInputDTO.setSelectAll(false);
+			}
+			tallyInputDTO.setId(id);
+			tallyInputDTO.setCompanyId(companyId);
+			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
+			
+			LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getSales In");
+			
+			SalesBC salesBC = new SalesBC();
+			salesList = salesBC.getSales(tallyInputDTO);
+					
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "Number of day book entries : "  + (null == salesList? "0" : salesList.size()));
+			LOG.info(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "getSales Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+			
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "exception captured in getSales", e.getMessage());
+			e.printStackTrace();
+			
+			if(null != e && null != e.getMessage() && e.getMessage().contains("JWT signature does not match")) { 
+				return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
+			}
+			
+			return javax.ws.rs.core.Response.serverError().build();
+		}
+	
+		return javax.ws.rs.core.Response.ok(salesList).build();
+	}
+	
+	public javax.ws.rs.core.Response getReceipts(String token, String companyId, String id) {
+		
+		TallyInputDTO tallyInputDTO = null;
+		List receiptsList = null;
+		long startTime = System.currentTimeMillis();
+		
+		try {
+			
+			String scope = JWTHelper.validateJWT(token);
+			
+			tallyInputDTO = new TallyInputDTO();
+			if(null != id && id.equals("all")) {
+				tallyInputDTO.setSelectAll(true);
+			} else {
+				tallyInputDTO.setSelectAll(false);
+			}
+			tallyInputDTO.setId(id);
+			tallyInputDTO.setCompanyId(companyId);
+			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
+			
+			LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getReceipts In");
+			
+			ReceiptBC receiptBC = new ReceiptBC();
+			receiptsList = receiptBC.getReceipts(tallyInputDTO);
+					
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "Number of day book entries : "  + (null == receiptsList? "0" : receiptsList.size()));
+			LOG.info(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "getReceipts Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+			
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "exception captured in getReceipts", e.getMessage());
+			e.printStackTrace();
+			
+			if(null != e && null != e.getMessage() && e.getMessage().contains("JWT signature does not match")) { 
+				return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
+			}
+			
+			return javax.ws.rs.core.Response.serverError().build();
+		}
+	
+		return javax.ws.rs.core.Response.ok(receiptsList).build();
+	}
+
 
 }

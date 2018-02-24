@@ -3,6 +3,8 @@ package com.india.tamilnadu.tally.dto;
 import java.util.List;
 
 import com.india.tamilnadu.tally.vo.DayBookMasterVO;
+import com.india.tamilnadu.tally.vo.Receipt;
+import com.india.tamilnadu.tally.vo.Sales;
 import com.india.tamilnadu.tally.vo.SalesOrder;
 
 public class TallyInputDTO {
@@ -27,7 +29,28 @@ public class TallyInputDTO {
 	private String salesOrderedPlannedId;
 	private String weight;
 	private String type;
+	private List<Sales> salesList;
+	private List<Receipt> receiptList;
+	private boolean selectAll;
 	
+	public List<Sales> getSalesList() {
+		return salesList;
+	}
+	public void setSalesList(List<Sales> salesList) {
+		this.salesList = salesList;
+	}
+	public List<Receipt> getReceiptList() {
+		return receiptList;
+	}
+	public void setReceiptList(List<Receipt> receiptList) {
+		this.receiptList = receiptList;
+	}
+	public boolean isSelectAll() {
+		return selectAll;
+	}
+	public void setSelectAll(boolean selectAll) {
+		this.selectAll = selectAll;
+	}
 	public String getType() {
 		return type;
 	}
