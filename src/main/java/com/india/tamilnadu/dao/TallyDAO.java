@@ -1837,7 +1837,8 @@ public class TallyDAO implements BaseDAO {
 				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getOrderDate());
 				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getCompany());
 				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getSize());
-				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getWeight()); //planned weight.
+				//preparedStatementPlanned.setString(parameterIndex++, salesOrder.getWeight()); //planned weight.
+				preparedStatementPlanned.setDouble(parameterIndex++, Utility.stringToDouble(salesOrder.getWeight())); //planned weight.
 				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getOrderStatus());
 				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getAltered());
 				preparedStatementPlanned.setString(parameterIndex++, tallyInputDTO.getCompanyId());
@@ -1845,8 +1846,11 @@ public class TallyDAO implements BaseDAO {
 				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getBf());
 				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getGsm());
 				//preparedStatementPlanned.setString(parameterIndex++, Utility.getReel(salesOrder.getSize(), Double.parseDouble(salesOrder.getWeight())));
-				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getReel());
-				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getReelInStock());
+				/*preparedStatementPlanned.setString(parameterIndex++, salesOrder.getReel());
+				preparedStatementPlanned.setString(parameterIndex++, salesOrder.getReelInStock());*/
+				
+				preparedStatementPlanned.setDouble(parameterIndex++, Utility.stringToDouble(salesOrder.getReel()));
+				preparedStatementPlanned.setDouble(parameterIndex++, Utility.stringToDouble(salesOrder.getReelInStock()));
 				
 				preparedStatementPlanned.executeUpdate();
 				
@@ -2261,7 +2265,8 @@ public class TallyDAO implements BaseDAO {
 			System.out.println("Update query : " + Constants.DB_UPDATE_SALES_ORDERS_PLANNED_REEL);
 			
 			int parameterIndex = 1;
-			preparedStatement.setString(parameterIndex++, tallyInputDTO.getReel());
+			//preparedStatement.setString(parameterIndex++, tallyInputDTO.getReel());
+			preparedStatement.setDouble(parameterIndex++, Utility.stringToDouble(tallyInputDTO.getReel()));
 			preparedStatement.setString(parameterIndex++, tallyInputDTO.getCompanyId());
 			preparedStatement.setString(parameterIndex++, tallyInputDTO.getId());
 			
@@ -2310,7 +2315,8 @@ public class TallyDAO implements BaseDAO {
 				System.out.println("Update query : " + Constants.DB_UPDATE_MODIFIED_SALES_ORDERS_RESTORED + ":" + tallyInputDTO.getId() + ":" + tallyInputDTO.getCompanyId());
 				
 				parameterIndex = 1;
-				preparedStatement.setDouble(parameterIndex++, Double.parseDouble(tallyInputDTO.getWeight()));
+				//preparedStatement.setDouble(parameterIndex++, Double.parseDouble(tallyInputDTO.getWeight()));
+				preparedStatement.setDouble(parameterIndex++, Utility.stringToDouble(tallyInputDTO.getWeight()));
 				preparedStatement.setString(parameterIndex++, tallyInputDTO.getId());
 				preparedStatement.setString(parameterIndex++, tallyInputDTO.getCompanyId());
 				
@@ -2365,7 +2371,7 @@ public class TallyDAO implements BaseDAO {
 				preparedStatement.setString(1, tallyInputDTO.getCompanyId());
 			} else {
 				preparedStatement = connection.prepareStatement(Constants.DB_GET_SALES_DETAILS);
-				preparedStatement.setInt(1, Integer.parseInt(tallyInputDTO.getId()));
+				preparedStatement.setString(1, tallyInputDTO.getId());
 				preparedStatement.setString(2, tallyInputDTO.getCompanyId());
 			}
 			
@@ -2422,7 +2428,7 @@ public class TallyDAO implements BaseDAO {
 				preparedStatement.setString(1, tallyInputDTO.getCompanyId());
 			} else {
 				preparedStatement = connection.prepareStatement(Constants.DB_GET_RECEIPT_DETAILS);
-				preparedStatement.setInt(1, Integer.parseInt(tallyInputDTO.getId()));
+				preparedStatement.setString(1, tallyInputDTO.getId());
 				preparedStatement.setString(2, tallyInputDTO.getCompanyId());
 			}
 			resultSet = preparedStatement.executeQuery();

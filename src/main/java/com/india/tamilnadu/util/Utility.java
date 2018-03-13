@@ -8,17 +8,29 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.UUID;
 
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.india.tamilnadu.dao.AuthenticationDAO;
 import com.india.tamilnadu.tally.vo.InventoryEntryVO;
+import com.india.tamilnadu.tally.vo.Result;
 
 public class Utility {
 
+	private static final String prefix1= "<html><body>";
+	private static final String prefix2= "<table border='1'/><tr><td>Voucher Type</td><td>Voucher Key</td><td>Status</td></tr>";
+	private static final String tr_open = "<tr>";
+	private static final String td_open = "<td>";
+	private static final String td_close = "</td>";
+	private static final String tr_close = "<tr>";
+	private static final String sufix= "</table></body></html>";
+	
 	public static String getCurrentQuarter() {
 		
 		int quarter = (Calendar.getInstance().get(Calendar.MONTH) / 3); // 0 to 3
@@ -152,6 +164,23 @@ public class Utility {
 		   
 	}
 	
+	public static Double stringToDouble(String input) {
+		
+	   double result = 0.0;	
+	   try {
+		  
+		   if(StringUtils.isNoneBlank(input)) {
+			   result = Double.parseDouble(input);
+		   }
+	   } catch (Exception e) {
+		// TODO: handle exception
+		   e.printStackTrace();
+	   }
+		
+		return result; 
+		   
+	}
+	
 	public static int removeDecimal(String qty) {
 		
 		System.out.println("qty : " + qty);
@@ -260,4 +289,19 @@ public class Utility {
 	
 		
 	}
+   
+   public static String objectToString(List<Result> results) {
+	   
+	   StringBuilder sb = new StringBuilder(prefix1).append(prefix2);
+			   
+	   for(Result result : results) {
+		   sb.append(tr_open).append(td_open).append(result.getVoucherType()).append(td_close)
+		   		.append(td_open).append(result.getVoucherKey()).append(td_close)
+		   		.append(td_open).append(result.getStatus()).append(td_close).append(tr_close);
+				   
+	   }
+	   
+	   sb.append(sufix);
+	   return sb.toString();
+   }
 }

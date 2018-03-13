@@ -3,6 +3,7 @@ package com.india.tamilnadu.jaxrs;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -10,13 +11,16 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.container.AsyncResponse;
 
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 
 import com.india.tamilnadu.dto.Response;
 import com.india.tamilnadu.tally.vo.DayBookMasterVO;
 import com.india.tamilnadu.tally.vo.ProductionDashboardChart;
+import com.india.tamilnadu.tally.vo.Result;
 import com.india.tamilnadu.tally.vo.SalesOrder;
 import com.india.tamilnadu.tally.vo.StockBFDetail;
 import com.india.tamilnadu.tally.vo.StockGSMDetail;
@@ -186,7 +190,8 @@ public interface TallyService {
 	javax.ws.rs.core.Response getSalesOrdersDispatch(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId, @PathParam("batchNo") String batchNo);
 	
 	@PUT
-	@Path("/tally/salesOrdersPlannedReel/{companyId}/{id}/{reel}")
+	//@Path("/tally/salesOrdersPlannedReel/{companyId}/{id}/{reel}")
+	@Path("/tally/salesOrdersPlannedReel/{companyId}/{id}{reel : (/reel)?}")
 	javax.ws.rs.core.Response updateSalesOrderPlannedReel(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId, @PathParam("id") String id, @PathParam("reel") String reel);
 	
 	@PUT
@@ -202,5 +207,13 @@ public interface TallyService {
 	@GET
 	@Path("/tally/receipt/{companyId}/{id}")
 	javax.ws.rs.core.Response getReceipts(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId, @PathParam("id") String id);
+	
+	@POST
+	@Path("/tally/mail/{companyId}/{fileName}/{status}/{to}")
+	javax.ws.rs.core.Response sendMail(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId, @PathParam("fileName") String fileName, @PathParam("status") String status, @PathParam("to") String to, List<Result> results);
+	
+	@POST
+	@Path("/tally/mail/{companyId}/{fileName}/{status}/{to}")
+	public void sendMailAsync(@Suspended AsyncResponse reponse, @HeaderParam("Authorization") String token, @PathParam("companyId") String companyId, @PathParam("fileName") String fileName, @PathParam("status") String status, @PathParam("to") String to);
 	
 }

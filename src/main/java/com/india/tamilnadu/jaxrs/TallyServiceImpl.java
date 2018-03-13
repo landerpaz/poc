@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.security.sasl.AuthenticationException;
+import javax.ws.rs.container.AsyncResponse;
 
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 import org.apache.cxf.phase.PhaseInterceptorChain;
@@ -23,6 +24,7 @@ import com.india.tamilnadu.tally.bc.SalesOrderBC;
 import com.india.tamilnadu.tally.bc.TallyDayBookBC;
 import com.india.tamilnadu.tally.bc.TallyStockBC;
 import com.india.tamilnadu.tally.dto.TallyInputDTO;
+import com.india.tamilnadu.tally.vo.Result;
 import com.india.tamilnadu.tally.vo.SalesOrder;
 import com.india.tamilnadu.tally.vo.SalesOrderConsolidated;
 import com.india.tamilnadu.tally.vo.StockStatistics;
@@ -30,6 +32,7 @@ import com.india.tamilnadu.util.SaxParserHandler;
 import com.india.tamilnadu.util.TallyBean;
 import com.india.tamilnadu.util.TallyRequestContext;
 import com.india.tamilnadu.util.Utility;
+import com.india.tamilnadu.util.bc.MailBC;
 import com.india.tamilnadu.vo.Login;
 import com.india.tamilnadu.vo.LoginUser;
 import com.india.tamilnadu.vo.Message;
@@ -1616,5 +1619,83 @@ public class TallyServiceImpl implements TallyService {
 		return javax.ws.rs.core.Response.ok(receiptsList).build();
 	}
 
+	public javax.ws.rs.core.Response sendMail(String token, String companyId, String fileName, String status, String to, List<Result> results) {
+		
+		String trackingId = Utility.getRandomNumber();
+		//long startTime = System.currentTimeMillis();
+		
+		LOG.info(LOG_BASE_FORMAT, trackingId, "sendMail In");
+		
+		Response response = new Response();
+		response.setStatus("Success");
+		response.setStatusMessage("Success");
+		
+		try {
+			
+			String scope = JWTHelper.validateJWT(token);
+			
+			new Thread() {
+				public void run() {
+					try {
+						MailBC mailBC = new MailBC();
+						mailBC.senMail(trackingId, fileName, status, to, results);
+					} catch (Exception e) {
+						LOG.error(LOG_DATA_FORMAT, trackingId, "exception captured in sendMail", e.getMessage());
+					}
+				}
+			}.start();
+			
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, trackingId, "exception captured in sendMail", e.getMessage());
+			e.printStackTrace();
+			
+			if(null != e && null != e.getMessage() && e.getMessage().contains("JWT signature does not match")) { 
+				return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
+			}
+			
+			return javax.ws.rs.core.Response.serverError().build();
+		}
+	
+		return javax.ws.rs.core.Response.ok(response).build();
+	}
 
+
+	public void sendMailAsync(AsyncResponse asyncResponse, String token, String companyId, String fileName, String status, String to) {
+			
+			String trackingId = Utility.getRandomNumber();
+			//long startTime = System.currentTimeMillis();
+			
+			LOG.info(LOG_BASE_FORMAT, trackingId, "sendMail In");
+			
+			Response response = new Response();
+			response.setStatus("Success");
+			response.setStatusMessage("Success");
+			
+			try {
+				
+				String scope = JWTHelper.validateJWT(token);
+				
+				//MailBC mailBC = new MailBC();
+				//mailBC.senMail(trackingId, fileName, status, to);
+				
+				int i = 0;
+				while(i < 10) {
+					Thread.sleep(1000);
+					System.out.println("Wait...");
+					i++;
+				}
+				
+			} catch (Exception e) {
+				LOG.error(LOG_DATA_FORMAT, trackingId, "exception captured in sendMail", e.getMessage());
+				e.printStackTrace();
+				
+				if(null != e && null != e.getMessage() && e.getMessage().contains("JWT signature does not match")) { 
+					//return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
+				}
+				
+				//return javax.ws.rs.core.Response.serverError().build();
+			}
+		
+			//return javax.ws.rs.core.Response.ok(response).build();
+		}
 }
