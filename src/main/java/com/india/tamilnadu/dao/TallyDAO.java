@@ -17,6 +17,7 @@ import com.india.tamilnadu.jaxrs.Product;
 import com.india.tamilnadu.jaxrs.Tally;
 import com.india.tamilnadu.tally.bc.TallyDayBookBC;
 import com.india.tamilnadu.tally.dto.TallyInputDTO;
+import com.india.tamilnadu.tally.vo.Customer;
 import com.india.tamilnadu.tally.vo.DayBookMasterVO;
 import com.india.tamilnadu.tally.vo.InventoryEntryVO;
 import com.india.tamilnadu.tally.vo.LedgerEntryVO;
@@ -2467,5 +2468,50 @@ public class TallyDAO implements BaseDAO {
 		}
 		
 		return receiptList;
+	}
+	
+	public List<Customer> getCustomers(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getCustomers In");
+		
+		List<Customer> customers = new ArrayList<>();
+		Customer customer = null;
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_CUSTOMERS_ALL);
+			preparedStatement.setString(1, tallyInputDTO.getCompanyId());
+	
+			resultSet = preparedStatement.executeQuery();
+		
+			
+			while(resultSet.next()) {
+				
+				int index = 1;
+				customer = new Customer();
+				
+				customer.setCustomerID(resultSet.getString(index++));
+				customer.setGstNo(resultSet.getString(index++));
+				customer.setName(resultSet.getString(index++));
+				customer.setCustomerType(resultSet.getString(index++));
+				customer.setCustomerGroup(resultSet.getString(index++));
+				customer.setCompanyId(resultSet.getString(index++));
+				customer.setCreatedDate(resultSet.getString(index++));
+					
+				customers.add(customer);
+				
+			}
+			
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getCustomers Out");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		} finally {
+			closeResources();
+		}
+		
+		return customers;
 	}
 }

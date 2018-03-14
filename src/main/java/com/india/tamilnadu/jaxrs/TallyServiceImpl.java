@@ -17,6 +17,7 @@ import com.india.tamilnadu.dao.TallyDAO;
 import com.india.tamilnadu.dto.Response;
 import com.india.tamilnadu.security.bc.AuthenticationBC;
 import com.india.tamilnadu.security.util.JWTHelper;
+import com.india.tamilnadu.tally.bc.CustomerBC;
 import com.india.tamilnadu.tally.bc.MessageBC;
 import com.india.tamilnadu.tally.bc.ReceiptBC;
 import com.india.tamilnadu.tally.bc.SalesBC;
@@ -1698,4 +1699,39 @@ public class TallyServiceImpl implements TallyService {
 		
 			//return javax.ws.rs.core.Response.ok(response).build();
 		}
+	
+	public javax.ws.rs.core.Response getCustomers(String token, String companyId) {
+		
+		TallyInputDTO tallyInputDTO = null;
+		List customers = null;
+		long startTime = System.currentTimeMillis();
+		
+		try {
+			
+			String scope = JWTHelper.validateJWT(token);
+			
+			tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setCompanyId(companyId);
+			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
+			
+			LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getCustomers In");
+			
+			CustomerBC customerBC = new CustomerBC();
+			customers = customerBC.getCustomer(tallyInputDTO);
+					
+			LOG.info(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "getCustomers Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+			
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "exception captured in getCustomers", e.getMessage());
+			e.printStackTrace();
+			
+			if(null != e && null != e.getMessage() && e.getMessage().contains("JWT signature does not match")) { 
+				return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
+			}
+			
+			return javax.ws.rs.core.Response.serverError().build();
+		}
+	
+		return javax.ws.rs.core.Response.ok(customers).build();
+	}
 }

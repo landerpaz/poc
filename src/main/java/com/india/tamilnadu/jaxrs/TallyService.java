@@ -216,4 +216,8 @@ public interface TallyService {
 	@Path("/tally/mail/{companyId}/{fileName}/{status}/{to}")
 	public void sendMailAsync(@Suspended AsyncResponse reponse, @HeaderParam("Authorization") String token, @PathParam("companyId") String companyId, @PathParam("fileName") String fileName, @PathParam("status") String status, @PathParam("to") String to);
 	
+	@GET
+	@Path("/tally/customer/{companyId}")
+	javax.ws.rs.core.Response getCustomers(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId);
+	
 }
