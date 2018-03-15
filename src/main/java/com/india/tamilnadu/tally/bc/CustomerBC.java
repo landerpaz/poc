@@ -10,6 +10,7 @@ import com.india.tamilnadu.dao.TallyDAO;
 import com.india.tamilnadu.dto.Response;
 import com.india.tamilnadu.tally.dto.TallyInputDTO;
 import com.india.tamilnadu.tally.vo.Customer;
+import com.india.tamilnadu.tally.vo.CustomerDetail;
 import com.india.tamilnadu.tally.vo.Receipt;
 import com.india.tamilnadu.tally.vo.Sales;
 import com.india.tamilnadu.tally.vo.SalesOrder;
@@ -28,5 +29,10 @@ public class CustomerBC {
 		TallyDAO tallyDAO = new TallyDAO();
 		return tallyDAO.getCustomers(tallyInputDTO);
 	}
+	
+	public CustomerDetail getCustomerDetail(TallyInputDTO tallyInputDTO) throws Exception {
 		
+		TallyDAO tallyDAO = new TallyDAO();
+		return tallyDAO.getCustomerSalesAndReceiptDetail(tallyInputDTO);
+	}
 }

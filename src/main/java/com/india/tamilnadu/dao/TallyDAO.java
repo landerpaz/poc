@@ -18,6 +18,7 @@ import com.india.tamilnadu.jaxrs.Tally;
 import com.india.tamilnadu.tally.bc.TallyDayBookBC;
 import com.india.tamilnadu.tally.dto.TallyInputDTO;
 import com.india.tamilnadu.tally.vo.Customer;
+import com.india.tamilnadu.tally.vo.CustomerDetail;
 import com.india.tamilnadu.tally.vo.DayBookMasterVO;
 import com.india.tamilnadu.tally.vo.InventoryEntryVO;
 import com.india.tamilnadu.tally.vo.LedgerEntryVO;
@@ -2514,4 +2515,19 @@ public class TallyDAO implements BaseDAO {
 		
 		return customers;
 	}
+	
+	public CustomerDetail getCustomerSalesAndReceiptDetail(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getCustomerSalesAndReceiptDetail In");
+		
+		CustomerDetail customerDetail = new CustomerDetail();
+		customerDetail.setCustomerID(tallyInputDTO.getId());
+		customerDetail.setSales(getSales(tallyInputDTO));
+		customerDetail.setReceipts(getReceipts(tallyInputDTO));
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getCustomerSalesAndReceiptDetail Out");
+		
+		return customerDetail;
+	}
+
 }

@@ -220,4 +220,8 @@ public interface TallyService {
 	@Path("/tally/customer/{companyId}")
 	javax.ws.rs.core.Response getCustomers(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId);
 	
+	@GET
+	@Path("/tally/customerDetail/{companyId}/{id}")
+	javax.ws.rs.core.Response getCustomerDetail(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId, @PathParam("id") String id);
+	
 }
