@@ -6,7 +6,14 @@ public class Result {
 	private String voucherKey;
 	private String status;
 	private String errorDetail;
+	private String customerName;
 	
+	public String getCustomerName() {
+		return customerName;
+	}
+	public void setCustomerName(String customerName) {
+		this.customerName = customerName;
+	}
 	public String getVoucherType() {
 		return voucherType;
 	}

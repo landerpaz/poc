@@ -7,7 +7,28 @@ public class LoginUser {
 	private String companyId;
 	private String firstName;
 	private String lastName;
+	private String customerName;
+	private String gstNumber;
+	private String userType;
 	
+	public String getCustomerName() {
+		return customerName;
+	}
+	public void setCustomerName(String customerName) {
+		this.customerName = customerName;
+	}
+	public String getGstNumber() {
+		return gstNumber;
+	}
+	public void setGstNumber(String gstNumber) {
+		this.gstNumber = gstNumber;
+	}
+	public String getUserType() {
+		return userType;
+	}
+	public void setUserType(String userType) {
+		this.userType = userType;
+	}
 	public String getFirstName() {
 		return firstName;
 	}

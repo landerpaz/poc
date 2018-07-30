@@ -17,6 +17,7 @@ import com.india.tamilnadu.jaxrs.Product;
 import com.india.tamilnadu.jaxrs.Tally;
 import com.india.tamilnadu.tally.bc.TallyDayBookBC;
 import com.india.tamilnadu.tally.dto.TallyInputDTO;
+import com.india.tamilnadu.tally.vo.Company;
 import com.india.tamilnadu.tally.vo.Customer;
 import com.india.tamilnadu.tally.vo.CustomerDetail;
 import com.india.tamilnadu.tally.vo.DayBookMasterVO;
@@ -49,7 +50,7 @@ import com.india.tamilnadu.vo.User;
 
 public class TallyDAO implements BaseDAO {
 	
-	private final Logger LOG = LoggerFactory.getLogger(TallyDayBookBC.class);
+	private final Logger LOG = LoggerFactory.getLogger(TallyDAO.class);
 	
 	Connection connection = null;
 	ResultSet resultSet = null;
@@ -717,6 +718,23 @@ public class TallyDAO implements BaseDAO {
 			
 			if(null != connection) {
 				connection.close();
+			}
+		} catch (SQLException sqlException) {
+			// TODO: handle exception
+			System.out.println("Error in closing DB resources...");
+			sqlException.printStackTrace();
+		}
+	}
+	
+	private void closeResourcesExceptConnection() {
+		
+		try {
+			if(null != preparedStatement) {
+				preparedStatement.close();
+			}
+			
+			if(null != resultSet) {
+				resultSet.close();
 			}
 		} catch (SQLException sqlException) {
 			// TODO: handle exception
@@ -1570,12 +1588,14 @@ public class TallyDAO implements BaseDAO {
 		return messages;
 	}
 	
-	public List<SalesOrder> getSalesOrder(String companyId, String status) throws Exception {
+	public List<SalesOrder> getSalesOrder(String companyId, String status, String trackingID) throws Exception {
 		
 		SalesOrder salesOrder = null;
 		List<SalesOrder> salesOrders = new ArrayList<>();
 		
 		try {
+			LOG.info(LOG_BASE_FORMAT, trackingID, "getSalesOrder, In");
+			LOG.info(LOG_BASE_FORMAT, trackingID, "getSalesOrder, Company ID : " + companyId + " , Status : " + status);
 			
 			connection = DatabaseManager.getInstance().getConnection();
 			preparedStatement = connection.prepareStatement(Constants.DB_GET_SALES_ORDER);
@@ -1590,6 +1610,8 @@ public class TallyDAO implements BaseDAO {
 			resultSet = preparedStatement.executeQuery();
 		
 			int index = 1;
+			
+			LOG.info(LOG_BASE_FORMAT, trackingID, "getSalesOrder, resultSet : " + resultSet);
 			
 			if(null != resultSet) {
 				while(resultSet.next()) {
@@ -1616,12 +1638,18 @@ public class TallyDAO implements BaseDAO {
 				} 
 			}
 			
+			LOG.info(LOG_BASE_FORMAT, trackingID, "getSalesOrder, Out");
+			
 		} catch (Exception e) {
 			// TODO: handle exception
-			System.out.println("Error in getSalesOrder DAO...");
+			//System.out.println("Error in getSalesOrder DAO...");
+			LOG.error(LOG_BASE_FORMAT, trackingID, "getSalesOrder, Exception : " + e);
+			
 			e.printStackTrace();
 			//throw new Exception("Server error");
-			throw new RuntimeException(e);
+			if(null != e) {
+				throw new RuntimeException(e);
+			}
 		} finally {
 			closeResources();
 		}
@@ -2289,6 +2317,44 @@ public class TallyDAO implements BaseDAO {
 		return response;
 	}
 	
+	public Response updateSalesOrderPlannedReelAndWeight(TallyInputDTO tallyInputDTO) {
+		
+		Response response = new Response();
+		response.setStatus(Constants.RESPONSE_STATUS_SUCCESS);
+		response.setStatusMessage(Constants.RESPONSE_MESSAGE_PRODUCT_ADD_SUCCESS);
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_UPDATE_SALES_ORDERS_PLANNED_REEL_WEIGHT_RIS);
+			
+			System.out.println("Update query : " + Constants.DB_UPDATE_SALES_ORDERS_PLANNED_REEL_WEIGHT_RIS);
+			
+			int parameterIndex = 1;
+			//preparedStatement.setString(parameterIndex++, tallyInputDTO.getReel());
+			preparedStatement.setDouble(parameterIndex++, Utility.stringToDouble(tallyInputDTO.getWeight()));
+			preparedStatement.setDouble(parameterIndex++, Utility.stringToDouble(tallyInputDTO.getReel()));
+			preparedStatement.setDouble(parameterIndex++, Utility.stringToDouble(tallyInputDTO.getReelInStock()));
+			preparedStatement.setString(parameterIndex++, tallyInputDTO.getCompanyId());
+			preparedStatement.setString(parameterIndex++, tallyInputDTO.getId());
+			
+			preparedStatement.executeUpdate();
+			
+		} catch (Exception e) {
+			
+			// TODO: handle exception
+			System.out.println("Error in updating sales order planned reel and weight field in DB...");
+			e.printStackTrace();
+			
+			response.setStatus(Constants.RESPONSE_STATUS_FAILED);
+			response.setStatusMessage(Constants.RESPONSE_MESSAGE_PRODUCT_ADD_FAILED);
+		} finally {
+			closeResources();
+		}
+		
+		return response;
+	}
+
 	public Response deleteSalesOrderPlanned(TallyInputDTO tallyInputDTO) {
 		
 		Response response = new Response();
@@ -2510,12 +2576,178 @@ public class TallyDAO implements BaseDAO {
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		} finally {
-			closeResources();
+			closeResourcesExceptConnection();
 		}
 		
 		return customers;
 	}
 	
+	public Company getCompanyDetail(String trackingID, LoginUser loginUser, Connection connection) throws Exception {
+		
+		Company company = null; 
+		
+		try {
+			
+			LOG.info(LOG_BASE_FORMAT, trackingID, "getCompanyDetail, In");
+			LOG.info(LOG_BASE_FORMAT, trackingID, "getCompanyDetail, company : " + loginUser.getCompanyId());
+			
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_COMPANY);
+			preparedStatement.setString(1, loginUser.getCompanyId());
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				company = new Company();
+				company.setCompanyID(resultSet.getString(1));
+				company.setCompanyName(resultSet.getString(2));
+				company.setCreatedDate(resultSet.getString(3));
+				company.setCheckFlag(resultSet.getString(4));
+				company.setEmail1(resultSet.getString(5));
+				company.setEmail2(resultSet.getString(6));
+			} 
+			
+			LOG.info(LOG_BASE_FORMAT, trackingID, "getCompanyDetail, Out");
+			
+		} catch (Exception e) {
+			LOG.error(LOG_BASE_FORMAT, trackingID, "getCompanyDetail, Exception : " + e.getMessage());
+			e.printStackTrace();
+			//throw new Exception("Server error");
+			throw new RuntimeException(e);
+		} finally {
+			closeResourcesExceptConnection();
+		}
+		
+		return company;
+	}
+
+	public Customer getCustomerDetail(String trackingID, LoginUser loginUser, Connection connection) throws Exception {
+		
+		Customer customer = null; 
+		
+		try {
+			
+			LOG.info(LOG_BASE_FORMAT, trackingID, "getCustomerDetail, In");
+			
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_CUSTOMER);
+			preparedStatement.setString(1, loginUser.getCustomerName());
+			preparedStatement.setString(2, loginUser.getGstNumber());
+			resultSet = preparedStatement.executeQuery();
+		
+			while(resultSet.next()) {
+				customer = new Customer();
+				customer.setCustomerID(resultSet.getString(1));
+				customer.setName(resultSet.getString(2));
+				customer.setCustomerType(resultSet.getString(3));
+				customer.setCustomerGroup(resultSet.getString(4));
+				customer.setCreatedDate(resultSet.getString(5));
+				customer.setCompanyId(resultSet.getString(6));
+			} 
+			
+			LOG.info(LOG_BASE_FORMAT, trackingID, "getCustomerDetail, Out");
+			
+		} catch (Exception e) {
+			LOG.error(LOG_BASE_FORMAT, trackingID, "getCustomerDetail, Exception : " + e.getMessage());
+			e.printStackTrace();
+			//throw new Exception("Server error");
+			throw new RuntimeException(e);
+		} finally {
+			closeResources();
+		}
+		
+		return customer;
+	}
+
+	public Response validateCustomerEligibility(String trackingID, LoginUser loginUser) throws Exception {
+		
+		Response response = new Response();
+		response.setStatus("Failed");
+		response.setStatusMessage("System Error");
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			Company company = getCompanyDetail(trackingID, loginUser, connection);
+			
+			if(null != company) {
+				Customer customer = getCustomerDetail(trackingID, loginUser, connection);
+				if(null != customer) {
+					response.setCustomerId(customer.getCustomerID());
+					response.setStatus("Success");
+					response.setStatusMessage("Success");
+				} else {
+					response.setStatusMessage("Invalid Customer Name or GST No");
+				}
+			} else {
+				response.setStatusMessage("Invalid Company");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(null != connection) {
+				connection.close();
+			}
+		}
+		
+		return response;
+	}
+
+	public String getCustomerBalance(TallyInputDTO tallyInputDTO) throws Exception {
+		
+		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getCustomerBalance In");
+		
+		List<Receipt> receiptList = new ArrayList<>();
+		String currentBalance = null;
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_CUSTOMER_BALANCE);
+			preparedStatement.setString(1, tallyInputDTO.getId());
+			preparedStatement.setString(2, tallyInputDTO.getCompanyId());
+			resultSet = preparedStatement.executeQuery();
+		
+			
+			while(resultSet.next()) {
+				currentBalance = resultSet.getString(1);
+			}
+			
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getCustomerBalance Out");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		} finally {
+			closeResources();
+		}
+		
+		return currentBalance;
+	}
+
+	public void addCompany(Company company, String trackingID) throws Exception {
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_ADD_COMPANY);
+			preparedStatement.setString(1, company.getCompanyID());
+			preparedStatement.setString(2, company.getCompanyName());
+			preparedStatement.setString(3, company.getEmail1());
+			preparedStatement.setString(4, company.getEmail2());
+			preparedStatement.setDate(5, Utility.getCurrentdate());
+			
+			preparedStatement.executeUpdate();
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("Error in adding company in DB...");
+			e.printStackTrace();
+			
+			throw new RuntimeException(e);
+			
+		} finally {
+			closeResources();
+		}
+	}
+
 	public CustomerDetail getCustomerSalesAndReceiptDetail(TallyInputDTO tallyInputDTO) throws Exception {
 		
 		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getCustomerSalesAndReceiptDetail In");
@@ -2524,6 +2756,7 @@ public class TallyDAO implements BaseDAO {
 		customerDetail.setCustomerID(tallyInputDTO.getId());
 		customerDetail.setSales(getSales(tallyInputDTO));
 		customerDetail.setReceipts(getReceipts(tallyInputDTO));
+		customerDetail.setCurrentBalance(getCustomerBalance(tallyInputDTO));
 		
 		LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getCustomerSalesAndReceiptDetail Out");
 		

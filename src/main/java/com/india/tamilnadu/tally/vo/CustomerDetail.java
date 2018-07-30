@@ -14,9 +14,16 @@ public class CustomerDetail {
 	private String customerGroup;
 	private String createdDate;
 	private String companyId;
+	private String currentBalance;
 	private List<Receipt> receipts;
 	private List<Sales> sales;
 	
+	public String getCurrentBalance() {
+		return currentBalance;
+	}
+	public void setCurrentBalance(String currentBalance) {
+		this.currentBalance = currentBalance;
+	}
 	public List<Receipt> getReceipts() {
 		return receipts;
 	}

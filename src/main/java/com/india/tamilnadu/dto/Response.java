@@ -13,7 +13,21 @@ public class Response {
 	private String lastName;
 	private String companyId;
 	private String companyName;
+	private String customerId;
+	private String customerName;
 	
+	public String getCustomerName() {
+		return customerName;
+	}
+	public void setCustomerName(String customerName) {
+		this.customerName = customerName;
+	}
+	public String getCustomerId() {
+		return customerId;
+	}
+	public void setCustomerId(String customerId) {
+		this.customerId = customerId;
+	}
 	public String getCompanyId() {
 		return companyId;
 	}

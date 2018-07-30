@@ -32,7 +32,14 @@ public class TallyInputDTO {
 	private List<Sales> salesList;
 	private List<Receipt> receiptList;
 	private boolean selectAll;
+	private String reelInStock;
 	
+	public String getReelInStock() {
+		return reelInStock;
+	}
+	public void setReelInStock(String reelInStock) {
+		this.reelInStock = reelInStock;
+	}
 	public List<Sales> getSalesList() {
 		return salesList;
 	}

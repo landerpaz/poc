@@ -2,8 +2,6 @@ package com.india.tamilnadu.jaxrs;
 
 import java.util.List;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -12,19 +10,15 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.container.Suspended;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.container.AsyncResponse;
 
-import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
-
 import com.india.tamilnadu.dto.Response;
-import com.india.tamilnadu.tally.vo.DayBookMasterVO;
+import com.india.tamilnadu.tally.vo.Company;
 import com.india.tamilnadu.tally.vo.ProductionDashboardChart;
 import com.india.tamilnadu.tally.vo.Result;
 import com.india.tamilnadu.tally.vo.SalesOrder;
 import com.india.tamilnadu.tally.vo.StockBFDetail;
 import com.india.tamilnadu.tally.vo.StockGSMDetail;
-import com.india.tamilnadu.tally.vo.StockStatistics;
 import com.india.tamilnadu.vo.Login;
 import com.india.tamilnadu.vo.LoginUser;
 import com.india.tamilnadu.vo.Message;
@@ -33,10 +27,6 @@ import com.india.tamilnadu.vo.User;
 @Produces({ "application/xml", "application/json" })
 public interface TallyService {
 
-	/*@POST
-	@Path("/tally/")
-	Response addTallyData(String tallyData);*/
-	
 	@POST
 	@Path("/tally/{companyId}")
 	Response addTallyData(String tallyData, @PathParam("companyId") String companyId);
@@ -76,10 +66,6 @@ public interface TallyService {
 	@GET
 	@Path("/daybookjwt/{companyId}")
 	javax.ws.rs.core.Response getDayBookJWT(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId);
-	
-	/*@GET
-	@Path("/stock/")
-	List<DayBookMasterVO> getStock();*/
 	
 	@GET
 	@Path("/stock/{name}/{companyId}/{startDate}/{endDate}")
@@ -132,12 +118,23 @@ public interface TallyService {
 	public void addAttachments(String body);
 	
 	@GET
-	@Path("/tally/users/{companyId}")
-	javax.ws.rs.core.Response getUsers(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId);
+	@Path("/tally/users/{userType}/{companyId}")
+	javax.ws.rs.core.Response getUsers(@HeaderParam("Authorization") String token, @PathParam("userType") String userType, @PathParam("companyId") String companyId);
+	
+	
+	@GET
+	@Path("/tally/users")
+	javax.ws.rs.core.Response getAllUsers(@HeaderParam("Authorization") String token);
+	
 	
 	@PUT
 	@Path("/tally/users/{companyId}")
 	javax.ws.rs.core.Response updateUser(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId, User user);
+	
+	@PUT
+	@Path("/external/users/{companyId}")
+	javax.ws.rs.core.Response updateExternalUser(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId, User user);
+	
 	
 	@POST
 	@Path("/tally/users")
@@ -195,6 +192,11 @@ public interface TallyService {
 	javax.ws.rs.core.Response updateSalesOrderPlannedReel(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId, @PathParam("id") String id, @PathParam("reel") String reel);
 	
 	@PUT
+	@Path("/tally/salesOrdersPlannedReelAndWeight/{companyId}/{id}/{reel}/{reelInStock}/{weight}")
+	javax.ws.rs.core.Response updateSalesOrderPlannedReelAndWeight(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId, 
+			@PathParam("id") String id, @PathParam("reel") String reel, @PathParam("reelInStock") String reelInStock, @PathParam("weight") String weight);
+	
+	@PUT
 	@Path("/tally/salesOrdersPlanned/{companyId}/{id}/{salesOrderPlannedId}/{altered}/{weight}")
 	javax.ws.rs.core.Response deleteSalesOrdersPlanned(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId, 
 			@PathParam("id") String id, @PathParam("salesOrderPlannedId") String salesOrderPlannedId, @PathParam("altered") String altered, @PathParam("weight") String weight);
@@ -223,5 +225,9 @@ public interface TallyService {
 	@GET
 	@Path("/tally/customerDetail/{companyId}/{id}")
 	javax.ws.rs.core.Response getCustomerDetail(@HeaderParam("Authorization") String token, @PathParam("companyId") String companyId, @PathParam("id") String id);
+	
+	@POST
+	@Path("/company")
+	javax.ws.rs.core.Response addCompany(@HeaderParam("Authorization") String token, Company company);
 	
 }

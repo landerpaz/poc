@@ -44,6 +44,16 @@
 		</jaxrs:providers>
 	</jaxrs:server>
 	
+	<jaxrs:server id="customerService" address="/customerservice">
+		<jaxrs:serviceBeans>
+			<ref bean="customerBean" />
+		</jaxrs:serviceBeans>
+
+		<jaxrs:providers>
+			<ref bean="jacksonProvider" />
+		</jaxrs:providers>
+	</jaxrs:server>
+	
 	<!--  
 	<bean id="serviceBean"
 		class="com.india.tamilnadu.jaxrs.PatientServiceImpl"></bean>
@@ -57,6 +67,9 @@
 		
 	<bean id="tallyBean"
 		class="com.india.tamilnadu.jaxrs.TallyServiceImpl"></bean>
+	<bean id="customerBean"
+		class="com.india.tamilnadu.jaxrs.CustomerServiceImpl"></bean>
+	
 
 	<bean id="jacksonProvider" class="org.codehaus.jackson.jaxrs.JacksonJsonProvider" />
 </beans>

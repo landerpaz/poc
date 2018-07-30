@@ -23,7 +23,7 @@ public class SalesOrderBC {
 	public List<SalesOrder> getSalesOrder( String companyId, String trackingId, String status) throws Exception {
 		
 		TallyDAO tallyDAO = new TallyDAO();
-		return tallyDAO.getSalesOrder(companyId, status);
+		return tallyDAO.getSalesOrder(companyId, status, trackingId);
 	}
 	
 	public List<SalesOrder> getSalesOrderByBf( String companyId, String trackingId) throws Exception {
@@ -253,6 +253,11 @@ public class SalesOrderBC {
 	public Response updateSalesOrderPlannedReel(TallyInputDTO tallyInputDTO) {
 		TallyDAO tallyDAO = new TallyDAO(); 
 		return tallyDAO.updateSalesOrderPlannedReel(tallyInputDTO);
+	}
+	
+	public Response updateSalesOrderPlannedReelWeight(TallyInputDTO tallyInputDTO) {
+		TallyDAO tallyDAO = new TallyDAO(); 
+		return tallyDAO.updateSalesOrderPlannedReelAndWeight(tallyInputDTO);
 	}
 	
 	public Response deleteSalesOrdersPlanned(TallyInputDTO tallyInputDTO) {

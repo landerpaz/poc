@@ -32,31 +32,60 @@ public class AuthenticationDAO {
 	ResultSet resultSet = null;
 	PreparedStatement preparedStatement = null;
 	
-	public User authenticate(String userName, byte[] pwd) throws Exception {
+	public User authenticate(String userName, byte[] pwd, String userType) throws Exception {
 		
-		User user = null;
+		User user = new User();
 		
 		try {
 			
 			System.out.println("Hashed pwd : " + new String(pwd));
+			System.out.println("userType : " + userType);
 			
 			connection = DatabaseManager.getInstance().getConnection();
 			preparedStatement = connection.prepareStatement(Constants.DB_AUTHENTICATION);
 			preparedStatement.setString(1, userName);
 			preparedStatement.setString(2, new String(pwd));
 			preparedStatement.setString(3, "active");
+			preparedStatement.setString(4, userType);
 			resultSet = preparedStatement.executeQuery();
 		
+			System.out.println("resultset : " + resultSet);
 			
 			if(resultSet.next()) {
 				
-				user = new User();
+				System.out.println("resultset has value");
+				
+				//user = new User();
 				user.setCompanyId(resultSet.getString(1));
 				user.setRole(resultSet.getString(2));
 				user.setAuthenticate(true);
 				
 			} else {
 				throw new AuthenticationException();
+			}
+			
+			if(null != userType && userType.equalsIgnoreCase("EXTERNAL")) {
+				
+				System.out.println("get customer detail");
+				
+				//get customer id from external user table and customer name from customer table 
+				preparedStatement = connection.prepareStatement(Constants.DB_GET_CUSTOMER_DETAIL);
+				preparedStatement.setString(1, userName);
+				resultSet = preparedStatement.executeQuery();
+				
+				if(resultSet.next()) {
+					
+					System.out.println("get customer resultset has value");
+					System.out.println("cust id : " + resultSet.getString(1));
+					System.out.println("cust name : " + resultSet.getString(2));
+					
+					//user = new User();
+					user.setCustomerId(resultSet.getString(1));
+					user.setCustomerName(resultSet.getString(2));
+					
+				} else {
+					throw new AuthenticationException();
+				}
 			}
 			
 		} catch (AuthenticationException e) {
@@ -131,7 +160,7 @@ public class AuthenticationDAO {
 		return user;
 	}
 	
-	public List<User> getUsers(String companyId) throws Exception {
+	public List<User> getUsers(String companyId, String userType) throws Exception {
 		
 		User user = null;
 		List<User> users = new ArrayList<>();
@@ -141,6 +170,7 @@ public class AuthenticationDAO {
 			connection = DatabaseManager.getInstance().getConnection();
 			preparedStatement = connection.prepareStatement(Constants.DB_GET_USERS);
 			preparedStatement.setString(1, companyId);
+			preparedStatement.setString(2, userType); //INTERNAL / EXTERNAL
 			resultSet = preparedStatement.executeQuery();
 		
 			
@@ -171,6 +201,46 @@ public class AuthenticationDAO {
 		return users;
 	}
 	
+	public List<User> getAllUsers() throws Exception {
+		
+		User user = null;
+		List<User> users = new ArrayList<>();
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_GET_ALL_USERS);
+			resultSet = preparedStatement.executeQuery();
+		
+			
+			while(resultSet.next()) {
+				
+				user = new User();
+				user.setUserName(resultSet.getString(1));
+				user.setRole(resultSet.getString(2));
+				user.setUserStatus(resultSet.getString(3));
+				user.setCreatedDate(resultSet.getString(4));
+				user.setRoleName(resultSet.getString(5));
+				user.setFirstName(resultSet.getString(6));
+				user.setLastName(resultSet.getString(7));
+				user.setCompanyId(resultSet.getString(8));
+				
+				users.add(user);
+				
+			} 
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("Error in getting users from DB...");
+			e.printStackTrace();
+			throw new Exception("Server error");
+		} finally {
+			closeResources();
+		}
+		
+		return users;
+	}
+
 	public List<Role> getRoles() throws Exception {
 		
 		Role role = null;
@@ -229,27 +299,87 @@ public class AuthenticationDAO {
 		}
 	}
 
-	public void addUser(LoginUser loginUser) throws Exception {
+	public void updateExternalUsers(User user) throws Exception {
 		
 		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_UPDATE_EXTERNAL_USERS);
+			preparedStatement.setString(1, user.getUserStatus());
+			preparedStatement.setDate(2, Utility.getCurrentdate());
+			preparedStatement.setString(3, user.getUserName());
+			preparedStatement.setString(4, user.getCompanyId());
+			
+			preparedStatement.executeUpdate();
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			System.out.println("Error in updating external users in DB...");
+			e.printStackTrace();
+			throw new Exception("Server error");
+		} finally {
+			closeResources();
+		}
+	}
+	
+	public void addUser(LoginUser loginUser, int role) throws Exception {
+		
+		try {
+			
+			LOG.info(LOG_BASE_FORMAT, null, "addUser, In");
 			
 			connection = DatabaseManager.getInstance().getConnection();
 			preparedStatement = connection.prepareStatement(Constants.DB_ADD_USERS);
 			preparedStatement.setString(1, loginUser.getEmail());
 			preparedStatement.setString(2, loginUser.getPassword());
 			preparedStatement.setString(3, loginUser.getCompanyId());
-			preparedStatement.setInt(4, 2); //role
+			//preparedStatement.setInt(4, 2); //role
+			preparedStatement.setInt(4, role); //role
 			preparedStatement.setString(5, "inactive"); //status
 			preparedStatement.setDate(6, Utility.getCurrentdate());
 			preparedStatement.setDate(7, Utility.getCurrentdate());
 			preparedStatement.setString(8, loginUser.getFirstName());
 			preparedStatement.setString(9, loginUser.getLastName());
+			preparedStatement.setString(10, loginUser.getUserType());
+			
+			int result = preparedStatement.executeUpdate();
+			
+			LOG.info(LOG_BASE_FORMAT, null, "addUser, insert status : " + result);
+			LOG.info(LOG_BASE_FORMAT, null, "addUser, Out");
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+			LOG.info(LOG_BASE_FORMAT, null, "addUser, Exception : " + e.getMessage());
+			System.out.println("Error in adding users in DB...");
+			e.printStackTrace();
+			
+			if(null != e && e.getMessage().contains("Duplicate")) {
+				LOG.warn(LOG_BASE_FORMAT, "User is already available");
+				throw new Exception(e.getMessage());
+				
+			} else {
+				throw new RuntimeException(e);
+			}
+			
+		} finally {
+			closeResources();
+		}
+	}
+	
+	public void addExternalUser(String trackingId, String userName, String copanyId, String customerId) throws Exception {
+		
+		try {
+			
+			connection = DatabaseManager.getInstance().getConnection();
+			preparedStatement = connection.prepareStatement(Constants.DB_ADD_EXTERNAL_USERS);
+			preparedStatement.setString(1, customerId);
+			preparedStatement.setString(2, userName);
 			
 			preparedStatement.executeUpdate();
 			
 		} catch (Exception e) {
 			// TODO: handle exception
-			System.out.println("Error in adding users in DB...");
+			System.out.println("Error in adding external users in DB...");
 			e.printStackTrace();
 			
 			if(null != e && e.getMessage().contains("Duplicate")) {

@@ -47,7 +47,9 @@ public class DatabaseManager implements Serializable {
 				
 			//mumbai
 			//connection = DriverManager.getConnection("jdbc:mysql://inventory.cvskko4c1etv.ap-south-1.rds.amazonaws.com:3306/inventory","root","root1234");
-			connection = DriverManager.getConnection("jdbc:mysql://inventory.cvskko4c1etv.ap-south-1.rds.amazonaws.com:3306/TALLYDB","root","root1234");
+			//connection = DriverManager.getConnection("jdbc:mysql://spak-erp.cvclncaxhbsa.ap-south-1.rds.amazonaws.com:3306/TALLYDB","ashokarulsamy","ashokarulsamy"); // commneted on 28 July 2018. 
+			connection = DriverManager.getConnection("jdbc:mysql://tallydb.c9fuul7wlmpg.ap-south-1.rds.amazonaws.com:3306/TALLYDB","root","root1234");
+			
 			
 		} catch (Exception e) {			
 			throw new Exception("Could not get connection from Driver manager " + e.getMessage(),e);

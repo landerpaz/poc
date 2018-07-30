@@ -6,10 +6,6 @@ import java.util.List;
 import javax.security.sasl.AuthenticationException;
 import javax.ws.rs.container.AsyncResponse;
 
-import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
-import org.apache.cxf.phase.PhaseInterceptorChain;
-import org.apache.cxf.transport.http.AbstractHTTPDestination;
-import org.apache.cxf.transport.http.HttpServletRequestSnapshot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +13,7 @@ import com.india.tamilnadu.dao.TallyDAO;
 import com.india.tamilnadu.dto.Response;
 import com.india.tamilnadu.security.bc.AuthenticationBC;
 import com.india.tamilnadu.security.util.JWTHelper;
+import com.india.tamilnadu.tally.bc.CompanyBC;
 import com.india.tamilnadu.tally.bc.CustomerBC;
 import com.india.tamilnadu.tally.bc.MessageBC;
 import com.india.tamilnadu.tally.bc.ReceiptBC;
@@ -25,10 +22,10 @@ import com.india.tamilnadu.tally.bc.SalesOrderBC;
 import com.india.tamilnadu.tally.bc.TallyDayBookBC;
 import com.india.tamilnadu.tally.bc.TallyStockBC;
 import com.india.tamilnadu.tally.dto.TallyInputDTO;
+import com.india.tamilnadu.tally.vo.Company;
 import com.india.tamilnadu.tally.vo.CustomerDetail;
 import com.india.tamilnadu.tally.vo.Result;
 import com.india.tamilnadu.tally.vo.SalesOrder;
-import com.india.tamilnadu.tally.vo.SalesOrderConsolidated;
 import com.india.tamilnadu.tally.vo.StockStatistics;
 import com.india.tamilnadu.util.SaxParserHandler;
 import com.india.tamilnadu.util.TallyBean;
@@ -58,8 +55,6 @@ public class TallyServiceImpl implements TallyService {
 	
 	public Response userLogin(String userAgent, Login login) {
 		
-		System.out.println("user agent : " + userAgent);
-		
 		String trackingID = Utility.getRandomNumber();
 		
 		LOG.info(LOG_BASE_FORMAT, trackingID, "userLogin In");
@@ -78,7 +73,7 @@ public class TallyServiceImpl implements TallyService {
 			//authenticate user
 			AuthenticationBC authenticationBC = new AuthenticationBC();
 			User user = authenticationBC.authenticate(login.getEmail(), 
-					Utility.hashPassword(login.getPassword().toCharArray(), login.getEmail().getBytes(), 2, 256), trackingID, userAgent);
+					Utility.hashPassword(login.getPassword().toCharArray(), login.getEmail().getBytes(), 2, 256), trackingID, userAgent, "INTERNAL");
 			if(user.isAuthenticate()) {
 				response.setStatusMessage("AUTH_SUCCESS");
 				response.setRole(user.getRole());
@@ -117,7 +112,6 @@ public class TallyServiceImpl implements TallyService {
 		response.setStatus("200");
 		response.setStatusMessage("AUTH_FAILED");
 		
-		
 		try {
 			
 			if(null == login || null == login.getEmail() || null == login.getPassword()) {
@@ -125,25 +119,21 @@ public class TallyServiceImpl implements TallyService {
 			}
 			
 			if(login.getEmail().equals("kms") && login.getPassword().equals("Spak#007")) {
-			
 				response.setStatus("200");
 				response.setStatusMessage("AUTH_SUCCESS");
 				response.setRole("associate");
 				response.setToken("2468");
-			
 			} else if(login.getEmail().equals("admin") && login.getPassword().equals("Spak#007")) {
-			
 				response.setStatus("200");
 				response.setStatusMessage("AUTH_SUCCESS");
 				response.setRole("admin");
 				response.setToken("1357");
-			
 			}
 			
 			LOG.info(LOG_BASE_FORMAT, trackingID, "login Out");
 		
 		} catch (Exception e) {
-			// TODO: handle exception
+			e.printStackTrace();
 		}
 		
 		return response;
@@ -175,12 +165,12 @@ public class TallyServiceImpl implements TallyService {
 			
 			TallyDAO tallyDAO = new TallyDAO();
 			tallySummaryList = tallyDAO.getTallySummary(tallyInputDTO);
-					
-			System.out.println("getTallySummary : Number of tally summary : " + (null == tallySummaryList? "0" : tallySummaryList.size()));
+			
+			LOG.info(LOG_BASE_FORMAT, trackingID, "getTallySummary Out  : Number of tally summary : " + (null == tallySummaryList? "0" : tallySummaryList.size()));
 			
 		} catch (Exception e) {
 			
-			LOG.error(LOG_DATA_FORMAT, trackingID, "exception captured in getTallySummary", e.getMessage());
+			LOG.error(LOG_DATA_FORMAT, trackingID, "getTallySummary exception captured : ", e.getMessage());
 			e.printStackTrace();
 			
 			if(e.getMessage().contains("JWT signature does not match")) { 
@@ -195,13 +185,14 @@ public class TallyServiceImpl implements TallyService {
 	}
 	
 	public Response addTallyData(String tallyData, String companyId) {
-		System.out.println("...adding tally data");
+		
+		LOG.info(LOG_BASE_FORMAT, null, "addTallyData In");
 				
 		//This companyId will come through URL
 		//String companyId = "Spak";
 		
 		TallyBean tallyBean = null;
-		System.out.println("Tally Data : " + tallyData);
+		LOG.info(LOG_BASE_FORMAT, null, "Tally Data : " + tallyData);
 		
 		tallyData = tallyData.replaceAll("<DSPCLDRAMTA></DSPCLDRAMTA>", "<DSPCLDRAMTA>0</DSPCLDRAMTA>");
 		tallyData = tallyData.replaceAll("<DSPCLCRAMTA></DSPCLCRAMTA>", "<DSPCLCRAMTA>0</DSPCLCRAMTA>");
@@ -250,11 +241,13 @@ public class TallyServiceImpl implements TallyService {
 	}
 	
 	public javax.ws.rs.core.Response updateTallySummary(String token, Tally tally, String companyId) {
-		System.out.println("...update tally data");
+
+		LOG.info(LOG_BASE_FORMAT, tally.getTrackingId(), "updateTallySummary In");
 		
 		Response response = new Response();
 		response.setStatus("Success");
 		response.setStatusMessage("Success");
+		long startTime = System.currentTimeMillis();
 		
 		try {
 			
@@ -265,11 +258,13 @@ public class TallyServiceImpl implements TallyService {
 			tally.setTrackingId(Utility.getRandomNumber());
 			response = tallyDAO.updateTallySummary(tally);
 			
+			LOG.info(LOG_DATA_FORMAT, tally.getTrackingId(), "updateTallySummary Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+			
 		} catch (Exception e) {
 			//response.setStatus("Failed");
 			//response.setStatusMessage("Failed");
 			
-			LOG.error(LOG_DATA_FORMAT, tally.getTrackingId(), "exception captured in updateTallySummary", e.getMessage());
+			LOG.error(LOG_DATA_FORMAT, tally.getTrackingId(), "updateTallySummary, exception : ", e.getMessage());
 			e.printStackTrace();
 			
 			if(e.getMessage().contains("JWT signature does not match")) { 
@@ -277,44 +272,46 @@ public class TallyServiceImpl implements TallyService {
 			}
 			
 			return javax.ws.rs.core.Response.serverError().build();
-			
 		}
 		
 		return javax.ws.rs.core.Response.ok(response).build();
 	}
 	
 	public javax.ws.rs.core.Response updateDayBookFlag(String token, String companyId, String voucherKey) {
-		System.out.println("...update day book flag");
-		System.out.println("voucherKey : " + voucherKey);
-		
+			
+		TallyInputDTO tallyInputDTO = new TallyInputDTO();
 		Response response = new Response();
 		response.setStatus("Success");
 		response.setStatusMessage("Success");
 		String trackingID = null;
+		long startTime = System.currentTimeMillis();
 		
 		try {
 			
 			trackingID = Utility.getRandomNumber();
 			
 			LOG.info(LOG_BASE_FORMAT, trackingID, "updateDayBookFlag In");
-			LOG.info(LOG_BASE_FORMAT, trackingID, "updateDayBookFlag : token : " + token);
+			LOG.info(LOG_BASE_FORMAT, trackingID, "updateDayBookFlag : voucherKey : " + voucherKey);
 			
 			String scope = JWTHelper.validateJWT(token);
 			
 			LOG.info(LOG_BASE_FORMAT, trackingID, "updateDayBookFlag : scope : " + scope);
 			
-			TallyInputDTO tallyInputDTO = new TallyInputDTO();
 			tallyInputDTO.setVoucherKey(voucherKey);
 			tallyInputDTO.setCompanyId(companyId);
 			
 			TallyDayBookBC dayBookBC = new TallyDayBookBC();
 			dayBookBC.updateTallyDayBookData(tallyInputDTO);
 			
+			LOG.info(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "updateDayBookFlag Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+			
 		} catch (Exception e) {
 			//commented for JWT implementation
 			//response.setStatus("Failed");
 			//response.setStatusMessage("Failed");
 			
+			LOG.error(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "updateDayBookFlag, exception : ", e.getMessage());
+
 			if(e.getMessage().contains("JWT signature does not match")) { 
 				return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
 			}
@@ -332,7 +329,7 @@ public class TallyServiceImpl implements TallyService {
 	 **/
 	public javax.ws.rs.core.Response getDayBook(String token, String companyId) {
 		
-		TallyInputDTO tallyInputDTO = null;
+		TallyInputDTO tallyInputDTO = new TallyInputDTO();
 		List dayBookList = null;
 		long startTime = System.currentTimeMillis();
 		
@@ -340,7 +337,6 @@ public class TallyServiceImpl implements TallyService {
 			
 			String scope = JWTHelper.validateJWT(token);
 			
-			tallyInputDTO = new TallyInputDTO();
 			tallyInputDTO.setCompanyId(companyId);
 			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
 			
@@ -349,11 +345,11 @@ public class TallyServiceImpl implements TallyService {
 			TallyDayBookBC dayBookBC = new TallyDayBookBC();
 			dayBookList = dayBookBC.getTallyDayBookData(tallyInputDTO);
 					
-			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "Number of day book entries : "  + (null == dayBookList? "0" : dayBookList.size()));
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getDayBook, Number of day book entries : "  + (null == dayBookList? "0" : dayBookList.size()));
 			LOG.info(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "getDayBook Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
 			
 		} catch (Exception e) {
-			LOG.error(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "exception captured in getDayBook", e.getMessage());
+			LOG.error(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "getDayBook, exception : ", e.getMessage());
 			e.printStackTrace();
 			
 			if(e.getMessage().contains("JWT signature does not match")) { 
@@ -378,22 +374,20 @@ public class TallyServiceImpl implements TallyService {
 			tallyInputDTO.setCompanyId(companyId);
 			tallyInputDTO.setTrackingID(Utility.getRandomNumber());
 			
-			System.out.println("token : " + token);
 			String scope = JWTHelper.validateJWT(token);
-			System.out.println("scope : " + scope);
 			
-			LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getDayBook In");
+			LOG.info(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getDayBookJWT In");
 			
 			TallyDayBookBC dayBookBC = new TallyDayBookBC();
 			dayBookList = dayBookBC.getTallyDayBookData(tallyInputDTO);
 					
-			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "Number of day book entries : "  + (null == dayBookList? "0" : dayBookList.size()));
-			LOG.info(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "getDayBook Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+			LOG.debug(LOG_BASE_FORMAT, tallyInputDTO.getTrackingID(), "getDayBookJWT, Number of day book entries : "  + (null == dayBookList? "0" : dayBookList.size()));
+			LOG.info(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "getDayBookJWT Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
 		
 			return javax.ws.rs.core.Response.ok(dayBookList).build();
 			
 		} catch (Exception e) {
-			LOG.error(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "exception captured in getDayBook", e.getMessage());
+			LOG.error(LOG_DATA_FORMAT, tallyInputDTO.getTrackingID(), "getDayBookJWT, exception : ", e.getMessage());
 			e.printStackTrace();
 			
 			if(e.getMessage().contains("JWT signature does not match")) { 
@@ -808,7 +802,7 @@ public class TallyServiceImpl implements TallyService {
 		return productionDashboardCharts;
 	}
 	
-	public javax.ws.rs.core.Response getUsers(String token, String companyId) {
+	public javax.ws.rs.core.Response getUsers(String token, String userType, String companyId) {
 		
 		UserManager userManager = new UserManager();
 		List<User> users = new ArrayList<>();
@@ -823,8 +817,21 @@ public class TallyServiceImpl implements TallyService {
 			String scope = JWTHelper.validateJWT(token);
 			
 			AuthenticationBC authenticationBC = new AuthenticationBC();
-			users = authenticationBC.getUsers(companyId, trackingId);
-			roles = authenticationBC.getRoles(trackingId);
+			users = authenticationBC.getUsers(companyId, trackingId, userType);
+			
+			if(null != userType && userType.equals("INTERNAL")) {
+				roles = authenticationBC.getRoles(trackingId);
+			} else {
+				Role role = new Role();
+				role.setRoleId("5");
+				role.setRoleName("Customer");
+				roles.add(role);
+				
+				role = new Role();
+				role.setRoleId("6");
+				role.setRoleName("Supplier");
+				roles.add(role);
+			}
 			
 			userManager.setUsers(users);
 			userManager.setRoles(roles);
@@ -837,6 +844,42 @@ public class TallyServiceImpl implements TallyService {
 			e.printStackTrace();
 			
 			if(e.getMessage().contains("getUsers : JWT signature does not match")) { 
+				return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
+			}
+			
+			return javax.ws.rs.core.Response.serverError().build();
+		}
+	
+		return javax.ws.rs.core.Response.ok(userManager).build();
+	}
+	
+	public javax.ws.rs.core.Response getAllUsers(String token) {
+		
+		UserManager userManager = new UserManager();
+		List<User> users = new ArrayList<>();
+		List<Role> roles = new ArrayList<>();
+		String trackingId = Utility.getRandomNumber();
+		long startTime = System.currentTimeMillis();
+		
+		LOG.info(LOG_BASE_FORMAT, trackingId, "getAllUsers In");
+		
+		try {
+			
+			String scope = JWTHelper.validateJWT(token);
+			
+			AuthenticationBC authenticationBC = new AuthenticationBC();
+			users = authenticationBC.getAllUsers(trackingId);
+			
+			userManager.setUsers(users);
+			
+			LOG.debug(LOG_BASE_FORMAT, trackingId, "getAllUsers: Number of users: "  + (null == users? "0" : users.size()));
+			LOG.info(LOG_DATA_FORMAT, trackingId, "getAllUsers : getUsers Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, trackingId, "exception captured in getAllUsers", e.getMessage());
+			e.printStackTrace();
+			
+			if(e.getMessage().contains("getAllUsers : JWT signature does not match")) { 
 				return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
 			}
 			
@@ -881,6 +924,41 @@ public class TallyServiceImpl implements TallyService {
 		return javax.ws.rs.core.Response.ok(response).build();
 	}
 	
+	public javax.ws.rs.core.Response updateExternalUser(String token, String companyId, User user) {
+		
+		String trackingId = Utility.getRandomNumber();
+		long startTime = System.currentTimeMillis();
+		
+		LOG.info(LOG_BASE_FORMAT, trackingId, "updateExternalUser In");
+		
+		Response response = new Response();
+		response.setStatus("Success");
+		response.setStatusMessage("Success");
+		
+		try {
+			
+			String scope = JWTHelper.validateJWT(token);
+			
+			AuthenticationBC authenticationBC = new AuthenticationBC();
+			user.setCompanyId(companyId);
+			authenticationBC.updateExternalUser(trackingId, user);
+			
+			LOG.info(LOG_DATA_FORMAT, trackingId, "updateUser : updateExternalUser Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, trackingId, "exception captured in updateExternalUser", e.getMessage());
+			e.printStackTrace();
+			
+			if(e.getMessage().contains("updateUser : JWT signature does not match")) { 
+				return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
+			}
+			
+			return javax.ws.rs.core.Response.serverError().build();
+		}
+	
+		return javax.ws.rs.core.Response.ok(response).build();
+	}
+	
 	public javax.ws.rs.core.Response addUser(LoginUser loginUser) {
 		
 		String trackingId = Utility.getRandomNumber();
@@ -899,7 +977,8 @@ public class TallyServiceImpl implements TallyService {
 			AuthenticationBC authenticationBC = new AuthenticationBC();
 			//loginUser.setCompanyId(companyId);
 			loginUser.setPassword(new String(Utility.hashPassword(loginUser.getPassword().toCharArray(), loginUser.getEmail().getBytes(), 2, 256)));
-			authenticationBC.addUser(trackingId, loginUser);
+			loginUser.setUserType("INTERNAL");
+			authenticationBC.addUser(trackingId, loginUser, 2);
 			
 			LOG.info(LOG_DATA_FORMAT, trackingId, "addUser : addUser Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
 		
@@ -1495,6 +1574,48 @@ public class TallyServiceImpl implements TallyService {
 		return javax.ws.rs.core.Response.ok(response).build();
 	}
 	
+	public javax.ws.rs.core.Response updateSalesOrderPlannedReelAndWeight(String token, String companyId, String id, String reel, String reelInStock, String weight) {
+		
+		String trackingId = Utility.getRandomNumber();
+		long startTime = System.currentTimeMillis();
+		
+		LOG.info(LOG_BASE_FORMAT, trackingId, "updateSalesOrderPlannedReelAndWeight In");
+		LOG.info(LOG_BASE_FORMAT, token, "token : " + token);
+		LOG.info(LOG_BASE_FORMAT, token, "companyId : " + companyId);
+		LOG.info(LOG_BASE_FORMAT, token, "reel : " + reel);
+		LOG.info(LOG_BASE_FORMAT, token, "reel in stock : " + reelInStock);
+		LOG.info(LOG_BASE_FORMAT, token, "weight : " + weight);
+		
+		Response response = new Response();
+		response.setStatus("Success");
+		response.setStatusMessage("Success");
+		
+		try {
+			
+			String scope = JWTHelper.validateJWT(token);
+			
+			TallyInputDTO tallyInputDTO = new TallyInputDTO();
+			tallyInputDTO.setCompanyId(companyId);
+			tallyInputDTO.setId(id);
+			tallyInputDTO.setReel(reel);
+			tallyInputDTO.setReelInStock(reelInStock);
+			tallyInputDTO.setWeight(weight);
+			
+			SalesOrderBC salesOrderBC = new SalesOrderBC();
+			salesOrderBC.updateSalesOrderPlannedReelWeight(tallyInputDTO);
+			
+			LOG.info(LOG_DATA_FORMAT, trackingId, "updateSalesOrders : updateSalesOrderPlannedReelAndWeight Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, trackingId, "exception captured in updateSalesOrderPlannedReelAndWeight", e.getMessage());
+			e.printStackTrace();
+			
+			return javax.ws.rs.core.Response.serverError().build();
+		}
+	
+		return javax.ws.rs.core.Response.ok(response).build();
+	}
+
 	public javax.ws.rs.core.Response deleteSalesOrdersPlanned(String token, String companyId, String id, String salesOrderPlannedId, String altered, String weight) {
 		
 		String trackingId = Utility.getRandomNumber();
@@ -1771,5 +1892,45 @@ public class TallyServiceImpl implements TallyService {
 		}
 	
 		return javax.ws.rs.core.Response.ok(customerDetail).build();
+	}
+	
+	public javax.ws.rs.core.Response addCompany(String token, Company company) {
+		
+		String trackingId = Utility.getRandomNumber();
+		long startTime = System.currentTimeMillis();
+		
+		LOG.info(LOG_BASE_FORMAT, trackingId, "addCompany In");
+		
+		Response response = new Response();
+		response.setStatus("Success");
+		response.setStatusMessage("Success");
+		
+		try {
+			
+			String scope = JWTHelper.validateJWT(token);
+			
+			CompanyBC companyBC = new CompanyBC();
+			companyBC.addCompany(company, trackingId);
+			
+			LOG.info(LOG_DATA_FORMAT, trackingId, "addMessage : addCompany Out", "time_elapsed:" + (startTime - System.currentTimeMillis()));
+		
+		} catch (Exception e) {
+			LOG.error(LOG_DATA_FORMAT, trackingId, "exception captured in addCompany", e.getMessage());
+			e.printStackTrace();
+			
+			/*if(e.getMessage().contains("updateUser : JWT signature does not match")) { 
+				return javax.ws.rs.core.Response.status(javax.ws.rs.core.Response.Status.UNAUTHORIZED).build();
+			}*/
+			
+			if(null != e && e.getMessage().contains("Duplicate")) {
+				response.setStatus("Duplicate");
+				response.setStatusMessage("Duplicate");
+				return javax.ws.rs.core.Response.ok(response).build();
+			}
+			
+			return javax.ws.rs.core.Response.serverError().build();
+		}
+	
+		return javax.ws.rs.core.Response.ok(response).build();
 	}
 }

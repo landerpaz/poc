@@ -61,7 +61,9 @@ public class Utility {
 		
 		Calendar now = Calendar.getInstance();   // Gets the current date and time
 		
-		if (now.get(Calendar.MONTH) >= 4 && now.get(Calendar.MONTH) <= 12) {
+		//System.out.println(now.get(Calendar.MONTH));
+		
+		if (now.get(Calendar.MONTH) >= 3 && now.get(Calendar.MONTH) <= 12) {
 			return Integer.toString(now.get(Calendar.YEAR));
 		} else {
 			return Integer.toString(now.get(Calendar.YEAR) - 1);
@@ -141,9 +143,11 @@ public class Utility {
 		}*/
 		
 		
-		Double price = 5.10234234324;
+		/*Double price = 5.10234234324;
 		DecimalFormat format = new DecimalFormat("0.00");
-		System.out.println(format.format(price));
+		System.out.println(format.format(price));*/
+		
+		System.out.println(getCurrentFinancialYear());
 		
 	}
 	
